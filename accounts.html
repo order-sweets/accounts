@@ -1,0 +1,2572 @@
+<!-- BEE-ACCOUNTS v20260414-stage3 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bee Accounts</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bee:#D85A30;--bee-bg:#FAECE7;--bee-text:#993C1D;
+  --swits:#7C3AED;--swits-bg:#F3EFFE;--swits-text:#5B21B6;
+  --green:#1D9E75;--green-bg:#E1F5EE;--green-text:#0F6E56;
+  --amber:#EF9F27;--amber-bg:#FAEEDA;--amber-text:#633806;
+  --red:#E53E3E;--red-bg:#FCEBEB;--red-text:#791F1F;
+  --blue:#1D6EAE;--blue-bg:#E8F2FB;--blue-text:#1A4F7A;
+  --bg:#FDFCF9;--surface:#F2F0EB;--surface2:#E8E5DF;
+  --border:rgba(0,0,0,.09);--border-md:rgba(0,0,0,.16);
+  --text:#1C1B18;--text-muted:#7A7870;--text-hint:#B0AEA8;
+  --r:10px;--r-lg:16px;--r-xl:20px;
+  --shadow:0 2px 12px rgba(0,0,0,.08);
+  --shadow-md:0 4px 24px rgba(0,0,0,.12);
+}
+html,body{overflow-x:hidden;}
+html{-webkit-text-size-adjust:100%;}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+
+/* ── LAYOUT ── */
+.sidebar{width:220px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .25s;}
+.main{margin-left:220px;min-height:100vh;overflow-x:hidden;}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .mob-topbar{display:flex!important;}
+}
+.mob-topbar{display:none;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:90;}
+.mob-menu-btn{width:38px;height:38px;border:1px solid var(--border-md);border-radius:8px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.mob-menu-btn svg{width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round;}
+.mob-title{font-family:'DM Serif Display',serif;font-size:18px;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99;}
+.sidebar-overlay.open{display:block;}
+
+/* ── SIDEBAR ── */
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);}
+.sb-logo-title{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.1;}
+.sb-logo-sub{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;}
+.sb-nav{flex:1;padding:10px 10px;overflow-y:auto;}
+.sb-section{font-size:10px;font-weight:700;color:var(--text-hint);letter-spacing:.08em;text-transform:uppercase;padding:12px 8px 4px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:inherit;}
+.sb-item svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.sb-item:hover{background:var(--surface);color:var(--text);}
+.sb-item.active{background:var(--text);color:#fff;}
+.sb-item.active svg{stroke:#fff;}
+.sb-bottom{padding:12px 10px;border-top:1px solid var(--border);}
+.company-pill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:var(--surface);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;width:100%;justify-content:space-between;}
+.company-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.company-dot.bee{background:var(--bee);}
+.company-dot.swits{background:var(--swits);}
+.company-dot.both{background:linear-gradient(135deg,var(--bee) 50%,var(--swits) 50%);}
+
+/* ── PANELS ── */
+.panel{display:none;padding:28px 32px;max-width:860px;box-sizing:border-box;}
+.panel.active{display:block;}
+.panel-title{font-family:'DM Serif Display',serif;font-size:32px;font-weight:400;margin-bottom:4px;}
+.panel-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:16px;}
+.stat-card-lbl{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.stat-card-val{font-size:26px;font-weight:700;line-height:1;}
+.stat-card-sub{font-size:11px;color:var(--text-muted);margin-top:4px;}
+.stat-card.green .stat-card-val{color:var(--green-text);}
+.stat-card.red .stat-card-val{color:var(--red-text);}
+.stat-card.amber .stat-card-val{color:var(--amber-text);}
+
+/* ── SECTION CARD ── */
+.sec-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden;}
+.sec-card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+.sec-card-title{font-size:14px;font-weight:700;}
+.sec-card-body{padding:16px 18px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:all .15s;white-space:nowrap;}
+.btn svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.btn-primary{background:var(--text);color:#fff;}
+.btn-primary:hover{opacity:.88;}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:#0f6e56;}
+.btn-ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border-md);}
+.btn-ghost:hover{background:var(--surface2);}
+.btn-danger{background:var(--red-bg);color:var(--red-text);border:1px solid var(--red);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-bee{background:var(--bee-bg);color:var(--bee-text);border:1px solid var(--bee);}
+.btn-swits{background:var(--swits-bg);color:var(--swits-text);border:1px solid var(--swits);}
+
+/* ── BADGES ── */
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;}
+.badge-bee{background:var(--bee-bg);color:var(--bee-text);}
+.badge-swits{background:var(--swits-bg);color:var(--swits-text);}
+.badge-green{background:var(--green-bg);color:var(--green-text);}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text);}
+.badge-red{background:var(--red-bg);color:var(--red-text);}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr;}}
+.form-field{display:flex;flex-direction:column;gap:5px;}
+.form-field.full{grid-column:1/-1;}
+.form-field label{font-size:12px;font-weight:600;color:var(--text-muted);}
+.form-field input,.form-field select,.form-field textarea{font-size:14px;padding:9px 11px;border:1.5px solid var(--border-md);border-radius:var(--r);background:#fff;color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--text);}
+.form-field textarea{resize:vertical;min-height:70px;}
+.form-hint{font-size:11px;color:var(--text-hint);}
+.calc-display{font-size:13px;font-weight:600;color:var(--green-text);background:var(--green-bg);border:1px solid var(--green);border-radius:var(--r);padding:8px 12px;margin-top:6px;}
+
+/* ── TABLES ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 12px;border-bottom:2px solid var(--border);text-align:left;white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surface);}
+.td-r{text-align:right;}
+.td-num{font-weight:700;font-variant-numeric:tabular-nums;}
+.td-green{color:var(--green-text);font-weight:700;}
+.td-red{color:var(--red-text);font-weight:700;}
+.td-muted{color:var(--text-muted);}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--r-xl);width:100%;max-width:600px;margin:auto;box-shadow:var(--shadow-md);}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);}
+.modal-title{font-family:'DM Serif Display',serif;font-size:20px;}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-muted);}
+.modal-body{padding:20px;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+
+/* ── SHIPMENT ITEMS TABLE ── */
+.ship-items{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+.ship-items th{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;}
+.ship-items td{padding:8px 8px;border-bottom:1px solid var(--border);}
+.ship-items td input,.ship-items td select{font-size:13px;padding:6px 8px;border:1.5px solid var(--border-md);border-radius:7px;background:#fff;color:var(--text);font-family:inherit;outline:none;width:100%;}
+.ship-items td input:focus,.ship-items td select:focus{border-color:var(--text);}
+.ship-items .td-calc{font-size:12px;font-weight:700;color:var(--green-text);text-align:right;white-space:nowrap;}
+.add-item-row{display:flex;gap:8px;margin-top:10px;}
+
+/* ── OCR DROP ZONE ── */
+.ocr-zone{border:2px dashed var(--border-md);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);}
+.ocr-zone:hover,.ocr-zone.drag{border-color:var(--text);background:#fff;}
+.ocr-zone-icon{font-size:32px;margin-bottom:8px;}
+.ocr-zone-label{font-size:13px;font-weight:600;color:var(--text);}
+.ocr-zone-sub{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.ocr-status{font-size:12px;padding:8px 12px;border-radius:8px;margin-top:10px;display:none;}
+.ocr-status.loading{background:var(--amber-bg);color:var(--amber-text);display:block;}
+.ocr-status.done{background:var(--green-bg);color:var(--green-text);display:block;}
+.ocr-status.error{background:var(--red-bg);color:var(--red-text);display:block;}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.filter-bar select,.filter-bar input{font-size:13px;padding:7px 10px;border:1.5px solid var(--border-md);border-radius:var(--r);background:#fff;color:var(--text);font-family:inherit;outline:none;}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--text);}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px 20px;color:var(--text-hint);}
+.empty-icon{font-size:36px;margin-bottom:10px;}
+.empty-msg{font-size:14px;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1B18;color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:20px;z-index:9999;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap;}
+#toast.show{opacity:1;}
+
+/* ── SHIPMENT CARD ── */
+.ship-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;}
+.ship-card-hd{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;}
+.ship-card-hd:hover{background:var(--surface);}
+.ship-icon{width:40px;height:40px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.ship-info{flex:1;min-width:0;}
+.ship-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ship-meta{font-size:12px;color:var(--text-muted);margin-top:1px;}
+.ship-total{font-size:14px;font-weight:700;color:var(--text);text-align:right;flex-shrink:0;}
+.ship-chev{font-size:11px;color:var(--text-hint);transition:transform .2s;flex-shrink:0;}
+.ship-chev.open{transform:rotate(180deg);}
+.ship-body{display:none;border-top:1px solid var(--border);padding:14px 16px;}
+.ship-body.open{display:block;}
+.landed-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px;}
+.landed-box{background:var(--surface);border-radius:8px;padding:10px;text-align:center;}
+.landed-box-val{font-size:16px;font-weight:700;}
+.landed-box-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+
+/* ── QUICK ADD FLOAT BUTTON ── */
+#quick-add-btn{position:fixed;bottom:28px;right:24px;z-index:400;width:56px;height:56px;border-radius:50%;background:var(--bee);border:none;box-shadow:0 4px 16px rgba(216,90,48,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+#quick-add-btn:active{transform:scale(.92);}
+#quick-add-btn svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
+.quick-add-menu{position:fixed;bottom:96px;right:24px;z-index:400;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+.qa-item{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--border-md);border-radius:40px;padding:9px 16px 9px 12px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);white-space:nowrap;font-family:inherit;transition:all .15s;}
+.qa-item:hover{background:var(--surface);}
+.qa-item-icon{font-size:18px;line-height:1;}
+
+/* ── REMINDER BANNERS ── */
+.reminder-strip{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.reminder{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--r);font-size:13px;cursor:pointer;border:1.5px solid;}
+.reminder.amber{background:var(--amber-bg);border-color:var(--amber);color:var(--amber-text);}
+.reminder.swits{background:var(--swits-bg);border-color:var(--swits);color:var(--swits-text);}
+.reminder.green{background:var(--green-bg);border-color:var(--green);color:var(--green-text);}
+.reminder-icon{font-size:20px;flex-shrink:0;}
+.reminder-body{flex:1;}
+.reminder-title{font-weight:700;margin-bottom:1px;}
+.reminder-sub{font-size:12px;opacity:.8;}
+.reminder-action{font-size:12px;font-weight:700;text-decoration:underline;white-space:nowrap;}
+.reminder-dismiss{background:none;border:none;cursor:pointer;font-size:16px;opacity:.5;padding:0 0 0 8px;font-family:inherit;}
+
+/* ── QUICK STOCK MODAL ── */
+.qs-product-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.qs-product-row:last-child{border-bottom:none;}
+
+/* ── TODO STRIP ── */
+.todo-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px;}
+.todo-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r-lg);padding:14px;cursor:pointer;transition:border-color .15s;}
+.todo-card:hover{border-color:var(--text);}
+.todo-card-icon{font-size:24px;margin-bottom:6px;}
+.todo-card-label{font-size:12px;font-weight:700;color:var(--text);}
+.todo-card-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.todo-card.urgent{border-color:var(--bee);background:var(--bee-bg);}
+.todo-card.urgent .todo-card-label{color:var(--bee-text);}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{background:var(--surface);border-radius:20px;height:5px;overflow:hidden;margin-top:4px;}
+.prog-bar{height:5px;border-radius:20px;background:var(--green);transition:width .3s;}
+.prog-bar.warn{background:var(--amber);}
+.prog-bar.danger{background:var(--red);}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+/* ── GST SUMMARY ── */
+.gst-box{background:var(--swits-bg);border:1.5px solid var(--swits);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:16px;}
+.gst-box-title{font-size:13px;font-weight:700;color:var(--swits-text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.gst-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(124,58,237,.15);font-size:13px;}
+.gst-row:last-child{border-bottom:none;font-weight:700;font-size:14px;padding-top:10px;margin-top:4px;border-top:2px solid var(--swits);}
+.gst-row-lbl{color:var(--swits-text);}
+.gst-row-val{font-weight:600;color:var(--swits-text);}
+
+/* ── HELP PANEL ── */
+.help-section{margin-bottom:24px;}
+.help-section-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);}
+.help-step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;}
+.help-step-num{width:26px;height:26px;border-radius:50%;background:var(--text);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.help-step-body{flex:1;}
+.help-step-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.help-step-desc{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.help-tip{background:var(--amber-bg);border-left:3px solid var(--amber);border-radius:0 var(--r) var(--r) 0;padding:10px 14px;font-size:12px;color:var(--amber-text);line-height:1.6;margin-bottom:8px;margin-left:38px;}
+
+/* ── PRINT / PDF ── */
+@media print{
+  .sidebar,.mob-topbar,.btn,.filter-bar{display:none!important;}
+  .main{margin-left:0!important;}
+  .panel{display:block!important;padding:0!important;}
+  .sec-card{break-inside:avoid;}
+}
+.pdf-header{border-bottom:2px solid var(--text);padding-bottom:14px;margin-bottom:20px;}
+.pdf-header-title{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;}
+.pdf-header-co{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.pdf-header-meta{font-size:12px;color:var(--text-hint);margin-top:2px;}
+.pdf-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin:18px 0 8px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-title">Accounting System</div>
+    <div class="sb-logo-sub">Bee Events & Swits</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <button class="sb-item active" id="nav-dashboard" onclick="showPanel('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <div class="sb-section">Costs</div>
+    <button class="sb-item" id="nav-shipments" onclick="showPanel('shipments')">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      Import Shipments
+    </button>
+    <button class="sb-item" id="nav-expenses" onclick="showPanel('expenses')">
+      <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Expenses
+    </button>
+    <div class="sb-section">Revenue</div>
+    <button class="sb-item" id="nav-sales" onclick="showPanel('sales')">
+      <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      Sales & Revenue
+    </button>
+    <button class="sb-item" id="nav-products" onclick="showPanel('products')">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Product P&L
+    </button>
+    <div class="sb-section">Reports</div>
+    <button class="sb-item" id="nav-pl" onclick="showPanel('pl')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      P&L Report
+    </button>
+    <button class="sb-item" id="nav-export" onclick="showPanel('export')">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="sb-item" id="nav-gst" onclick="showPanel('gst')">
+      <svg viewBox="0 0 24 24"><path d="M9 14l6-6m-3.5-1.5h.01m1.99 7h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      GST Summary
+    </button>
+    <div class="sb-section">Help</div>
+    <button class="sb-item" id="nav-help" onclick="showPanel('help')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      How to Use
+    </button>
+  </nav>
+  <div class="sb-bottom">
+    <button class="company-pill" onclick="cycleCompany()">
+      <span style="display:flex;align-items:center;gap:7px;">
+        <span class="company-dot" id="co-dot"></span>
+        <span id="co-label" style="font-size:12px;font-weight:600;"></span>
+      </span>
+      <span style="font-size:10px;color:var(--text-hint);">tap to switch</span>
+    </button>
+  </div>
+</aside>
+
+<!-- MOBILE TOPBAR -->
+<div class="mob-topbar">
+  <button class="mob-menu-btn" onclick="openSidebar()">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <span class="mob-title" id="mob-title">Dashboard</span>
+</div>
+
+<div class="main">
+
+<!-- ══ DASHBOARD ══ -->
+<div class="panel active" id="panel-dashboard">
+  <div class="panel-title">Dashboard</div>
+  <div class="panel-sub" id="dash-period">Loading…</div>
+
+  <!-- Reminders -->
+  <div class="reminder-strip" id="reminder-strip"></div>
+
+  <!-- Quick actions -->
+  <div class="todo-strip" id="todo-strip"></div>
+
+  <div class="filter-bar">
+    <select id="dash-month" onchange="renderDashboard()">
+      <option value="">All months</option>
+    </select>
+    <select id="dash-year" onchange="renderDashboard()">
+      <option value="">All years</option>
+    </select>
+    <select id="dash-co" onchange="renderDashboard()">
+      <option value="both">Both Companies</option>
+      <option value="bee">Bee Events</option>
+      <option value="swits">SWITS</option>
+    </select>
+  </div>
+
+  <div class="stat-grid" id="dash-stats"></div>
+
+  <div class="sec-card">
+    <div class="sec-card-hd">
+      <span class="sec-card-title">Recent Activity</span>
+    </div>
+    <div class="sec-card-body" id="dash-activity">
+      <div class="empty"><div class="empty-icon">📊</div><div class="empty-msg">No data yet. Add a shipment or expense to get started.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ IMPORT SHIPMENTS ══ -->
+<div class="panel" id="panel-shipments">
+  <div class="panel-title">Import Shipments</div>
+  <div class="panel-sub">Track each import — supplier costs, freight, FX conversion and landed cost per unit.</div>
+
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="openShipmentModal()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Shipment
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <select id="ship-filter-month" onchange="renderShipments()">
+      <option value="">All months</option>
+    </select>
+    <select id="ship-filter-year" onchange="renderShipments()">
+      <option value="">All years</option>
+    </select>
+    <select id="ship-filter-co" onchange="renderShipments()">
+      <option value="">All companies</option>
+      <option value="bee">Bee Events</option>
+      <option value="swits">SWITS</option>
+    </select>
+  </div>
+
+  <div id="ship-list"></div>
+</div>
+
+<!-- ══ EXPENSES ══ -->
+<div class="panel" id="panel-expenses">
+  <div class="panel-title">Expenses</div>
+  <div class="panel-sub">Log all business expenses. Upload a receipt for auto-fill.</div>
+
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="openExpenseModal()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Expense
+    </button>
+    <button class="btn btn-ghost" onclick="openOCRModal('expense')">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Scan Receipt
+    </button>
+    <button class="btn btn-ghost" onclick="openAmazonImport()">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Import Amazon CSV
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <select id="exp-filter-month" onchange="renderExpenses()">
+      <option value="">All months</option>
+    </select>
+    <select id="exp-filter-year" onchange="renderExpenses()">
+      <option value="">All years</option>
+    </select>
+    <select id="exp-filter-co" onchange="renderExpenses()">
+      <option value="">All companies</option>
+      <option value="bee">Bee Events</option>
+      <option value="swits">SWITS</option>
+    </select>
+    <select id="exp-filter-cat" onchange="renderExpenses()">
+      <option value="">All categories</option>
+    </select>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-card-hd">
+      <span class="sec-card-title">Expense Log</span>
+      <span id="exp-total-display" style="font-size:13px;font-weight:700;"></span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Description</th><th>Category</th><th>Company</th><th class="td-r">Amount (SGD)</th><th></th>
+        </tr></thead>
+        <tbody id="exp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SALES ══ -->
+<div class="panel" id="panel-sales">
+  <div class="panel-title">Sales & Revenue</div>
+  <div class="panel-sub">Auto-pulled from confirmed invoices in the invoicing system.</div>
+  <div class="filter-bar">
+    <select id="sales-filter-month" onchange="renderSales()"><option value="">All months</option></select>
+    <select id="sales-filter-year" onchange="renderSales()"><option value="">All years</option></select>
+    <select id="sales-filter-co" onchange="renderSales()">
+      <option value="">All companies</option>
+      <option value="bee">Bee Events</option>
+      <option value="swits">SWITS</option>
+    </select>
+  </div>
+  <div class="sec-card">
+    <div class="sec-card-hd"><span class="sec-card-title">Invoice Revenue</span><span id="sales-total-display" style="font-size:13px;font-weight:700;"></span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Company</th><th class="td-r">Amount</th></tr></thead>
+        <tbody id="sales-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRODUCT P&L ══ -->
+<div class="panel" id="panel-products">
+  <div class="panel-title">Product P&L</div>
+  <div class="panel-sub">Per-product profit using FIFO costing from shipment records.</div>
+  <div id="product-pl-list"></div>
+</div>
+
+<!-- ══ P&L REPORT ══ -->
+<div class="panel" id="panel-pl">
+  <div class="panel-title">P&L Report</div>
+  <div class="panel-sub">Profit & Loss summary by period and company.</div>
+  <div class="filter-bar">
+    <select id="pl-month" onchange="renderPL()"><option value="">Full year</option></select>
+    <select id="pl-year" onchange="renderPL()"><option value="">All time</option></select>
+    <select id="pl-co" onchange="renderPL()">
+      <option value="both">Both Companies</option>
+      <option value="bee">Bee Events</option>
+      <option value="swits">SWITS</option>
+    </select>
+  </div>
+  <div id="pl-body"></div>
+</div>
+
+<!-- ══ EXPORT ══ -->
+<div class="panel" id="panel-export">
+  <div class="panel-title">Export</div>
+  <div class="panel-sub">Download your financial data as PDF or CSV.</div>
+  <div class="sec-card">
+    <div class="sec-card-hd"><span class="sec-card-title">Export Options</span></div>
+    <div class="sec-card-body">
+      <div class="form-grid" style="margin-bottom:16px;">
+        <div class="form-field">
+          <label>Month</label>
+          <select id="exp-month"><option value="">All months</option></select>
+        </div>
+        <div class="form-field">
+          <label>Year</label>
+          <select id="exp-year"><option value="">All years</option></select>
+        </div>
+        <div class="form-field">
+          <label>Company</label>
+          <select id="exp-co">
+            <option value="both">Both Companies</option>
+            <option value="bee">Bee Events</option>
+            <option value="swits">SWITS</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Data to include</label>
+          <select id="exp-type">
+            <option value="all">Everything (P&L + detail)</option>
+            <option value="expenses">Expenses</option>
+            <option value="sales">Sales</option>
+            <option value="shipments">Shipments</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Download CSV
+        </button>
+        <button class="btn btn-ghost" onclick="exportPDF()">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- ══ GST SUMMARY PANEL ══ -->
+  <div class="panel" id="panel-gst">
+    <div class="panel-title">GST Summary</div>
+    <div class="panel-sub">SWITS is GST-registered at 9%. Bee Events is not. Track what you owe IRAS each quarter.</div>
+    <div class="filter-bar">
+      <select id="gst-quarter" onchange="renderGST()">
+        <option value="1">Q1 (Jan – Mar)</option>
+        <option value="2">Q2 (Apr – Jun)</option>
+        <option value="3">Q3 (Jul – Sep)</option>
+        <option value="4">Q4 (Oct – Dec)</option>
+      </select>
+      <select id="gst-year" onchange="renderGST()">
+        <option value="">All years</option>
+      </select>
+    </div>
+    <div id="gst-body"></div>
+  </div>
+
+  <!-- ══ HELP PANEL ══ -->
+  <div class="panel" id="panel-help">
+    <div class="panel-title">How to Use</div>
+    <div class="panel-sub">A quick guide to getting the most out of this accounting system.</div>
+
+    <div class="help-section">
+      <div class="help-section-title">📦 Import Shipments</div>
+      <div class="help-step">
+        <div class="help-step-num">1</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Create a new shipment</div>
+          <div class="help-step-desc">Go to Import Shipments → New Shipment. Fill in the name, supplier, order date and arrival date. You can upload your supplier invoice to auto-fill everything.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">2</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Enter FX conversion</div>
+          <div class="help-step-desc">Type the USD amount on the invoice and the SGD you actually transferred. The effective exchange rate is calculated automatically — this captures bank and transfer fees.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">3</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Add freight, insurance and GST</div>
+          <div class="help-step-desc">Freight is split equally across all cases. GST is applied on top of product cost + freight. Leave GST at "No GST" if the shipment is not subject to GST.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">4</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Add products</div>
+          <div class="help-step-desc">Click + Add Product for each item. Type the product name, number of cases, and USD cost per case. Landed cost per unit is calculated live.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">5</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Apply to Stock when goods arrive</div>
+          <div class="help-step-desc">Save the shipment right after ordering. When goods physically arrive, expand the card and click 📦 Apply to Stock. This updates your store inventory and locks in the cost for profit tracking. This can only be done once per shipment.</div>
+        </div>
+      </div>
+      <div class="help-tip">💡 Upload your supplier invoice using Take Photo or Upload File — Claude will auto-fill the supplier, date and all line items.</div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">💸 Expenses</div>
+      <div class="help-step">
+        <div class="help-step-num">1</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Add an expense manually</div>
+          <div class="help-step-desc">Go to Expenses → Add Expense. Fill in the date, amount in SGD, description, category, and company (Bee Events, SWITS, or Both).</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">2</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Scan a receipt</div>
+          <div class="help-step-desc">Click 📷 Take Photo to open your camera directly, or 📁 Upload File for a saved PDF or image. Claude reads the receipt and auto-fills the details for you to review.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">3</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Import Amazon orders in bulk</div>
+          <div class="help-step-desc">On Amazon: Account → Order History Reports → Request report → Download CSV. Then in Expenses click Import Amazon CSV and upload it. All orders come in at once under "Online Purchases".</div>
+        </div>
+      </div>
+      <div class="help-tip">💡 For shared expenses (e.g. rent split between both companies), select "Both (split equally)" — the system splits it 50/50 in all reports automatically.</div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">📊 Product P&L</div>
+      <div class="help-step">
+        <div class="help-step-num">1</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Revenue is pulled automatically</div>
+          <div class="help-step-desc">Once you confirm an invoice in the invoicing system, it appears here as revenue instantly. No manual entry needed.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">2</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Costs use FIFO (First In, First Out)</div>
+          <div class="help-step-desc">When you sell a product, its cost is taken from the oldest unsold batch first. So if you bought 100 units at $1.43 then 100 more at $1.61, the first 100 sales are costed at $1.43. This accurately reflects your real profit.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">3</div>
+        <div class="help-step-body">
+          <div class="help-step-title">See profit per sale and per customer</div>
+          <div class="help-step-desc">Expand any product card to see every sale, its exact cost, and profit — even when selling the same product at different prices to different customers.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">🧾 GST (SWITS only)</div>
+      <div class="help-tip">Bee Events is <strong>not</strong> GST-registered — no GST is charged on its sales. SWITS <strong>is</strong> GST-registered — 9% GST applies on all SWITS sales.</div>
+      <div class="help-step">
+        <div class="help-step-num">1</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Output Tax = 9% of SWITS revenue</div>
+          <div class="help-step-desc">This is the GST you collect from customers and hold on behalf of IRAS.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">2</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Input Tax = GST paid on imports</div>
+          <div class="help-step-desc">When logging a shipment, select "9% GST" if it applies. That amount is tracked as input tax you can offset against output tax.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">3</div>
+        <div class="help-step-body">
+          <div class="help-step-title">Net GST Payable = Output − Input</div>
+          <div class="help-step-desc">Go to GST Summary, select the quarter and year, and see exactly what to file with IRAS. Always verify with your accountant before submitting.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">📤 Exporting</div>
+      <div class="help-step">
+        <div class="help-step-num">1</div>
+        <div class="help-step-body">
+          <div class="help-step-title">CSV — for Excel or your accountant</div>
+          <div class="help-step-desc">Downloads every transaction in full detail. Filter by month, year and company first. Opens cleanly in Excel or Google Sheets.</div>
+        </div>
+      </div>
+      <div class="help-step">
+        <div class="help-step-num">2</div>
+        <div class="help-step-body">
+          <div class="help-step-title">PDF — formal P&L report</div>
+          <div class="help-step-desc">Generates a professional P&L statement with your company details from the invoicing system settings. Select period and company, then click Download PDF — it opens in a new tab and prints automatically.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ══ SHIPMENT MODAL ══ -->
+<div class="modal-overlay" id="shipment-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title" id="ship-modal-title">New Import Shipment</span>
+      <button class="modal-close" onclick="closeModal('shipment-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- OCR zone -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
+        <button type="button" class="btn btn-primary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('ship-camera-input').click()">
+          <span style="font-size:22px;line-height:1;">📷</span>
+          <span style="font-size:13px;">Take Photo</span>
+          <span style="font-size:11px;opacity:.75;font-weight:400;">Opens camera</span>
+        </button>
+        <button type="button" class="btn btn-ghost" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('ship-ocr-input').click()">
+          <span style="font-size:22px;line-height:1;">📁</span>
+          <span style="font-size:13px;">Upload File</span>
+          <span style="font-size:11px;opacity:.75;font-weight:400;">PDF, JPG, PNG</span>
+        </button>
+      </div>
+      <input type="file" id="ship-camera-input" accept="image/*" capture="environment" style="display:none" onchange="runOCR(this,'shipment')">
+      <input type="file" id="ship-ocr-input" accept="image/*,.pdf" style="display:none" onchange="runOCR(this,'shipment')">
+      <div class="ocr-status" id="ship-ocr-status" style="margin-top:8px;"></div>
+
+      <hr class="divider">
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Shipment Name / Reference</label>
+          <input type="text" id="ship-name" placeholder="e.g. Amazon Apr 2026">
+        </div>
+        <div class="form-field">
+          <label>Supplier</label>
+          <input type="text" id="ship-supplier" placeholder="e.g. Amazon US">
+        </div>
+        <div class="form-field">
+          <label>Order Date</label>
+          <input type="date" id="ship-date">
+        </div>
+        <div class="form-field">
+          <label>Arrival Date</label>
+          <input type="date" id="ship-arrival">
+        </div>
+        <div class="form-field">
+          <label>Company</label>
+          <select id="ship-company">
+            <option value="swits">SWITS</option>
+            <option value="bee">Bee Events</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">FX Conversion</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>USD Amount Paid (total invoice)</label>
+          <input type="number" id="ship-usd" placeholder="0.00" min="0" step="0.01" oninput="calcFX()">
+        </div>
+        <div class="form-field">
+          <label>SGD Transferred</label>
+          <input type="number" id="ship-sgd" placeholder="0.00" min="0" step="0.01" oninput="calcFX()">
+        </div>
+      </div>
+      <div class="calc-display" id="fx-display" style="display:none;"></div>
+
+      <hr class="divider">
+      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Freight & Other Charges</div>
+      <div class="form-grid" style="margin-bottom:6px;">
+        <div class="form-field">
+          <label>Freight & Insurance</label>
+          <input type="number" id="ship-freight" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()">
+        </div>
+        <div class="form-field">
+          <label>Freight Currency</label>
+          <select id="ship-freight-cur" onchange="recalcLanded()">
+            <option value="SGD">SGD</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>GST on shipment?</label>
+          <select id="ship-gst" onchange="recalcLanded()">
+            <option value="0">No GST</option>
+            <option value="9">9% GST</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Other charges (SGD)</label>
+          <input type="number" id="ship-other" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()">
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Products in this Shipment</div>
+        <button class="btn btn-ghost btn-sm" onclick="addShipItem()">+ Add Product</button>
+      </div>
+      <div class="tbl-wrap">
+        <table class="ship-items">
+          <thead><tr>
+            <th>Product</th><th>Cases</th><th>USD/case</th><th>SGD cost/case</th><th>Freight/case</th><th>Landed/case</th><th>Landed/unit</th><th></th>
+          </tr></thead>
+          <tbody id="ship-items-body"></tbody>
+        </table>
+      </div>
+      <div class="calc-display" id="landed-summary" style="margin-top:10px;display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('shipment-modal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveShipment()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Shipment
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXPENSE MODAL ══ -->
+<div class="modal-overlay" id="expense-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title">Add Expense</span>
+      <button class="modal-close" onclick="closeModal('expense-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
+        <button type="button" class="btn btn-primary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('exp-camera-input').click()">
+          <span style="font-size:22px;line-height:1;">📷</span>
+          <span style="font-size:13px;">Take Photo</span>
+          <span style="font-size:11px;opacity:.75;font-weight:400;">Opens camera</span>
+        </button>
+        <button type="button" class="btn btn-ghost" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('exp-ocr-input').click()">
+          <span style="font-size:22px;line-height:1;">📁</span>
+          <span style="font-size:13px;">Upload File</span>
+          <span style="font-size:11px;opacity:.75;font-weight:400;">PDF, JPG, PNG</span>
+        </button>
+      </div>
+      <!-- hidden inputs -->
+      <input type="file" id="exp-camera-input" accept="image/*" capture="environment" style="display:none" onchange="runOCR(this,'expense')">
+      <input type="file" id="exp-ocr-input" accept="image/*,.pdf" style="display:none" onchange="runOCR(this,'expense')">
+      <div class="ocr-status" id="exp-ocr-status" style="margin-top:8px;"></div>
+      <hr class="divider">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" id="exp-date">
+        </div>
+        <div class="form-field">
+          <label>Amount (SGD)</label>
+          <input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01">
+        </div>
+        <div class="form-field full">
+          <label>Description</label>
+          <input type="text" id="exp-desc" placeholder="e.g. Grab to supplier warehouse">
+        </div>
+        <div class="form-field">
+          <label>Category</label>
+          <select id="exp-cat"></select>
+        </div>
+        <div class="form-field">
+          <label>Company</label>
+          <select id="exp-company">
+            <option value="swits">SWITS</option>
+            <option value="bee">Bee Events</option>
+            <option value="both">Both (split equally)</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>Notes (optional)</label>
+          <textarea id="exp-notes" placeholder=""></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('expense-modal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveExpense()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Expense
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AMAZON CSV MODAL ══ -->
+<div class="modal-overlay" id="amazon-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title">Import Amazon Orders</span>
+      <button class="modal-close" onclick="closeModal('amazon-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--amber-text);margin-bottom:16px;line-height:1.6;">
+        <strong>How to get your Amazon order CSV:</strong><br>
+        Amazon → Account & Lists → Order History Reports → Request report → Select date range → Download CSV
+      </div>
+      <div class="ocr-zone" onclick="document.getElementById('amazon-csv-input').click()">
+        <div class="ocr-zone-icon">📊</div>
+        <div class="ocr-zone-label">Upload Amazon order CSV</div>
+        <div class="ocr-zone-sub">The report CSV from Amazon Order History</div>
+        <input type="file" id="amazon-csv-input" accept=".csv" style="display:none" onchange="parseAmazonCSV(this)">
+      </div>
+      <div id="amazon-preview" style="margin-top:14px;display:none;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;" id="amazon-preview-label"></div>
+        <div class="tbl-wrap" style="max-height:240px;overflow-y:auto;">
+          <table>
+            <thead><tr><th>Date</th><th>Order ID</th><th>Description</th><th class="td-r">USD</th><th class="td-r">SGD est.</th></tr></thead>
+            <tbody id="amazon-preview-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-grid" style="margin-top:12px;">
+          <div class="form-field">
+            <label>Exchange rate for this import (USD→SGD)</label>
+            <input type="number" id="amazon-rate" placeholder="e.g. 1.35" step="0.001" min="1">
+          </div>
+          <div class="form-field">
+            <label>Assign to company</label>
+            <select id="amazon-company">
+              <option value="swits">SWITS</option>
+              <option value="bee">Bee Events</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('amazon-modal')">Cancel</button>
+      <button class="btn btn-green" id="amazon-import-btn" style="display:none;" onclick="importAmazonOrders()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Import Orders
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══ APPLY TO STOCK MODAL ══ -->
+<div class="modal-overlay" id="apply-stock-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title">Apply Shipment to Stock</span>
+      <button class="modal-close" onclick="closeModal('apply-stock-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--green-bg);border:1px solid var(--green);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--green-text);margin-bottom:16px;line-height:1.6;">
+        This will add the units below to your store inventory and record the landed cost for FIFO profit tracking. This action can only be done once per shipment.
+      </div>
+      <div id="apply-stock-items"></div>
+      <div style="margin-top:14px;">
+        <div class="form-field">
+          <label>Apply date (defaults to arrival date if set, otherwise today)</label>
+          <input type="date" id="apply-stock-date">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('apply-stock-modal')">Cancel</button>
+      <button class="btn btn-green" onclick="confirmApplyStock()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirm — Apply to Stock
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+var FB_URL='https://store-and-invoicing-default-rtdb.asia-southeast1.firebasedatabase.app';
+var LS_KEY='bee-accounts-v1';
+
+var CATEGORIES=['Cost of Goods','Petrol','Logistics','Import Freight','Online Purchases','Packaging','Raw Materials','Rent','Utilities','Miscellaneous'];
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var MONTH_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Products tagged as Bee Events (Cotton Candy). Everything else = SWITS.
+var BEE_PRODUCTS=['Cotton Candy'];
+
+var DB={shipments:[],expenses:[],amazonOrders:[]};
+var _fbInvoices=[];
+var _fbProducts=[];
+var _currentShipEdit=null;
+var _shipItems=[];
+var _amazonRows=[];
+var _activeCompany='both';
+
+function loadDB(){
+  try{var s=localStorage.getItem(LS_KEY);if(s)DB=JSON.parse(s);}catch(e){}
+  DB.shipments=DB.shipments||[];
+  DB.expenses=DB.expenses||[];
+  DB.amazonOrders=DB.amazonOrders||[];
+}
+function saveDB(){localStorage.setItem(LS_KEY,JSON.stringify(DB));}
+
+// ── Firebase load (invoices + products for revenue/FIFO) ──
+function fbLoad(){
+  try{
+  fetch(FB_URL+'/store.json')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d)return;
+      // Extract invoices
+      if(d.invoices)_fbInvoices=Array.isArray(d.invoices)?d.invoices:Object.values(d.invoices);
+      // Extract products (brands array)
+      if(d.brands){
+        _fbProducts=[];
+        var brands=Array.isArray(d.brands)?d.brands:Object.values(d.brands);
+        brands.forEach(function(b){
+          if(b&&b.products)(Array.isArray(b.products)?b.products:Object.values(b.products)).forEach(function(p){_fbProducts.push(p);});
+        });
+      }
+      renderDashboard();
+      renderSales();
+      renderProductPL();
+    }).catch(function(){});
+  }catch(e){console.warn('fbLoad failed',e);}
+}
+
+// ── Company detection ──
+function productCompany(name){
+  if(!name)return'swits';
+  var n=name.trim().toLowerCase();
+  for(var i=0;i<BEE_PRODUCTS.length;i++){if(n===BEE_PRODUCTS[i].toLowerCase())return'bee';}
+  return'swits';
+}
+
+// ── Confirmed invoices as revenue ──
+function getRevenue(month,year,co){
+  var invoices=(_fbInvoices||[]).filter(function(inv){
+    if(!inv||!inv.confirmed)return false;
+    var d=new Date(inv.date||inv.confirmedAt||'');
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+    return true;
+  });
+  // Tag each invoice line by company
+  var rev={bee:0,swits:0};
+  invoices.forEach(function(inv){
+    (inv.lines||[]).forEach(function(l){
+      var c=productCompany(l.desc||'');
+      var amt=parseFloat(l.q||0)*parseFloat(l.p||0)*(l.ret?-1:1);
+      rev[c]=(rev[c]||0)+amt;
+    });
+  });
+  if(co==='bee')return rev.bee;
+  if(co==='swits')return rev.swits;
+  return rev.bee+rev.swits;
+}
+
+// ── Expenses total ──
+function getExpenses(month,year,co){
+  return DB.expenses.filter(function(e){
+    var d=new Date(e.date||'');
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+    if(co&&co!=='both'&&e.company!==co&&e.company!=='both')return false;
+    return true;
+  }).reduce(function(s,e){
+    var amt=parseFloat(e.amount||0);
+    if(e.company==='both'&&co&&co!=='both')amt/=2;
+    return s+amt;
+  },0);
+}
+
+// ── Shipment COGS total ──
+function getCOGS(month,year,co){
+  return DB.shipments.filter(function(s){
+    var d=new Date(s.date||'');
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+    if(co&&co!=='both'&&s.company!==co&&s.company!=='both')return false;
+    return true;
+  }).reduce(function(sum,s){
+    return sum+(parseFloat(s.totalSGD||0));
+  },0);
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+var PANELS=['dashboard','shipments','expenses','sales','products','pl','export','gst','help'];
+var PANEL_TITLES={dashboard:'Dashboard',shipments:'Import Shipments',expenses:'Expenses',sales:'Sales & Revenue',products:'Product P&L',pl:'P&L Report',export:'Export',gst:'GST Summary',help:'How to Use'};
+
+function showPanel(id){
+  PANELS.forEach(function(p){
+    document.getElementById('panel-'+p).classList.toggle('active',p===id);
+    document.getElementById('nav-'+p).classList.toggle('active',p===id);
+  });
+  document.getElementById('mob-title').textContent=PANEL_TITLES[id]||'';
+  closeSidebar();
+  if(id==='dashboard')renderDashboard();
+  if(id==='shipments')renderShipments();
+  if(id==='expenses')renderExpenses();
+  if(id==='sales')renderSales();
+  if(id==='products')renderProductPL();
+  if(id==='pl')renderPL();
+  if(id==='gst')renderGST();
+}
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
+
+// ── Company switcher ──
+var COMPANIES=['both','bee','swits'];
+var CO_IDX=0;
+function cycleCompany(){
+  CO_IDX=(CO_IDX+1)%COMPANIES.length;
+  _activeCompany=COMPANIES[CO_IDX];
+  updateCompanyPill();
+}
+function updateCompanyPill(){
+  var dot=document.getElementById('co-dot');
+  var lbl=document.getElementById('co-label');
+  if(_activeCompany==='both'){dot.className='company-dot both';lbl.textContent='Both Companies';}
+  else if(_activeCompany==='bee'){dot.className='company-dot bee';lbl.textContent='Bee Events';}
+  else{dot.className='company-dot swits';lbl.textContent='SWITS';}
+}
+
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function renderDashboard(){
+  var month=document.getElementById('dash-month').value;
+  var year=document.getElementById('dash-year').value;
+  var co=document.getElementById('dash-co').value;
+  var rev=getRevenue(month,year,co);
+  var exp=getExpenses(month,year,co);
+  var cogs=getCOGS(month,year,co);
+  var totalCost=exp+cogs;
+  var profit=rev-totalCost;
+  var periodLabel=(!month&&!year)?'All time':(MONTHS[(parseInt(month)||1)-1]||'')+(year?' '+year:'');
+  document.getElementById('dash-period').textContent='Showing: '+periodLabel+' · '+(co==='both'?'Both companies':co==='bee'?'Bee Events':'SWITS');
+  renderReminders();
+  renderTodo();
+  document.getElementById('dash-stats').innerHTML=
+    statCard('Total Revenue','$'+fmt(rev),'From confirmed invoices','green')+
+    statCard('Cost of Goods','$'+fmt(cogs),'Shipment landed costs','')+
+    statCard('Other Expenses','$'+fmt(exp),'Logged expenses','')+
+    statCard(profit>=0?'Net Profit':'Net Loss','$'+fmt(Math.abs(profit)),profit>=0?'Revenue − all costs':'Loss this period',profit>=0?'green':'red');
+
+  // Recent activity
+  var acts=[];
+  DB.shipments.slice(-5).reverse().forEach(function(s){acts.push({date:s.date,icon:'📦',label:s.name||s.supplier,sub:'Shipment · '+(s.company||'').toUpperCase(),amt:-parseFloat(s.totalSGD||0),co:s.company});});
+  DB.expenses.slice(-5).reverse().forEach(function(e){acts.push({date:e.date,icon:'💸',label:e.desc,sub:e.category+' · '+(e.company||'').toUpperCase(),amt:-parseFloat(e.amount||0),co:e.company});});
+  acts.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  acts=acts.slice(0,8);
+  var actHTML=acts.length?acts.map(function(a){
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">'
+      +'<span style="font-size:20px;">'+a.icon+'</span>'
+      +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(a.label||'')+'</div>'
+      +'<div style="font-size:11px;color:var(--text-muted);">'+fmtDate(a.date)+' · '+esc(a.sub)+'</div></div>'
+      +'<span style="font-size:13px;font-weight:700;color:var(--red-text);">−$'+fmt(Math.abs(a.amt))+'</span>'
+      +'</div>';
+  }).join(''):'<div class="empty"><div class="empty-icon">📊</div><div class="empty-msg">No activity yet.</div></div>';
+  document.getElementById('dash-activity').innerHTML=actHTML;
+}
+function statCard(lbl,val,sub,cls){
+  return '<div class="stat-card'+(cls?' '+cls:'')+'"><div class="stat-card-lbl">'+lbl+'</div><div class="stat-card-val">'+val+'</div><div class="stat-card-sub">'+sub+'</div></div>';
+}
+
+// ══════════════════════════════════════════════
+// SHIPMENTS
+// ══════════════════════════════════════════════
+function openShipmentModal(id){
+  _currentShipEdit=id||null;
+  var s=id?DB.shipments.find(function(x){return x.id===id;}):null;
+  document.getElementById('ship-modal-title').textContent=s?'Edit Shipment':'New Import Shipment';
+  document.getElementById('ship-name').value=s?s.name:'';
+  document.getElementById('ship-date').value=s?s.date:new Date().toISOString().split('T')[0];
+  document.getElementById('ship-arrival').value=s?(s.arrival||''):'';
+  document.getElementById('ship-supplier').value=s?s.supplier:'';
+  document.getElementById('ship-company').value=s?s.company:'swits';
+  document.getElementById('ship-usd').value=s?s.usdPaid:'';
+  document.getElementById('ship-sgd').value=s?s.sgdPaid:'';
+  document.getElementById('ship-freight').value=s?s.freight:'';
+  document.getElementById('ship-freight-cur').value=s?(s.freightCur||'SGD'):'SGD';
+  document.getElementById('ship-gst').value=s?(s.gst||0):0;
+  document.getElementById('ship-other').value=s?s.other:'';
+  _shipItems=s?JSON.parse(JSON.stringify(s.items||[])):[{id:'si_'+Date.now(),product:'',cases:0,usdPerCase:0}];
+  renderShipItemsTable();
+  calcFX();
+  document.getElementById('ship-ocr-status').className='ocr-status';
+  openModal('shipment-modal');
+}
+
+function renderShipItemsTable(){
+  var rate=getFXRate();
+  var freightSGD=getFreightSGD();
+  var totalCases=_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0);},0);
+  var gstRate=parseFloat(document.getElementById('ship-gst').value||0)/100;
+  var rows=_shipItems.map(function(item,idx){
+    var usdCost=parseFloat(item.usdPerCase||0);
+    var sgdCost=usdCost*rate;
+    var freightPerCase=totalCases>0?freightSGD/totalCases:0;
+    var landedPerCase=sgdCost+freightPerCase;
+    var gstAmt=landedPerCase*gstRate;
+    var totalLandedPerCase=landedPerCase+gstAmt;
+    var ppc=getPPC(item.product);
+    var landedPerUnit=ppc>0?totalLandedPerCase/ppc:0;
+    return '<tr>'
+      +'<td style="min-width:160px;">'
+        +(_fbProducts.length
+          ?'<select onchange="shipItemProductSel('+idx+',this.value)" style="width:100%;margin-bottom:4px;">'
+            +'<option value="">— Pick from inventory —</option>'
+            +_fbProducts.map(function(p){return'<option value="'+esc(p.name)+'"'+(item.product===p.name?' selected':'')+'>'+esc(p.name)+'</option>';}).join('')
+          +'</select>'
+          :'')
+        +'<input type="text" placeholder="Product name" value="'+esc(item.product==='__new__'?(item.customName||''):item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;">'
+      +'</td>'
+      +'<td><input type="number" value="'+( item.cases||0)+'" min="0" step="1" oninput="shipItemField('+idx+',\'cases\',this.value)" style="width:70px;"></td>'
+      +'<td><input type="number" value="'+(item.usdPerCase||0)+'" min="0" step="0.01" oninput="shipItemField('+idx+',\'usdPerCase\',this.value)" style="width:80px;"></td>'
+      +'<td class="td-calc">S$'+fmt(sgdCost)+'</td>'
+      +'<td class="td-calc">S$'+fmt(freightPerCase)+'</td>'
+      +'<td class="td-calc">S$'+fmt(totalLandedPerCase)+'</td>'
+      +'<td class="td-calc">'+(landedPerUnit>0?'S$'+fmt(landedPerUnit):ppc===0?'<span style="color:var(--amber-text)">set ppc</span>':'—')+'</td>'
+      +'<td><button class="btn btn-ghost btn-sm" onclick="removeShipItem('+idx+')" style="padding:4px 8px;">✕</button></td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('ship-items-body').innerHTML=rows||'<tr><td colspan="8" style="text-align:center;color:var(--text-hint);padding:16px;">No products yet — click + Add Product</td></tr>';
+  updateLandedSummary();
+}
+
+function shipItemProductSel(idx,val){
+  _shipItems[idx].product=val;
+  if(val!=='__new__')_shipItems[idx].customName='';
+  renderShipItemsTable();
+}
+function shipItemCustomName(idx,val){
+  // When user types directly, store as both product name and customName
+  _shipItems[idx].product=val;
+  _shipItems[idx].customName=val;
+  // Don't re-render on every keystroke — would reset cursor
+}
+function shipItemField(idx,field,val){
+  _shipItems[idx][field]=field==='product'?val:parseFloat(val)||0;
+  renderShipItemsTable();
+}
+function addShipItem(){_shipItems.push({id:'si_'+Date.now(),product:'',cases:0,usdPerCase:0});renderShipItemsTable();}
+function removeShipItem(idx){_shipItems.splice(idx,1);renderShipItemsTable();}
+
+function getFXRate(){
+  var usd=parseFloat(document.getElementById('ship-usd').value||0);
+  var sgd=parseFloat(document.getElementById('ship-sgd').value||0);
+  return(usd>0&&sgd>0)?sgd/usd:1.35; // fallback rate
+}
+function getFreightSGD(){
+  var f=parseFloat(document.getElementById('ship-freight').value||0);
+  var cur=document.getElementById('ship-freight-cur').value;
+  return cur==='USD'?f*getFXRate():f;
+}
+function getPPC(name){
+  if(!name)return 0;
+  var p=_fbProducts.find(function(x){return x.name===name;});
+  return p?parseInt(p.ppc||0):0;
+}
+
+function calcFX(){
+  var usd=parseFloat(document.getElementById('ship-usd').value||0);
+  var sgd=parseFloat(document.getElementById('ship-sgd').value||0);
+  var el=document.getElementById('fx-display');
+  if(usd>0&&sgd>0){
+    var rate=sgd/usd;
+    el.textContent='Effective rate: 1 USD = S$'+rate.toFixed(4)+' (includes bank/transfer fees)';
+    el.style.display='block';
+  }else{el.style.display='none';}
+  recalcLanded();
+}
+
+function recalcLanded(){renderShipItemsTable();}
+
+function updateLandedSummary(){
+  var rate=getFXRate();
+  var freightSGD=getFreightSGD();
+  var totalCases=_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0);},0);
+  var gstRate=parseFloat(document.getElementById('ship-gst').value||0)/100;
+  var other=parseFloat(document.getElementById('ship-other').value||0);
+  var totalUSDCost=_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0)*parseFloat(i.usdPerCase||0);},0);
+  var totalSGDCost=totalUSDCost*rate;
+  var gstAmt=(totalSGDCost+freightSGD)*gstRate;
+  var total=totalSGDCost+freightSGD+gstAmt+other;
+  var el=document.getElementById('landed-summary');
+  if(totalCases>0||totalSGDCost>0){
+    el.innerHTML='Total cases: '+totalCases+' · Product cost: S$'+fmt(totalSGDCost)+' · Freight: S$'+fmt(freightSGD)+(gstAmt>0?' · GST: S$'+fmt(gstAmt):'')+' · <strong>Total landed: S$'+fmt(total)+'</strong>';
+    el.style.display='block';
+  }else{el.style.display='none';}
+}
+
+function saveShipment(){
+  var name=document.getElementById('ship-name').value.trim();
+  var date=document.getElementById('ship-date').value;
+  var supplier=document.getElementById('ship-supplier').value.trim();
+  var company=document.getElementById('ship-company').value;
+  if(!name){toast('Please enter a shipment name.');return;}
+  if(!date){toast('Please enter a date.');return;}
+  if(!_shipItems.some(function(i){return(i.product||'').trim()&&i.cases>0;})){toast('Please add at least one product with cases > 0.');return;}
+  var arrival=document.getElementById('ship-arrival').value;
+  var usdPaid=parseFloat(document.getElementById('ship-usd').value||0);
+  var sgdPaid=parseFloat(document.getElementById('ship-sgd').value||0);
+  var rate=getFXRate();
+  var freightSGD=getFreightSGD();
+  var gstRate=parseFloat(document.getElementById('ship-gst').value||0)/100;
+  var other=parseFloat(document.getElementById('ship-other').value||0);
+  var totalCases=_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0);},0);
+  var totalUSDCost=_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0)*parseFloat(i.usdPerCase||0);},0);
+  var totalSGDCost=totalUSDCost*rate;
+  var gstAmt=(totalSGDCost+freightSGD)*gstRate;
+  var totalSGD=totalSGDCost+freightSGD+gstAmt+other;
+
+  var items=_shipItems.filter(function(i){
+    var name=(i.product||'').trim();
+    return name&&i.cases>0;
+  }).map(function(item){
+    var productName=(item.product||'').trim();
+    var usdCost=parseFloat(item.usdPerCase||0);
+    var sgdCost=usdCost*rate;
+    var freightPerCase=totalCases>0?freightSGD/totalCases:0;
+    var landedPerCase=sgdCost+freightPerCase;
+    var gstPerCase=landedPerCase*gstRate;
+    var totalLandedPerCase=landedPerCase+gstPerCase;
+    var ppc=getPPC(productName);
+    return{id:item.id||'si_'+Date.now(),product:productName,cases:parseFloat(item.cases),usdPerCase:usdCost,sgdCostPerCase:sgdCost,freightPerCase:freightPerCase,landedPerCase:totalLandedPerCase,landedPerUnit:ppc>0?totalLandedPerCase/ppc:0,ppc:ppc,company:productCompany(productName)};
+  });
+
+  var shipment={id:_currentShipEdit||('ship_'+Date.now()),name:name,date:date,arrival:arrival,supplier:supplier,company:company,usdPaid:usdPaid,sgdPaid:sgdPaid,fxRate:rate,freight:parseFloat(document.getElementById('ship-freight').value||0),freightCur:document.getElementById('ship-freight-cur').value,gst:parseFloat(document.getElementById('ship-gst').value||0),other:other,totalSGD:totalSGD,items:items};
+
+  if(_currentShipEdit){
+    var idx=DB.shipments.findIndex(function(x){return x.id===_currentShipEdit;});
+    if(idx>=0)DB.shipments[idx]=shipment;
+  }else{DB.shipments.push(shipment);}
+  saveDB();
+  closeModal('shipment-modal');
+  renderShipments();
+  toast('✓ Shipment saved!');
+}
+
+function renderShipments(){
+  var month=document.getElementById('ship-filter-month').value;
+  var year=document.getElementById('ship-filter-year').value;
+  var co=document.getElementById('ship-filter-co').value;
+  var list=DB.shipments.filter(function(s){
+    var d=new Date(s.date||'');
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+    if(co&&s.company!==co&&s.company!=='both')return false;
+    return true;
+  }).sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+
+  if(!list.length){document.getElementById('ship-list').innerHTML='<div class="empty"><div class="empty-icon">📦</div><div class="empty-msg">No shipments yet. Click New Shipment to add one.</div></div>';return;}
+  document.getElementById('ship-list').innerHTML=list.map(function(s){
+    var items=s.items||[];
+    var itemRows=items.map(function(it){
+      return '<tr><td>'+esc(it.product)+'</td><td>'+it.cases+'</td><td>S$'+fmt(it.usdPerCase*s.fxRate)+'</td><td>S$'+fmt(it.freightPerCase)+'</td><td>S$'+fmt(it.landedPerCase)+'</td><td>'+(it.landedPerUnit>0?'S$'+fmt(it.landedPerUnit):'—')+'</td></tr>';
+    }).join('');
+    return '<div class="ship-card" id="sc-'+s.id+'">'
+      +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')">'
+        +'<div class="ship-icon">📦</div>'
+        +'<div class="ship-info"><div class="ship-name">'+esc(s.name)+'</div><div class="ship-meta">Order: '+fmtDate(s.date)+(s.arrival?' · Arrived: '+fmtDate(s.arrival):'')+' · '+esc(s.supplier||'')+(s.fxRate?' · 1 USD = S$'+s.fxRate.toFixed(4):'')+'</div></div>'
+        +'<div>'
+          +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'" style="margin-right:8px;">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
+          +'<span class="ship-total">S$'+fmt(s.totalSGD)+'</span>'
+        +'</div>'
+        +'<span class="ship-chev" id="sc-chev-'+s.id+'">▼</span>'
+      +'</div>'
+      +'<div class="ship-body" id="sc-body-'+s.id+'">'
+        +'<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Cases</th><th>SGD cost/case</th><th>Freight/case</th><th>Landed/case</th><th>Landed/unit</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>'
+        +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'
+          +(s.stockApplied
+            ?'<span class="badge badge-green" style="padding:6px 12px;font-size:12px;">✓ Stock applied '+(s.stockAppliedAt?fmtDate(s.stockAppliedAt):'')+'</span>'
+            :'<button class="btn btn-green btn-sm" onclick="openApplyStock(\''+s.id+'\');event.stopPropagation()">📦 Apply to Stock</button>')
+          +'<button class="btn btn-ghost btn-sm" onclick="openShipmentModal(\''+s.id+'\');event.stopPropagation()">✏️ Edit</button>'
+          +'<button class="btn btn-danger btn-sm" onclick="deleteShipment(\''+s.id+'\');event.stopPropagation()">🗑 Delete</button>'
+        +'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleShipCard(id){
+  var body=document.getElementById('sc-body-'+id);
+  var chev=document.getElementById('sc-chev-'+id);
+  var open=body.classList.toggle('open');
+  if(chev)chev.classList.toggle('open',open);
+}
+function deleteShipment(id){if(!confirm('Delete this shipment?'))return;DB.shipments=DB.shipments.filter(function(s){return s.id!==id;});saveDB();renderShipments();toast('Deleted.');}
+
+// ── APPLY TO STOCK ──
+var _applyStockId=null;
+
+function openApplyStock(shipId){
+  var s=DB.shipments.find(function(x){return x.id===shipId;});
+  if(!s)return;
+  if(s.stockApplied){toast('Stock already applied for this shipment.');return;}
+  _applyStockId=shipId;
+
+  // Default date: arrival date if set, else today
+  var defaultDate=s.arrival||new Date().toISOString().split('T')[0];
+  document.getElementById('apply-stock-date').value=defaultDate;
+
+  // Build items preview
+  var rows=(s.items||[]).map(function(item){
+    return'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">'
+      +'<div>'
+        +'<div style="font-size:14px;font-weight:600;">'+esc(item.product)+'</div>'
+        +'<div style="font-size:12px;color:var(--text-muted);">'+item.cases+' cases × '+(item.ppc||'?')+' pcs = <strong>'+(item.cases*(item.ppc||0))+' units</strong></div>'
+      +'</div>'
+      +'<div style="text-align:right;">'
+        +'<div style="font-size:13px;font-weight:700;color:var(--green-text);">S$'+fmt(item.landedPerUnit)+'/unit</div>'
+        +'<div style="font-size:11px;color:var(--text-muted);">landed cost</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  document.getElementById('apply-stock-items').innerHTML=rows;
+  openModal('apply-stock-modal');
+}
+
+function confirmApplyStock(){
+  var s=DB.shipments.find(function(x){return x.id===_applyStockId;});
+  if(!s)return;
+  var applyDate=document.getElementById('apply-stock-date').value||new Date().toISOString().split('T')[0];
+
+  // 1. Write stock updates to Firebase (same LS_INV key the admin uses)
+  var LS_INV='snack-inv-v1';
+  var LS_RESTOCK='snack-restock-v1';
+  var inv={};
+  var restockHistory={};
+  try{inv=JSON.parse(localStorage.getItem(LS_INV)||'{}');}catch(e){}
+  try{restockHistory=JSON.parse(localStorage.getItem(LS_RESTOCK)||'{}');}catch(e){}
+
+  (s.items||[]).forEach(function(item){
+    // Find matching product id from Firebase products
+    var fbProd=(_fbProducts||[]).find(function(p){return p.name===item.product;});
+    var pid=fbProd?fbProd.id:item.product; // fallback to name if no id found
+    var units=(item.cases||0)*(item.ppc||1);
+
+    // Update inventory
+    inv[pid]=(parseInt(inv[pid]||0))+units;
+
+    // Log restock with cost
+    restockHistory[pid]=restockHistory[pid]||[];
+    restockHistory[pid].push({
+      boxes:item.cases,
+      units:units,
+      costPerUnit:item.landedPerUnit||0,
+      shipmentId:s.id,
+      shipmentName:s.name,
+      ts:new Date(applyDate).toISOString()
+    });
+  });
+
+  // Save to localStorage (Firebase sync picks it up automatically via store's sync)
+  localStorage.setItem(LS_INV,JSON.stringify(inv));
+  localStorage.setItem(LS_RESTOCK,JSON.stringify(restockHistory));
+
+  // Push to Firebase
+  fbPushStockUpdate(inv,restockHistory);
+
+  // Mark shipment as applied
+  var idx=DB.shipments.findIndex(function(x){return x.id===s.id;});
+  if(idx>=0){DB.shipments[idx].stockApplied=true;DB.shipments[idx].stockAppliedAt=applyDate;}
+  saveDB();
+
+  closeModal('apply-stock-modal');
+  renderShipments();
+  renderProductPL();
+  toast('✓ Stock updated! '+s.items.length+' product(s) added to inventory.');
+}
+
+function fbPushStockUpdate(inv,restockHistory){
+  // Push inv and restock history to Firebase store node
+  var payload={};
+  payload['inv']=inv;
+  payload['restockHistory']=restockHistory;
+  fetch(FB_URL+'/store.json',{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).catch(function(){});
+}
+
+// ══════════════════════════════════════════════
+// EXPENSES
+// ══════════════════════════════════════════════
+function populateCatSelect(){
+  var sel=document.getElementById('exp-cat');
+  var filterSel=document.getElementById('exp-filter-cat');
+  var opts=CATEGORIES.map(function(c){return'<option value="'+c+'">'+c+'</option>';}).join('');
+  sel.innerHTML=opts;
+  filterSel.innerHTML='<option value="">All categories</option>'+opts;
+}
+
+function openExpenseModal(id){
+  var e=id?DB.expenses.find(function(x){return x.id===id;}):null;
+  document.getElementById('exp-date').value=e?e.date:new Date().toISOString().split('T')[0];
+  document.getElementById('exp-amount').value=e?e.amount:'';
+  document.getElementById('exp-desc').value=e?e.desc:'';
+  document.getElementById('exp-cat').value=e?e.category:CATEGORIES[0];
+  document.getElementById('exp-company').value=e?e.company:'swits';
+  document.getElementById('exp-notes').value=e?e.notes:'';
+  document.getElementById('exp-ocr-status').className='ocr-status';
+  document.getElementById('expense-modal').dataset.editId=id||'';
+  openModal('expense-modal');
+}
+
+function saveExpense(){
+  var date=document.getElementById('exp-date').value;
+  var amount=parseFloat(document.getElementById('exp-amount').value||0);
+  var desc=document.getElementById('exp-desc').value.trim();
+  var cat=document.getElementById('exp-cat').value;
+  var company=document.getElementById('exp-company').value;
+  var notes=document.getElementById('exp-notes').value.trim();
+  if(!date||!amount||!desc){toast('Please fill in date, amount and description.');return;}
+  var editId=document.getElementById('expense-modal').dataset.editId;
+  var expense={id:editId||('exp_'+Date.now()),date:date,amount:amount,desc:desc,category:cat,company:company,notes:notes};
+  if(editId){var idx=DB.expenses.findIndex(function(x){return x.id===editId;});if(idx>=0)DB.expenses[idx]=expense;}
+  else DB.expenses.push(expense);
+  saveDB();
+  closeModal('expense-modal');
+  renderExpenses();
+  toast('✓ Expense saved!');
+}
+
+function renderExpenses(){
+  var month=document.getElementById('exp-filter-month').value;
+  var year=document.getElementById('exp-filter-year').value;
+  var co=document.getElementById('exp-filter-co').value;
+  var cat=document.getElementById('exp-filter-cat').value;
+  var list=DB.expenses.filter(function(e){
+    var d=new Date(e.date||'');
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+    if(co&&e.company!==co&&e.company!=='both')return false;
+    if(cat&&e.category!==cat)return false;
+    return true;
+  }).sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  var total=list.reduce(function(s,e){return s+parseFloat(e.amount||0);},0);
+  document.getElementById('exp-total-display').textContent=list.length+' entries · S$'+fmt(total);
+  var tbody=document.getElementById('exp-tbody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-hint);padding:24px;">No expenses found.</td></tr>';return;}
+  tbody.innerHTML=list.map(function(e){
+    return'<tr>'
+      +'<td class="td-muted">'+fmtDate(e.date)+'</td>'
+      +'<td style="font-weight:500;">'+esc(e.desc)+(e.notes?'<br><span style="font-size:11px;color:var(--text-muted);">'+esc(e.notes)+'</span>':'')+'</td>'
+      +'<td><span class="badge badge-amber">'+esc(e.category)+'</span></td>'
+      +'<td><span class="badge badge-'+(e.company==='bee'?'bee':e.company==='swits'?'swits':'green')+'">'+esc(e.company==='bee'?'Bee Events':e.company==='swits'?'SWITS':'Both')+'</span></td>'
+      +'<td class="td-r td-num td-red">S$'+fmt(e.amount)+'</td>'
+      +'<td style="white-space:nowrap;">'
+        +'<button class="btn btn-ghost btn-sm" onclick="openExpenseModal(\''+e.id+'\')" style="padding:4px 8px;">✏️</button> '
+        +'<button class="btn btn-danger btn-sm" onclick="deleteExpense(\''+e.id+'\')" style="padding:4px 8px;">🗑</button>'
+      +'</td>'
+      +'</tr>';
+  }).join('');
+}
+function deleteExpense(id){if(!confirm('Delete this expense?'))return;DB.expenses=DB.expenses.filter(function(e){return e.id!==id;});saveDB();renderExpenses();toast('Deleted.');}
+
+// ══════════════════════════════════════════════
+// SALES
+// ══════════════════════════════════════════════
+function renderSales(){
+  var month=document.getElementById('sales-filter-month').value;
+  var year=document.getElementById('sales-filter-year').value;
+  var co=document.getElementById('sales-filter-co').value;
+  var invoices=(_fbInvoices||[]).filter(function(inv){
+    if(!inv||!inv.confirmed)return false;
+    var d=new Date(inv.date||'');
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+    return true;
+  }).sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  var total=0;
+  var rows=[];
+  invoices.forEach(function(inv){
+    var lineTotal=(inv.lines||[]).reduce(function(s,l){return s+parseFloat(l.q||0)*parseFloat(l.p||0)*(l.ret?-1:1);},0);
+    // Determine dominant company
+    var beeAmt=0,switsAmt=0;
+    (inv.lines||[]).forEach(function(l){var c=productCompany(l.desc||'');var a=parseFloat(l.q||0)*parseFloat(l.p||0)*(l.ret?-1:1);if(c==='bee')beeAmt+=a;else switsAmt+=a;});
+    var invCo=beeAmt>switsAmt?'bee':'swits';
+    if(co&&invCo!==co)return;
+    total+=lineTotal;
+    rows.push('<tr>'
+      +'<td class="td-muted">'+fmtDate(inv.date)+'</td>'
+      +'<td style="font-weight:600;">'+esc(inv.num||'—')+'</td>'
+      +'<td>'+esc(inv.custName||'')+(inv.outlet?'<br><span style="font-size:11px;color:var(--text-muted);">'+esc(inv.outlet)+'</span>':'')+'</td>'
+      +'<td><span class="badge badge-'+(invCo==='bee'?'bee':'swits')+'">'+(invCo==='bee'?'Bee Events':'SWITS')+'</span></td>'
+      +'<td class="td-r td-num td-green">S$'+fmt(lineTotal)+'</td>'
+      +'</tr>');
+  });
+  document.getElementById('sales-total-display').textContent=rows.length+' invoices · S$'+fmt(total);
+  document.getElementById('sales-tbody').innerHTML=rows.length?rows.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--text-hint);padding:24px;">No confirmed invoices found.</td></tr>';
+}
+
+// ══════════════════════════════════════════════
+// PRODUCT P&L (FIFO)
+// ══════════════════════════════════════════════
+function renderProductPL(){
+  // Pull restock history from Firebase data (stored in store node)
+  var fbRestockHistory={};
+  try{
+    var raw=localStorage.getItem('snack-restock-v1');
+    if(raw)fbRestockHistory=JSON.parse(raw)||{};
+  }catch(e){}
+
+  var products={};
+
+  // Build FIFO cost queue — first from shipments in accounts DB
+  DB.shipments.forEach(function(s){
+    (s.items||[]).forEach(function(item){
+      if(!item.product)return;
+      if(!products[item.product])products[item.product]={name:item.product,company:item.company||productCompany(item.product),costQueue:[],restocks:[],sales:[],totalUnitsIn:0,totalCostIn:0};
+      var totalUnits=(item.cases||0)*(item.ppc||1);
+      products[item.product].costQueue.push({date:s.date,shipName:s.name,units:totalUnits,remaining:totalUnits,landedPerUnit:item.landedPerUnit||0,source:'shipment'});
+      products[item.product].restocks.push({date:s.date,boxes:item.cases,units:totalUnits,costPerUnit:item.landedPerUnit||0,source:'Shipment: '+s.name});
+      products[item.product].totalUnitsIn+=totalUnits;
+      products[item.product].totalCostIn+=(item.landedPerUnit||0)*totalUnits;
+    });
+  });
+
+  // Also pull from admin restock history (has cost per unit since Stage 2)
+  _fbProducts.forEach(function(p){
+    var entries=fbRestockHistory[p.id]||[];
+    entries.forEach(function(e){
+      if(!e.costPerUnit||e.costPerUnit<=0)return; // skip entries with no cost recorded
+      var name=p.name;
+      if(!products[name])products[name]={name:name,company:productCompany(name),costQueue:[],restocks:[],sales:[],totalUnitsIn:0,totalCostIn:0};
+      var units=e.units||(e.boxes*(p.ppc||1));
+      // Avoid duplicate if already from shipment
+      var alreadyLogged=products[name].restocks.some(function(r){return r.source&&r.source.indexOf('Admin')>=0&&r.date===e.ts.split('T')[0]&&r.units===units;});
+      if(!alreadyLogged){
+        products[name].costQueue.push({date:e.ts,shipName:'Admin restock',units:units,remaining:units,landedPerUnit:e.costPerUnit,source:'admin'});
+        products[name].restocks.push({date:e.ts.split('T')[0],boxes:e.boxes||0,units:units,costPerUnit:e.costPerUnit,source:'Admin restock'});
+        products[name].totalUnitsIn+=units;
+        products[name].totalCostIn+=e.costPerUnit*units;
+      }
+    });
+  });
+
+  // Sort all FIFO queues by date (oldest first)
+  Object.values(products).forEach(function(p){
+    p.costQueue.sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+    p.restocks.sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+  });
+
+  // Match sales from confirmed invoices (FIFO)
+  var sortedInv=(_fbInvoices||[]).filter(function(i){return i&&i.confirmed;}).sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+  sortedInv.forEach(function(inv){
+    (inv.lines||[]).forEach(function(l){
+      var name=(l.desc||'').replace(/^\[[^\]]+\]\s*/,'').trim();
+      var p=products[name];
+      if(!p)return;
+      var qty=parseFloat(l.q||0);
+      var revenue=qty*parseFloat(l.p||0)*(l.ret?-1:1);
+      var cogs=0;
+      var remaining=qty;
+      for(var i=0;i<p.costQueue.length&&remaining>0;i++){
+        var batch=p.costQueue[i];
+        var take=Math.min(batch.remaining,remaining);
+        cogs+=take*batch.landedPerUnit;
+        batch.remaining-=take;
+        remaining-=take;
+      }
+      p.sales.push({date:inv.date,invNum:inv.num,customer:inv.custName,qty:qty,unitPrice:parseFloat(l.p||0),revenue:revenue,cogs:cogs,profit:revenue-cogs});
+    });
+  });
+
+  var html=Object.values(products).map(function(p){
+    var totalRev=p.sales.reduce(function(s,x){return s+x.revenue;},0);
+    var totalCOGS=p.sales.reduce(function(s,x){return s+x.cogs;},0);
+    var totalProfit=totalRev-totalCOGS;
+    var margin=totalRev>0?(totalProfit/totalRev*100):0;
+    var unitsLeft=p.costQueue.reduce(function(s,b){return s+b.remaining;},0);
+    var stockValue=p.costQueue.reduce(function(s,b){return s+b.remaining*b.landedPerUnit;},0);
+    var avgCost=p.totalUnitsIn>0?p.totalCostIn/p.totalUnitsIn:0;
+
+    // Restock history rows
+    var restockRows=p.restocks.map(function(r){
+      return'<tr>'
+        +'<td class="td-muted">'+fmtDate(r.date)+'</td>'
+        +'<td>'+esc(r.source)+'</td>'
+        +'<td class="td-r">'+r.boxes+'</td>'
+        +'<td class="td-r">'+r.units+'</td>'
+        +'<td class="td-r '+(r.costPerUnit>0?'':'td-muted')+'">'+(r.costPerUnit>0?'S$'+fmt(r.costPerUnit):'—')+'</td>'
+        +'<td class="td-r td-red">'+(r.costPerUnit>0?'S$'+fmt(r.units*r.costPerUnit):'—')+'</td>'
+        +'</tr>';
+    }).join('');
+
+    // Sales rows
+    var saleRows=p.sales.map(function(s){
+      return'<tr>'
+        +'<td class="td-muted">'+fmtDate(s.date)+'</td>'
+        +'<td>'+esc(s.invNum||'')+'</td>'
+        +'<td>'+esc(s.customer||'')+'</td>'
+        +'<td class="td-r">'+s.qty+'</td>'
+        +'<td class="td-r">S$'+fmt(s.unitPrice)+'</td>'
+        +'<td class="td-r td-green">S$'+fmt(s.revenue)+'</td>'
+        +'<td class="td-r td-red">S$'+fmt(s.cogs)+'</td>'
+        +'<td class="td-r '+(s.profit>=0?'td-green':'td-red')+'">S$'+fmt(s.profit)+'</td>'
+        +'</tr>';
+    }).join('');
+
+    var cardId='ppc-'+p.name.replace(/[^a-zA-Z0-9]/g,'_');
+    return'<div class="sec-card" style="margin-bottom:14px;">'
+      +'<div class="sec-card-hd" style="cursor:pointer;" onclick="toggleProdCard(\''+cardId+'\')">'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+          +'<span class="sec-card-title">'+esc(p.name)+'</span>'
+          +'<span class="badge badge-'+(p.company==='bee'?'bee':'swits')+'">'+(p.company==='bee'?'Bee Events':'SWITS')+'</span>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+          +'<span style="font-size:12px;color:var(--text-muted);">'+unitsLeft+' units · S$'+fmt(stockValue)+' stock value</span>'
+          +'<span style="font-size:13px;font-weight:700;color:'+(totalProfit>=0?'var(--green-text)':'var(--red-text)')+';">'+(totalProfit>=0?'+':'−')+'S$'+fmt(Math.abs(totalProfit))+'</span>'
+          +'<span style="font-size:11px;color:var(--text-hint);">▼</span>'
+        +'</div>'
+      +'</div>'
+      +'<div id="'+cardId+'" style="display:none;padding:0 18px 16px;">'
+        // Summary boxes
+        +'<div class="landed-summary" style="margin:12px 0;">'
+          +'<div class="landed-box"><div class="landed-box-val">S$'+fmt(avgCost)+'</div><div class="landed-box-lbl">Avg Cost/Unit</div></div>'
+          +'<div class="landed-box"><div class="landed-box-val">S$'+fmt(totalRev)+'</div><div class="landed-box-lbl">Revenue</div></div>'
+          +'<div class="landed-box"><div class="landed-box-val">S$'+fmt(totalCOGS)+'</div><div class="landed-box-lbl">COGS</div></div>'
+          +'<div class="landed-box"><div class="landed-box-val '+(totalProfit>=0?'':'')+'">S$'+fmt(totalProfit)+'</div><div class="landed-box-lbl">Profit</div></div>'
+          +'<div class="landed-box"><div class="landed-box-val">'+margin.toFixed(1)+'%</div><div class="landed-box-lbl">Margin</div></div>'
+          +'<div class="landed-box"><div class="landed-box-val">S$'+fmt(stockValue)+'</div><div class="landed-box-lbl">Stock Value</div></div>'
+        +'</div>'
+        // Restock history
+        +'<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px;">📦 Restock History</div>'
+        +(restockRows
+          ?'<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Source</th><th class="td-r">Boxes</th><th class="td-r">Units</th><th class="td-r">Cost/Unit</th><th class="td-r">Total Cost</th></tr></thead><tbody>'+restockRows+'</tbody></table></div>'
+          :'<div style="font-size:13px;color:var(--text-hint);font-style:italic;padding:8px 0;">No restock records yet. Add shipments or use the cost field when restocking in admin.</div>')
+        // Sales history
+        +'<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px;">💰 Sales History</div>'
+        +(saleRows
+          ?'<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th class="td-r">Qty</th><th class="td-r">Unit Price</th><th class="td-r">Revenue</th><th class="td-r">COGS</th><th class="td-r">Profit</th></tr></thead><tbody>'+saleRows+'</tbody></table></div>'
+          :'<div style="font-size:13px;color:var(--text-hint);font-style:italic;padding:8px 0;">No confirmed sales yet.</div>')
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  document.getElementById('product-pl-list').innerHTML=html||'<div class="empty"><div class="empty-icon">📦</div><div class="empty-msg">Add shipments or restock with costs to see product P&L.</div></div>';
+}
+function toggleProdCard(id){var el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+
+// ══════════════════════════════════════════════
+// P&L REPORT
+// ══════════════════════════════════════════════
+function renderPL(){
+  var month=document.getElementById('pl-month').value;
+  var year=document.getElementById('pl-year').value;
+  var co=document.getElementById('pl-co').value;
+
+  function buildPL(coKey){
+    var rev=getRevenue(month,year,coKey);
+    var exp=getExpenses(month,year,coKey);
+    var cogs=getCOGS(month,year,coKey);
+    var grossProfit=rev-cogs;
+    var grossMargin=rev>0?(grossProfit/rev*100):0;
+    var netProfit=grossProfit-exp;
+    var netMargin=rev>0?(netProfit/rev*100):0;
+    // GST (SWITS only)
+    var gstCollected=coKey==='swits'?rev*0.09:0;
+    var gstPaid=getGSTPaid(month,year,coKey);
+    var netGST=gstCollected-gstPaid;
+    // Expense breakdown by category
+    var expBycat={};
+    DB.expenses.filter(function(e){
+      var d=new Date(e.date||'');
+      if(year&&d.getFullYear()!==parseInt(year))return false;
+      if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+      if(e.company!==coKey&&e.company!=='both')return false;
+      return true;
+    }).forEach(function(e){
+      var amt=parseFloat(e.amount||0);
+      if(e.company==='both')amt/=2;
+      expBycat[e.category]=(expBycat[e.category]||0)+amt;
+    });
+    return{rev:rev,cogs:cogs,grossProfit:grossProfit,grossMargin:grossMargin,exp:exp,netProfit:netProfit,netMargin:netMargin,expBycat:expBycat,gstCollected:gstCollected,gstPaid:gstPaid,netGST:netGST};
+  }
+
+  function renderPLBlock(data,title,coKey){
+    var expRows=Object.entries(data.expBycat).sort(function(a,b){return b[1]-a[1];}).map(function(kv){
+      return'<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;border-bottom:1px solid var(--border);font-size:13px;">'
+        +'<span style="color:var(--text-muted);">'+esc(kv[0])+'</span>'
+        +'<span style="color:var(--red-text);">(S$'+fmt(kv[1])+')</span>'
+        +'</div>';
+    }).join('');
+    var gstBlock=coKey==='swits'
+      ?'<hr class="divider">'
+        +'<div class="gst-box">'
+        +'<div class="gst-box-title">🧾 GST Position (SWITS)</div>'
+        +'<div class="gst-row"><span class="gst-row-lbl">GST Collected (9% on revenue)</span><span class="gst-row-val">S$'+fmt(data.gstCollected)+'</span></div>'
+        +'<div class="gst-row"><span class="gst-row-lbl">GST Paid on Imports (Input Tax)</span><span class="gst-row-val">(S$'+fmt(data.gstPaid)+')</span></div>'
+        +'<div class="gst-row"><span class="gst-row-lbl">Net GST Payable to IRAS</span><span class="gst-row-val">S$'+fmt(data.netGST)+'</span></div>'
+        +'</div>':''
+    ;
+    return'<div class="sec-card" style="margin-bottom:16px;">'
+      +'<div class="sec-card-hd"><span class="sec-card-title">'+title+'</span>'
+        +(coKey!=='both'?'<span class="badge badge-'+(coKey==='bee'?'bee':'swits')+'">'+(coKey==='bee'?'Bee Events':'SWITS')+'</span>':'')
+      +'</div>'
+      +'<div class="sec-card-body">'
+        +plRow('Revenue','S$'+fmt(data.rev),'From confirmed invoices','green')
+        +plRow('Cost of Goods Sold','(S$'+fmt(data.cogs)+')','Shipment landed costs (FIFO)','')
+        +'<div style="border-top:2px solid var(--border);margin:6px 0;"></div>'
+        +plRow('Gross Profit','S$'+fmt(data.grossProfit),'Margin: '+data.grossMargin.toFixed(1)+'%',data.grossProfit>=0?'green':'red')
+        +'<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;padding:10px 0 4px;">Operating Expenses</div>'
+        +expRows
+        +plRow('Total Expenses','(S$'+fmt(data.exp)+')','','')
+        +'<div style="border-top:2px solid var(--border-md);margin:6px 0;"></div>'
+        +plRow('<strong>Net Profit / Loss</strong>','<strong>'+(data.netProfit>=0?'S$':'(S$')+fmt(Math.abs(data.netProfit))+(data.netProfit<0?')':'')+'</strong>','Net margin: '+data.netMargin.toFixed(1)+'%',data.netProfit>=0?'green':'red')
+        +gstBlock
+      +'</div>'
+    +'</div>';
+  }
+
+  var html='';
+  if(co==='both'){
+    var bee=buildPL('bee');
+    var swits=buildPL('swits');
+    var combined={rev:bee.rev+swits.rev,cogs:bee.cogs+swits.cogs,grossProfit:bee.grossProfit+swits.grossProfit,exp:bee.exp+swits.exp,netProfit:bee.netProfit+swits.netProfit,expBycat:{},gstCollected:swits.gstCollected,gstPaid:bee.gstPaid+swits.gstPaid,netGST:swits.netGST};
+    combined.grossMargin=combined.rev>0?(combined.grossProfit/combined.rev*100):0;
+    combined.netMargin=combined.rev>0?(combined.netProfit/combined.rev*100):0;
+    Object.keys(bee.expBycat).forEach(function(k){combined.expBycat[k]=(combined.expBycat[k]||0)+bee.expBycat[k];});
+    Object.keys(swits.expBycat).forEach(function(k){combined.expBycat[k]=(combined.expBycat[k]||0)+swits.expBycat[k];});
+    html+=renderPLBlock(combined,'Combined P&L','both');
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">'
+      +'<div>'+renderPLBlock(bee,'Bee Events','bee')+'</div>'
+      +'<div>'+renderPLBlock(swits,'SWITS','swits')+'</div>'
+      +'</div>';
+  }else{
+    html+=renderPLBlock(buildPL(co),co==='bee'?'Bee Events P&L':'SWITS P&L',co);
+  }
+  document.getElementById('pl-body').innerHTML=html;
+}
+function plRow(lbl,val,sub,cls){
+  return'<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border);">'
+    +'<div><div style="font-size:14px;">'+lbl+'</div>'+(sub?'<div style="font-size:11px;color:var(--text-muted);">'+sub+'</div>':'')+'</div>'
+    +'<div style="font-size:15px;font-weight:700;color:'+(cls==='green'?'var(--green-text)':cls==='red'?'var(--red-text)':'var(--text)')+';">'+val+'</div>'
+    +'</div>';
+}
+
+// ── GST helpers ──
+function getGSTPaid(month,year,co){
+  // GST paid = sum of GST amounts on shipments
+  return DB.shipments.filter(function(s){
+    var d=new Date(s.date||'');
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+    if(co&&co!=='both'&&s.company!==co&&s.company!=='both')return false;
+    return s.gst>0;
+  }).reduce(function(sum,s){
+    var gstRate=parseFloat(s.gst||0)/100;
+    var freightSGD=s.freight?(s.freightCur==='USD'?s.freight*(s.fxRate||1.35):s.freight):0;
+    var totalUSDCost=(s.items||[]).reduce(function(a,i){return a+parseFloat(i.cases||0)*parseFloat(i.usdPerCase||0);},0);
+    var totalSGDCost=totalUSDCost*(s.fxRate||1.35);
+    return sum+(totalSGDCost+freightSGD)*gstRate;
+  },0);
+}
+
+// ══════════════════════════════════════════════
+// GST SUMMARY
+// ══════════════════════════════════════════════
+function renderGST(){
+  var q=parseInt(document.getElementById('gst-quarter').value||'1');
+  var year=document.getElementById('gst-year').value;
+  var qMonths=[[1,2,3],[4,5,6],[7,8,9],[10,11,12]][q-1];
+  var qLabel='Q'+q+(year?' '+year:'');
+
+  function filterQ(date){
+    var d=new Date(date||'');
+    if(isNaN(d))return false;
+    if(year&&d.getFullYear()!==parseInt(year))return false;
+    return qMonths.indexOf(d.getMonth()+1)>=0;
+  }
+
+  // GST Collected — SWITS revenue × 9%
+  var switsRev=(_fbInvoices||[]).filter(function(inv){
+    if(!inv||!inv.confirmed)return false;
+    return filterQ(inv.date);
+  }).reduce(function(sum,inv){
+    return sum+(inv.lines||[]).reduce(function(s,l){
+      var c=productCompany(l.desc||'');
+      if(c!=='swits')return s;
+      return s+parseFloat(l.q||0)*parseFloat(l.p||0)*(l.ret?-1:1);
+    },0);
+  },0);
+  var gstCollected=switsRev*0.09;
+
+  // Input Tax — GST paid on shipments
+  var inputTax=DB.shipments.filter(function(s){return filterQ(s.date)&&s.gst>0;}).reduce(function(sum,s){
+    var gstRate=parseFloat(s.gst||0)/100;
+    var freightSGD=s.freight?(s.freightCur==='USD'?s.freight*(s.fxRate||1.35):s.freight):0;
+    var totalUSDCost=(s.items||[]).reduce(function(a,i){return a+parseFloat(i.cases||0)*parseFloat(i.usdPerCase||0);},0);
+    var totalSGDCost=totalUSDCost*(s.fxRate||1.35);
+    return sum+(totalSGDCost+freightSGD)*gstRate;
+  },0);
+
+  var netPayable=gstCollected-inputTax;
+
+  // Shipment breakdown
+  var shipRows=DB.shipments.filter(function(s){return filterQ(s.date)&&s.gst>0;}).map(function(s){
+    var gstRate=parseFloat(s.gst||0)/100;
+    var freightSGD=s.freight?(s.freightCur==='USD'?s.freight*(s.fxRate||1.35):s.freight):0;
+    var totalUSDCost=(s.items||[]).reduce(function(a,i){return a+parseFloat(i.cases||0)*parseFloat(i.usdPerCase||0);},0);
+    var totalSGDCost=totalUSDCost*(s.fxRate||1.35);
+    var gstAmt=(totalSGDCost+freightSGD)*gstRate;
+    return'<tr><td class="td-muted">'+fmtDate(s.date)+'</td><td>'+esc(s.name)+'</td><td class="td-r">S$'+fmt(totalSGDCost+freightSGD)+'</td><td class="td-r">'+s.gst+'%</td><td class="td-r td-swits">S$'+fmt(gstAmt)+'</td></tr>';
+  }).join('');
+
+  document.getElementById('gst-body').innerHTML=
+    '<div class="gst-box">'
+      +'<div class="gst-box-title">🧾 GST Return — '+qLabel+' (SWITS)</div>'
+      +'<div class="gst-row"><span class="gst-row-lbl">SWITS Revenue (excl. GST)</span><span class="gst-row-val">S$'+fmt(switsRev)+'</span></div>'
+      +'<div class="gst-row"><span class="gst-row-lbl">Output Tax (GST Collected, 9%)</span><span class="gst-row-val">S$'+fmt(gstCollected)+'</span></div>'
+      +'<div class="gst-row"><span class="gst-row-lbl">Input Tax (GST Paid on Imports)</span><span class="gst-row-val">(S$'+fmt(inputTax)+')</span></div>'
+      +'<div class="gst-row"><span class="gst-row-lbl">Net GST Payable to IRAS</span><span class="gst-row-val">S$'+fmt(netPayable)+'</span></div>'
+    +'</div>'
+    +'<div class="sec-card">'
+      +'<div class="sec-card-hd"><span class="sec-card-title">Input Tax Breakdown (Shipments with GST)</span></div>'
+      +(shipRows
+        ?'<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Shipment</th><th class="td-r">Taxable Amount</th><th class="td-r">GST Rate</th><th class="td-r">GST Paid</th></tr></thead><tbody>'+shipRows+'</tbody></table></div>'
+        :'<div class="empty" style="padding:24px;"><div class="empty-icon">🧾</div><div class="empty-msg">No shipments with GST in this period.</div></div>')
+    +'</div>'
+    +'<div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--amber-text);line-height:1.6;margin-top:12px;">'
+      +'<strong>Note:</strong> Bee Events is not GST registered — no GST is charged on Bee Events sales. This GST summary covers SWITS only. Always verify with your accountant before filing.'
+    +'</div>';
+}
+
+// ══════════════════════════════════════════════
+// OCR (Claude API)
+// ══════════════════════════════════════════════
+function runOCR(input,type){
+  var file=input.files[0];if(!file)return;
+  var statusEl=document.getElementById(type==='shipment'?'ship-ocr-status':'exp-ocr-status');
+  statusEl.textContent='🔍 Reading document…';statusEl.className='ocr-status loading';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var base64=e.target.result.split(',')[1];
+    var mediaType=file.type||'image/jpeg';
+    var isPDF=file.name.toLowerCase().endsWith('.pdf')||mediaType==='application/pdf';
+    var prompt=type==='shipment'
+      ?'Extract from this supplier invoice: supplier name, invoice date (YYYY-MM-DD), total USD amount, list of products with quantity and unit price in USD. Return JSON only: {"supplier":"","date":"","totalUSD":0,"items":[{"product":"","qty":0,"usdPerCase":0}]}'
+      :'Extract from this receipt: date (YYYY-MM-DD), total amount in SGD (convert if needed), merchant/description, expense category from: Cost of Goods, Petrol, Logistics, Import Freight, Online Purchases, Packaging, Raw Materials, Rent, Utilities, Miscellaneous. Return JSON only: {"date":"","amount":0,"desc":"","category":""}';
+    fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        messages:[{role:'user',content:[
+          isPDF?{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}}:{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},
+          {type:'text',text:prompt}
+        ]}]
+      })
+    }).then(function(r){return r.json();}).then(function(data){
+      var text=(data.content||[]).map(function(c){return c.text||'';}).join('');
+      var clean=text.replace(/```json|```/g,'').trim();
+      var parsed=JSON.parse(clean);
+      if(type==='shipment'){
+        if(parsed.supplier)document.getElementById('ship-supplier').value=parsed.supplier;
+        if(parsed.date)document.getElementById('ship-date').value=parsed.date;
+        if(parsed.totalUSD)document.getElementById('ship-usd').value=parsed.totalUSD;
+        if(parsed.items&&parsed.items.length){
+          _shipItems=parsed.items.map(function(it,i){return{id:'si_'+Date.now()+'_'+i,product:it.product||'',cases:it.qty||0,usdPerCase:it.usdPerCase||0};});
+          renderShipItemsTable();
+        }
+        statusEl.textContent='✓ Auto-filled from invoice. Please review and adjust.';statusEl.className='ocr-status done';
+      }else{
+        if(parsed.date)document.getElementById('exp-date').value=parsed.date;
+        if(parsed.amount)document.getElementById('exp-amount').value=parsed.amount;
+        if(parsed.desc)document.getElementById('exp-desc').value=parsed.desc;
+        if(parsed.category)document.getElementById('exp-cat').value=parsed.category;
+        statusEl.textContent='✓ Auto-filled from receipt. Please review.';statusEl.className='ocr-status done';
+      }
+    }).catch(function(err){statusEl.textContent='Could not read document. Please fill in manually.';statusEl.className='ocr-status error';});
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleOCRDrop(e,type){
+  e.preventDefault();e.currentTarget.classList.remove('drag');
+  var file=e.dataTransfer.files[0];if(!file)return;
+  var input=document.getElementById(type==='shipment'?'ship-ocr-input':'exp-ocr-input');
+  var dt=new DataTransfer();dt.items.add(file);input.files=dt.files;
+  runOCR(input,type);
+}
+function openOCRModal(type){if(type==='expense')openExpenseModal();}
+
+// ══════════════════════════════════════════════
+// AMAZON CSV
+// ══════════════════════════════════════════════
+function openAmazonImport(){openModal('amazon-modal');}
+function parseAmazonCSV(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var lines=e.target.result.split('\n');
+    var headers=lines[0].split(',').map(function(h){return h.replace(/"/g,'').trim().toLowerCase();});
+    _amazonRows=[];
+    for(var i=1;i<lines.length;i++){
+      var cols=lines[i].split(',').map(function(c){return c.replace(/"/g,'').trim();});
+      if(cols.length<3)continue;
+      var row={};headers.forEach(function(h,j){row[h]=cols[j]||'';});
+      var date=row['order date']||row['date']||'';
+      var orderId=row['order id']||row['orderid']||'';
+      var title=row['title']||row['product name']||row['item name']||orderId;
+      var usd=parseFloat((row['item total']||row['total']||row['amount']||'0').replace(/[^0-9.]/g,''))||0;
+      if(usd>0)_amazonRows.push({date:date,orderId:orderId,title:title,usd:usd});
+    }
+    var previewBody=document.getElementById('amazon-preview-tbody');
+    var rate=1.35;
+    previewBody.innerHTML=_amazonRows.slice(0,20).map(function(r){
+      return'<tr><td class="td-muted">'+esc(r.date)+'</td><td style="font-size:11px;">'+esc(r.orderId)+'</td><td>'+esc(r.title.substring(0,50))+'</td><td class="td-r">$'+fmt(r.usd)+'</td><td class="td-r">S$'+fmt(r.usd*rate)+'</td></tr>';
+    }).join('');
+    document.getElementById('amazon-preview-label').textContent=_amazonRows.length+' orders found'+(  _amazonRows.length>20?' (showing first 20)':'');
+    document.getElementById('amazon-preview').style.display='block';
+    document.getElementById('amazon-import-btn').style.display='';
+  };
+  reader.readAsText(file);
+}
+
+function importAmazonOrders(){
+  var rate=parseFloat(document.getElementById('amazon-rate').value)||1.35;
+  var co=document.getElementById('amazon-company').value;
+  _amazonRows.forEach(function(r){
+    DB.expenses.push({id:'amz_'+r.orderId+'_'+Date.now(),date:r.date||new Date().toISOString().split('T')[0],amount:parseFloat((r.usd*rate).toFixed(2)),desc:r.title.substring(0,80),category:'Online Purchases',company:co,notes:'Amazon Order '+r.orderId+' — USD $'+r.usd.toFixed(2)+' @ '+rate});
+  });
+  saveDB();
+  closeModal('amazon-modal');
+  renderExpenses();
+  toast('✓ Imported '+_amazonRows.length+' Amazon orders!');
+}
+
+// ══════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════
+function getCompanyProfile(co){
+  // Pull from invoice_v3 localStorage keys
+  var LS='beinv-settings';
+  var settings={};
+  try{settings=JSON.parse(localStorage.getItem(LS)||'{}');}catch(e){}
+  if(co==='swits'){
+    return{
+      name:settings.switsName||'SWITS',
+      addr:settings.switsAddr||'',
+      uen:settings.switsUEN||'',
+      email:settings.switsEmail||'',
+      phone:settings.switsPhone||''
+    };
+  }
+  return{
+    name:settings.beeName||'Bee Events',
+    addr:settings.beeAddr||'',
+    uen:settings.beeUEN||'',
+    email:settings.beeEmail||'',
+    phone:settings.beePhone||''
+  };
+}
+
+function exportCSV(){
+  var month=document.getElementById('exp-month').value;
+  var year=document.getElementById('exp-year').value;
+  var co=document.getElementById('exp-co').value;
+  var type=document.getElementById('exp-type').value;
+  var rows=[],headers=[];
+
+  if(type==='all'||type==='expenses'){
+    headers=['Type','Date','Description','Category','Company','Amount SGD'];
+    DB.expenses.filter(function(e){
+      var d=new Date(e.date||'');
+      if(year&&d.getFullYear()!==parseInt(year))return false;
+      if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+      if(co&&co!=='both'&&e.company!==co&&e.company!=='both')return false;
+      return true;
+    }).forEach(function(e){
+      var amt=parseFloat(e.amount||0);
+      if(e.company==='both'&&co&&co!=='both')amt/=2;
+      rows.push(['Expense',e.date,'"'+(e.desc||'').replace(/"/g,"'")+'"',e.category,e.company==='bee'?'Bee Events':e.company==='swits'?'SWITS':'Both',amt.toFixed(2)]);
+    });
+  }
+  if(type==='all'||type==='shipments'){
+    if(!headers.length)headers=['Type','Date','Name','Supplier','Company','Product','Cases','Landed/Unit SGD','Total SGD'];
+    DB.shipments.filter(function(s){
+      var d=new Date(s.date||'');
+      if(year&&d.getFullYear()!==parseInt(year))return false;
+      if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+      if(co&&co!=='both'&&s.company!==co&&s.company!=='both')return false;
+      return true;
+    }).forEach(function(s){
+      (s.items||[]).forEach(function(item){
+        rows.push(['Shipment',s.date,'"'+s.name+'"','"'+(s.supplier||'')+'"',s.company==='bee'?'Bee Events':'SWITS','"'+item.product+'"',item.cases,item.landedPerUnit.toFixed(4),(item.cases*(item.ppc||1)*item.landedPerUnit).toFixed(2)]);
+      });
+    });
+  }
+  if(type==='all'||type==='sales'){
+    if(!headers.length)headers=['Type','Date','Invoice','Customer','Company','Amount SGD'];
+    (_fbInvoices||[]).filter(function(inv){
+      if(!inv||!inv.confirmed)return false;
+      var d=new Date(inv.date||'');
+      if(year&&d.getFullYear()!==parseInt(year))return false;
+      if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+      return true;
+    }).forEach(function(inv){
+      var total=(inv.lines||[]).reduce(function(s,l){return s+parseFloat(l.q||0)*parseFloat(l.p||0)*(l.ret?-1:1);},0);
+      var invCo=(inv.lines||[]).some(function(l){return productCompany(l.desc||'')==='swits';})?'SWITS':'Bee Events';
+      if(co&&co!=='both'&&invCo.toLowerCase()!==co)return;
+      rows.push(['Sale',inv.date,inv.num||'','"'+(inv.custName||'')+'"',invCo,total.toFixed(2)]);
+    });
+  }
+  if(!rows.length){toast('No data to export for selected filters.');return;}
+  var csv=[headers.join(',')].concat(rows.map(function(r){return r.join(',');})).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='accounts-'+(year||'all')+(month?'-'+MONTH_SHORT[parseInt(month)-1]:'')+(co!=='both'?'-'+co:'')+'.csv';
+  a.click();toast('✓ CSV downloaded!');
+}
+
+function exportPDF(){
+  var month=document.getElementById('exp-month').value;
+  var year=document.getElementById('exp-year').value;
+  var co=document.getElementById('exp-co').value;
+  var period=(month?MONTHS[parseInt(month)-1]+' ':'')+( year||'All Time');
+  var now=new Date();
+  var printDate=now.getDate()+' '+MONTH_SHORT[now.getMonth()]+' '+now.getFullYear();
+
+  function buildBlock(coKey){
+    var rev=getRevenue(month,year,coKey);
+    var cogs=getCOGS(month,year,coKey);
+    var exp=getExpenses(month,year,coKey);
+    var gross=rev-cogs;
+    var net=gross-exp;
+    var gstC=coKey==='swits'?rev*0.09:0;
+    var gstP=getGSTPaid(month,year,coKey);
+    var prof=getCompanyProfile(coKey);
+    var expBycat={};
+    DB.expenses.filter(function(e){
+      var d=new Date(e.date||'');
+      if(year&&d.getFullYear()!==parseInt(year))return false;
+      if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+      return e.company===coKey||e.company==='both';
+    }).forEach(function(e){var a=parseFloat(e.amount||0);if(e.company==='both')a/=2;expBycat[e.category]=(expBycat[e.category]||0)+a;});
+    return{rev:rev,cogs:cogs,gross:gross,exp:exp,net:net,gstC:gstC,gstP:gstP,netGST:gstC-gstP,expBycat:expBycat,prof:prof,coKey:coKey};
+  }
+
+  function pdfRow(l,v,bold,color){
+    return'<tr style="border-bottom:1px solid #e5e5e5;">'
+      +'<td style="padding:7px 0;font-size:13px;'+(bold?'font-weight:700;':'')+'color:#1C1B18;">'+l+'</td>'
+      +'<td style="padding:7px 0;font-size:13px;text-align:right;font-weight:600;color:'+(color||'#1C1B18')+';'+(bold?'font-size:14px;':'')+'">'+v+'</td>'
+    +'</tr>';
+  }
+
+  function renderBlock(d,title){
+    var catRows=Object.entries(d.expBycat).sort(function(a,b){return b[1]-a[1];}).map(function(kv){
+      return'<tr><td style="padding:5px 0 5px 16px;font-size:12px;color:#7A7870;">'+kv[0]+'</td><td style="text-align:right;font-size:12px;color:#791F1F;padding:5px 0;">(S$'+fmt(kv[1])+')</td></tr>';
+    }).join('');
+    var gstSection=d.coKey==='swits'
+      ?'<tr><td colspan="2" style="padding-top:16px;"><div style="background:#F3EFFE;border:1.5px solid #7C3AED;border-radius:8px;padding:12px 14px;">'
+        +'<div style="font-size:11px;font-weight:700;color:#5B21B6;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">GST Position</div>'
+        +'<table style="width:100%;"><tr><td style="font-size:12px;color:#5B21B6;">Output Tax Collected (9%)</td><td style="text-align:right;font-size:12px;font-weight:600;color:#5B21B6;">S$'+fmt(d.gstC)+'</td></tr>'
+        +'<tr><td style="font-size:12px;color:#5B21B6;">Input Tax Paid</td><td style="text-align:right;font-size:12px;font-weight:600;color:#5B21B6;">(S$'+fmt(d.gstP)+')</td></tr>'
+        +'<tr style="border-top:1px solid #7C3AED;"><td style="font-size:12px;font-weight:700;color:#5B21B6;padding-top:6px;">Net GST Payable</td><td style="text-align:right;font-size:13px;font-weight:700;color:#5B21B6;padding-top:6px;">S$'+fmt(d.netGST)+'</td></tr>'
+        +'</table></div></td></tr>':''
+    ;
+    return'<div style="margin-bottom:28px;">'
+      +'<div style="font-size:13px;font-weight:700;color:#fff;background:'+(d.coKey==='bee'?'#993C1D':'#5B21B6')+';padding:8px 14px;border-radius:6px;margin-bottom:12px;">'+title+'</div>'
+      +'<table style="width:100%;border-collapse:collapse;">'
+        +pdfRow('Revenue','S$'+fmt(d.rev),false,'#0F6E56')
+        +pdfRow('Cost of Goods Sold','(S$'+fmt(d.cogs)+')',false,'')
+        +'<tr><td colspan="2" style="border-top:2px solid #1C1B18;padding:2px 0;"></td></tr>'
+        +pdfRow('Gross Profit','S$'+fmt(d.gross),false,d.gross>=0?'#0F6E56':'#791F1F')
+        +catRows
+        +pdfRow('Total Operating Expenses','(S$'+fmt(d.exp)+')',false,'')
+        +'<tr><td colspan="2" style="border-top:2px solid #1C1B18;padding:2px 0;"></td></tr>'
+        +pdfRow('Net Profit / Loss',(d.net>=0?'S$':'(S$')+fmt(Math.abs(d.net))+(d.net<0?')':''),true,d.net>=0?'#0F6E56':'#791F1F')
+        +gstSection
+      +'</table>'
+    +'</div>';
+  }
+
+  var blocks=[];
+  var coList=co==='both'?['bee','swits']:[co];
+  coList.forEach(function(c){blocks.push(buildBlock(c));});
+
+  var win=window.open('','_blank');
+  if(!win){toast('Please allow popups for PDF export.');return;}
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>P&L Report — '+period+'</title>'
+    +'<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:"DM Sans",Arial,sans-serif;padding:32px;color:#1C1B18;max-width:800px;margin:0 auto;}'
+    +'@media print{@page{margin:20mm;}body{padding:0;}}</style></head><body>';
+
+  // Header
+  var mainProf=getCompanyProfile(co==='both'?'bee':co);
+  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1C1B18;padding-bottom:16px;margin-bottom:20px;">'
+    +'<div>'
+      +'<div style="font-size:28px;font-weight:300;letter-spacing:-0.5px;">Profit & Loss Statement</div>'
+      +'<div style="font-size:14px;color:#7A7870;margin-top:4px;">Period: <strong>'+period+'</strong></div>'
+      +'<div style="font-size:12px;color:#B0AEA8;margin-top:2px;">Generated: '+printDate+'</div>'
+    +'</div>'
+    +'<div style="text-align:right;">'
+      +(co==='both'
+        ?'<div style="font-size:15px;font-weight:700;">Bee Events & SWITS</div>'
+        :'<div style="font-size:15px;font-weight:700;">'+(mainProf.name||'')+'</div>')
+      +(mainProf.addr?'<div style="font-size:12px;color:#7A7870;">'+mainProf.addr+'</div>':'')
+      +(mainProf.uen?'<div style="font-size:12px;color:#7A7870;">UEN: '+mainProf.uen+'</div>':'')
+    +'</div>'
+  +'</div>';
+
+  if(co==='both'){
+    // Combined summary first
+    var bee=blocks[0],swits=blocks[1];
+    var combRev=bee.rev+swits.rev,combCogs=bee.cogs+swits.cogs,combExp=bee.exp+swits.exp;
+    var combGross=combRev-combCogs,combNet=combGross-combExp;
+    html+='<div style="background:#F2F0EB;border-radius:8px;padding:14px 16px;margin-bottom:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">'
+      +['Revenue:S$'+fmt(combRev)+':#0F6E56','Gross Profit:S$'+fmt(combGross)+':'+(combGross>=0?'#0F6E56':'#791F1F'),'Expenses:(S$'+fmt(combExp)+'):#1C1B18','Net Profit:'+(combNet>=0?'S$':'(S$')+fmt(Math.abs(combNet))+(combNet<0?')':'')+':'+(combNet>=0?'#0F6E56':'#791F1F')].map(function(s){var p=s.split(':');return'<div><div style="font-size:10px;color:#7A7870;text-transform:uppercase;letter-spacing:.05em;">'+p[0]+'</div><div style="font-size:18px;font-weight:700;color:'+p[2]+';">'+p[1]+'</div></div>';}).join('')
+    +'</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">';
+    blocks.forEach(function(d){html+=renderBlock(d,d.coKey==='bee'?'Bee Events':'SWITS');});
+    html+='</div>';
+  }else{
+    blocks.forEach(function(d){html+=renderBlock(d,d.coKey==='bee'?'Bee Events':'SWITS');});
+  }
+
+  html+='<div style="margin-top:24px;padding-top:12px;border-top:1px solid #e5e5e5;font-size:11px;color:#B0AEA8;">This report was generated by the Bee Events & SWITS Accounting System. For official financial statements, consult your accountant.</div>';
+  html+='<script>window.onload=function(){window.print();}<\/script></body></html>';
+  win.document.write(html);win.document.close();
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function fmt(n){return parseFloat(n||0).toFixed(2);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(d){if(!d)return'—';var dt=new Date(d);if(isNaN(dt))return d;return dt.getDate()+' '+MONTH_SHORT[dt.getMonth()]+' '+dt.getFullYear();}
+var _toastTimer;
+function toast(msg,dur){
+  var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(_toastTimer);_toastTimer=setTimeout(function(){el.classList.remove('show');},dur||2000);
+}
+
+// ── Populate year/month dropdowns ──
+function populateFilters(){
+  var now=new Date();
+  var years=[];
+  for(var y=now.getFullYear();y>=now.getFullYear()-5;y--)years.push(y);
+  var monthOpts='<option value="">All months</option>'+MONTHS.map(function(m,i){return'<option value="'+(i+1)+'">'+m+'</option>';}).join('');
+  var yearOpts='<option value="">All years</option>'+years.map(function(y){return'<option value="'+y+'"'+(y===now.getFullYear()?' selected':'')+'>'+y+'</option>';}).join('');
+  ['dash-month','ship-filter-month','exp-filter-month','sales-filter-month','pl-month','exp-month'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=monthOpts;});
+  ['dash-year','ship-filter-year','exp-filter-year','sales-filter-year','pl-year','exp-year','gst-year'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=yearOpts;});
+  // Set current quarter default for GST
+  var q=Math.ceil((new Date().getMonth()+1)/3);
+  var gstQ=document.getElementById('gst-quarter');
+  if(gstQ)gstQ.value=String(q);
+}
+
+// ══════════════════════════════════════════════
+// QUICK ADD + REMINDERS
+// ══════════════════════════════════════════════
+var _qaMenuOpen=false;
+
+function toggleQuickMenu(){
+  _qaMenuOpen=!_qaMenuOpen;
+  var menu=document.getElementById('quick-add-menu');
+  var btn=document.getElementById('quick-add-btn');
+  menu.style.display=_qaMenuOpen?'flex':'none';
+  btn.style.transform=_qaMenuOpen?'rotate(45deg)':'rotate(0)';
+}
+function closeQuickMenu(){
+  _qaMenuOpen=false;
+  var menu=document.getElementById('quick-add-menu');
+  var btn=document.getElementById('quick-add-btn');
+  if(menu)menu.style.display='none';
+  if(btn)btn.style.transform='rotate(0)';
+}
+function quickAddExpense(){
+  closeQuickMenu();
+  var qeCat=document.getElementById('qe-cat');
+  if(qeCat&&!qeCat.options.length){
+    CATEGORIES.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;qeCat.appendChild(o);});
+  }
+  document.getElementById('qe-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('qe-amount').value='';
+  document.getElementById('qe-desc').value='';
+  openModal('quick-expense-modal');
+  setTimeout(function(){document.getElementById('qe-amount').focus();},100);
+}
+function quickScanReceipt(){
+  closeQuickMenu();
+  openExpenseModal();
+  // Trigger camera immediately
+  setTimeout(function(){
+    var cam=document.getElementById('exp-camera-input');
+    if(cam)cam.click();
+  },300);
+}
+function quickBoughtStock(){
+  closeQuickMenu();
+  document.getElementById('qs-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('qs-supplier').value='';
+  document.getElementById('qs-sgd').value='';
+  document.getElementById('qs-notes').value='';
+  openModal('quick-stock-modal');
+  setTimeout(function(){document.getElementById('qs-supplier').focus();},100);
+}
+function saveQuickExpense(){
+  var amount=parseFloat(document.getElementById('qe-amount').value||0);
+  var desc=document.getElementById('qe-desc').value.trim();
+  var date=document.getElementById('qe-date').value;
+  var cat=document.getElementById('qe-cat').value;
+  var company=document.getElementById('qe-company').value;
+  if(!amount||!desc){toast('Please enter an amount and description.');return;}
+  DB.expenses.push({id:'exp_'+Date.now(),date:date,amount:amount,desc:desc,category:cat||'Miscellaneous',company:company,notes:''});
+  saveDB();
+  closeModal('quick-expense-modal');
+  toast('✓ Expense saved!');
+  renderDashboard();
+}
+function saveQuickStock(){
+  var supplier=document.getElementById('qs-supplier').value.trim();
+  var sgd=parseFloat(document.getElementById('qs-sgd').value||0);
+  var date=document.getElementById('qs-date').value;
+  var company=document.getElementById('qs-company').value;
+  var notes=document.getElementById('qs-notes').value.trim();
+  if(!supplier){toast('Please enter a supplier name.');return;}
+  // Save as a draft shipment
+  var draft={
+    id:'ship_'+Date.now(),
+    name:'DRAFT — '+supplier+' '+(date||''),
+    date:date,supplier:supplier,company:company,
+    sgdPaid:sgd,usdPaid:0,fxRate:0,freight:0,freightCur:'SGD',gst:0,other:0,
+    totalSGD:sgd,items:[],notes:notes,isDraft:true
+  };
+  DB.shipments.push(draft);
+  saveDB();
+  closeModal('quick-stock-modal');
+  toast('✓ Draft shipment saved! Complete it in Import Shipments.');
+  renderDashboard();
+}
+
+// ── Reminders ──
+function renderReminders(){
+  var now=new Date();
+  var month=now.getMonth()+1;
+  var year=now.getFullYear();
+  var quarter=Math.ceil(month/3);
+  var reminders=[];
+
+  // Check if it's start of month — Amazon import reminder
+  if(now.getDate()<=7){
+    var prevMonth=month===1?12:month-1;
+    var prevMonthName=MONTHS[prevMonth-1];
+    reminders.push({
+      type:'amber',icon:'📦',
+      title:'Import '+prevMonthName+' Amazon orders',
+      sub:'It\'s a new month — import last month\'s Amazon CSV to keep expenses up to date.',
+      action:'Import now',
+      onclick:'openAmazonImport()'
+    });
+  }
+
+  // Check if quarter just ended — GST reminder for SWITS
+  var quarterEndMonths=[3,6,9,12];
+  if(quarterEndMonths.indexOf(month)>=0&&now.getDate()<=14){
+    var prevQ=quarter===1?4:quarter-1;
+    reminders.push({
+      type:'swits',icon:'🧾',
+      title:'Q'+prevQ+' GST filing due soon',
+      sub:'SWITS GST return for Q'+prevQ+' should be filed with IRAS. Check your net payable.',
+      action:'View GST Summary',
+      onclick:'showPanel(\'gst\')'
+    });
+  }
+
+  // Draft shipments pending completion
+  var drafts=DB.shipments.filter(function(s){return s.isDraft;});
+  if(drafts.length){
+    reminders.push({
+      type:'amber',icon:'✏️',
+      title:drafts.length+' draft shipment'+(drafts.length>1?'s':'')+' need completing',
+      sub:drafts.map(function(d){return d.name;}).join(', '),
+      action:'Go to Shipments',
+      onclick:'showPanel(\'shipments\')'
+    });
+  }
+
+  // Shipments not yet applied to stock
+  var unapplied=DB.shipments.filter(function(s){return !s.isDraft&&!s.stockApplied&&(s.items||[]).length>0;});
+  if(unapplied.length){
+    reminders.push({
+      type:'green',icon:'📥',
+      title:unapplied.length+' shipment'+(unapplied.length>1?'s':'')+' ready to apply to stock',
+      sub:unapplied.map(function(s){return s.name;}).join(', '),
+      action:'Apply now',
+      onclick:'showPanel(\'shipments\')'
+    });
+  }
+
+  var strip=document.getElementById('reminder-strip');
+  if(!strip)return;
+  if(!reminders.length){strip.innerHTML='';return;}
+  strip.innerHTML=reminders.map(function(r){
+    return'<div class="reminder '+r.type+'" onclick="'+r.onclick+'">'
+      +'<span class="reminder-icon">'+r.icon+'</span>'
+      +'<div class="reminder-body"><div class="reminder-title">'+r.title+'</div><div class="reminder-sub">'+esc(r.sub)+'</div></div>'
+      +'<span class="reminder-action">'+r.action+' →</span>'
+    +'</div>';
+  }).join('');
+}
+
+// ── Todo / quick-action cards ──
+function renderTodo(){
+  var cards=[
+    {icon:'💸',label:'Log an expense',sub:'Takes 10 seconds',onclick:'quickAddExpense()',urgent:false},
+    {icon:'📷',label:'Scan a receipt',sub:'Auto-fills from photo',onclick:'quickScanReceipt()',urgent:false},
+    {icon:'📦',label:'I bought stock',sub:'Save a draft shipment',onclick:'quickBoughtStock()',urgent:false},
+    {icon:'📊',label:'View P&L',sub:'See your profit',onclick:'showPanel(\'pl\')',urgent:false},
+  ];
+  var strip=document.getElementById('todo-strip');
+  if(!strip)return;
+  strip.innerHTML=cards.map(function(c){
+    return'<div class="todo-card'+(c.urgent?' urgent':'')+'" onclick="'+c.onclick+'">'
+      +'<div class="todo-card-icon">'+c.icon+'</div>'
+      +'<div class="todo-card-label">'+c.label+'</div>'
+      +'<div class="todo-card-sub">'+c.sub+'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function initQuickAdd(){
+  // Close quick menu when clicking elsewhere
+  document.addEventListener('click',function(e){
+    if(_qaMenuOpen&&!e.target.closest('#quick-add-btn')&&!e.target.closest('.quick-add-menu')){
+      closeQuickMenu();
+    }
+  });
+  renderReminders();
+  renderTodo();
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+try{loadDB();}catch(e){console.warn('loadDB error',e);}
+try{populateFilters();}catch(e){console.warn('populateFilters error',e);}
+try{populateCatSelect();}catch(e){console.warn('populateCatSelect error',e);}
+try{updateCompanyPill();}catch(e){console.warn('updateCompanyPill error',e);}
+try{renderDashboard();}catch(e){console.warn('renderDashboard error',e);}
+try{fbLoad();}catch(e){console.warn('fbLoad error',e);}
+try{initQuickAdd();}catch(e){console.warn('initQuickAdd error',e);}
+</script>
+
+<!-- ══ FLOATING QUICK-ADD BUTTON ══ -->
+<div class="quick-add-menu" id="quick-add-menu" style="display:none;">
+  <button class="qa-item" onclick="quickAddExpense()"><span class="qa-item-icon">💸</span>Log an expense</button>
+  <button class="qa-item" onclick="quickScanReceipt()"><span class="qa-item-icon">📷</span>Scan receipt</button>
+  <button class="qa-item" onclick="quickBoughtStock()"><span class="qa-item-icon">📦</span>I bought stock</button>
+</div>
+<button id="quick-add-btn" onclick="toggleQuickMenu()" title="Quick add">
+  <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
+
+<!-- ══ QUICK STOCK MODAL ══ -->
+<div class="modal-overlay" id="quick-stock-modal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-hd">
+      <span class="modal-title">📦 I Bought Stock</span>
+      <button class="modal-close" onclick="closeModal('quick-stock-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Fill in what you can now — this saves a draft shipment you can complete properly later. At minimum just enter the supplier and total SGD paid.</p>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Supplier / Where you bought from</label>
+          <input type="text" id="qs-supplier" placeholder="e.g. Amazon US, Candy Corp">
+        </div>
+        <div class="form-field">
+          <label>Order Date</label>
+          <input type="date" id="qs-date">
+        </div>
+        <div class="form-field">
+          <label>Total SGD Transferred</label>
+          <input type="number" id="qs-sgd" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+        </div>
+        <div class="form-field">
+          <label>Company</label>
+          <select id="qs-company">
+            <option value="swits">SWITS</option>
+            <option value="bee">Bee Events</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>What did you buy? (optional — fill properly later)</label>
+          <textarea id="qs-notes" placeholder="e.g. 10 cases Airheads Bars, 5 cases Nerds Rope" style="min-height:60px;"></textarea>
+        </div>
+      </div>
+      <div style="background:var(--amber-bg);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--amber-text);margin-top:12px;">
+        💡 This saves a draft shipment. Go to Import Shipments to complete it with exact product costs and apply to stock when goods arrive.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('quick-stock-modal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveQuickStock()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Draft
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUICK EXPENSE MODAL (minimal 3-field version) ══ -->
+<div class="modal-overlay" id="quick-expense-modal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-hd">
+      <span class="modal-title">💸 Log Expense</span>
+      <button class="modal-close" onclick="closeModal('quick-expense-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Amount (SGD)</label>
+          <input type="number" id="qe-amount" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+        </div>
+        <div class="form-field">
+          <label>Date</label>
+          <input type="date" id="qe-date">
+        </div>
+        <div class="form-field full">
+          <label>What was it for?</label>
+          <input type="text" id="qe-desc" placeholder="e.g. Grab to supplier, packaging tape">
+        </div>
+        <div class="form-field">
+          <label>Category</label>
+          <select id="qe-cat"></select>
+        </div>
+        <div class="form-field">
+          <label>Company</label>
+          <select id="qe-company">
+            <option value="swits">SWITS</option>
+            <option value="bee">Bee Events</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('quick-expense-modal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveQuickExpense()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+</body></html>
