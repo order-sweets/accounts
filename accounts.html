@@ -158,6 +158,9 @@ tr:hover td{background:var(--surface);}
 .ocr-status.loading{background:var(--amber-bg);color:var(--amber-text);display:block;}
 .ocr-status.done{background:var(--green-bg);color:var(--green-text);display:block;}
 .ocr-status.error{background:var(--red-bg);color:var(--red-text);display:block;}
+.ocr-raw{display:none;margin-top:10px;}
+.ocr-raw textarea{width:100%;height:120px;font-size:11px;font-family:monospace;padding:8px;border:1.5px solid var(--border);border-radius:8px;resize:vertical;background:#f9f9f9;color:#333;line-height:1.5;}
+.ocr-raw-label{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;display:block;}
 
 /* ── FILTER BAR ── */
 .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
@@ -763,6 +766,10 @@ tr:hover td{background:var(--surface);}
       <input type="file" id="ship-camera-input" accept="image/*" capture="environment" style="display:none" onchange="runOCR(this,'shipment')">
       <input type="file" id="ship-ocr-input" accept="image/*,.pdf" style="display:none" onchange="runOCR(this,'shipment')">
       <div class="ocr-status" id="ship-ocr-status" style="margin-top:8px;"></div>
+      <div class="ocr-raw" id="ship-ocr-raw">
+        <span class="ocr-raw-label">Extracted text — copy what you need into the fields below:</span>
+        <textarea id="ship-ocr-text" readonly></textarea>
+      </div>
 
       <hr class="divider">
 
@@ -883,6 +890,10 @@ tr:hover td{background:var(--surface);}
       <input type="file" id="exp-camera-input" accept="image/*" capture="environment" style="display:none" onchange="runOCR(this,'expense')">
       <input type="file" id="exp-ocr-input" accept="image/*,.pdf" style="display:none" onchange="runOCR(this,'expense')">
       <div class="ocr-status" id="exp-ocr-status" style="margin-top:8px;"></div>
+      <div class="ocr-raw" id="exp-ocr-raw">
+        <span class="ocr-raw-label">Extracted text — copy what you need into the fields below:</span>
+        <textarea id="exp-ocr-text" readonly></textarea>
+      </div>
       <hr class="divider">
       <div class="form-grid">
         <div class="form-field">
@@ -2027,8 +2038,10 @@ function renderGST(){
 function runOCR(input,type){
   var file=input.files[0];if(!file)return;
   var statusEl=document.getElementById(type==='shipment'?'ship-ocr-status':'exp-ocr-status');
+  var rawBox=document.getElementById(type==='shipment'?'ship-ocr-raw':'exp-ocr-raw');
+  var rawText=document.getElementById(type==='shipment'?'ship-ocr-text':'exp-ocr-text');
   statusEl.textContent='Scanning document...';statusEl.className='ocr-status loading';
-  // Resize image to max 1200px before sending to stay under Vercel payload limit
+  rawBox.style.display='none';
   var img=new Image();
   var url=URL.createObjectURL(file);
   img.onload=function(){
@@ -2047,6 +2060,10 @@ function runOCR(input,type){
     }).then(function(r){return r.json();}).then(function(data){
       if(!data.ok||!data.text)throw new Error('No text extracted');
       var txt=data.text;
+      // Show raw extracted text
+      rawText.value=txt;
+      rawBox.style.display='block';
+      // Also attempt basic auto-fill
       var lines=txt.split('\n');
       if(type==='shipment'){
         var dateM=txt.match(/\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})\b/);
@@ -2054,7 +2071,6 @@ function runOCR(input,type){
         if(lines[0])document.getElementById('ship-supplier').value=lines[0].trim();
         if(dateM){var p=dateM[1].split(/[\/\-]/);if(p[2]&&p[2].length===4)document.getElementById('ship-date').value=p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}
         if(totM)document.getElementById('ship-usd').value=parseFloat(totM[1].replace(',','.'));
-        statusEl.textContent='Extracted. Please review and adjust.';statusEl.className='ocr-status done';
       }else{
         var dateM=txt.match(/\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})\b/);
         var amtM=txt.match(/(?:total|amount|sgd|\$)[^\d]*(\d+[.,]\d{2})/i)||txt.match(/(\d+[.,]\d{2})/);
@@ -2062,11 +2078,12 @@ function runOCR(input,type){
         if(dateM){var p=dateM[1].split(/[\/\-]/);if(p[2]&&p[2].length===4)document.getElementById('exp-date').value=p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}
         if(amtM)document.getElementById('exp-amount').value=parseFloat(amtM[1].replace(',','.'));
         if(descLines[0])document.getElementById('exp-desc').value=descLines[0].trim();
-        statusEl.textContent='Extracted. Please review and adjust.';statusEl.className='ocr-status done';
       }
+      statusEl.textContent='Text extracted below. Auto-filled where possible — please review.';statusEl.className='ocr-status done';
     }).catch(function(){
       statusEl.textContent='Could not read. Please fill in manually.';
       statusEl.className='ocr-status error';
+      rawBox.style.display='none';
     });
   };
   img.src=url;
