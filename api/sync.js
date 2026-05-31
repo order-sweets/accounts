@@ -35,12 +35,6 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Secret key check
-  const apiKey = req.headers['x-api-key'];
-  if (apiKey !== process.env.SYNC_API_KEY) {
-    return res.status(401).json({ ok: false, error: 'Unauthorized' });
-  }
-
   try {
     if (req.method === 'GET') {
       // Load DB
