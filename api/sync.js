@@ -26,13 +26,19 @@ async function kvSet(key, value) {
 }
 
 export default async function handler(req, res) {
-  // CORS headers — allow your Vercel domain
-  res.setHeader('Access-Control-Allow-Origin', 'https://order-sweets.github.io');
+  // CORS headers — allow your GitHub Pages domain only
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // Secret key check
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey !== process.env.SYNC_API_KEY) {
+    return res.status(401).json({ ok: false, error: 'Unauthorized' });
   }
 
   try {
