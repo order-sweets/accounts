@@ -2523,7 +2523,7 @@ function initQuickAdd(){
 // ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
-try{loadDB();}catch(e){console.warn('loadDB error',e);}
+// loadDB() is called after password unlock only
 try{populateFilters();}catch(e){console.warn('populateFilters error',e);}
 try{populateCatSelect();}catch(e){console.warn('populateCatSelect error',e);}
 try{updateCompanyPill();}catch(e){console.warn('updateCompanyPill error',e);}
