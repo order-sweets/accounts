@@ -2028,9 +2028,18 @@ function runOCR(input,type){
   var file=input.files[0];if(!file)return;
   var statusEl=document.getElementById(type==='shipment'?'ship-ocr-status':'exp-ocr-status');
   statusEl.textContent='Scanning document...';statusEl.className='ocr-status loading';
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var base64=e.target.result.split(',')[1];
+  // Resize image to max 1200px before sending to stay under Vercel payload limit
+  var img=new Image();
+  var url=URL.createObjectURL(file);
+  img.onload=function(){
+    var MAX=1200;
+    var w=img.width,h=img.height;
+    if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+    var canvas=document.createElement('canvas');
+    canvas.width=w;canvas.height=h;
+    canvas.getContext('2d').drawImage(img,0,0,w,h);
+    var base64=canvas.toDataURL('image/jpeg',0.8).split(',')[1];
+    URL.revokeObjectURL(url);
     fetch('https://accounts-ten-eta.vercel.app/api/ocr',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -2060,7 +2069,7 @@ function runOCR(input,type){
       statusEl.className='ocr-status error';
     });
   };
-  reader.readAsDataURL(file);
+  img.src=url;
 }
 
 function handleOCRDrop(e,type){
