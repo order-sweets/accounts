@@ -269,6 +269,15 @@ tr:hover td{background:var(--surface);}
 </style>
 </head>
 <body>
+<div id="lock-screen">
+  <div id="lock-card">
+    <div id="lock-brand">Bee Events &amp; SWITS</div>
+    <h2>Accounts</h2>
+    <input type="password" id="lock-pw" placeholder="Password" onkeydown="if(event.key==='Enter')unlockApp()">
+    <button id="lock-btn" onclick="unlockApp()">Unlock</button>
+    <div id="lock-err"></div>
+  </div>
+</div>
 
 <!-- SIDEBAR OVERLAY (mobile) -->
 <div class="sidebar-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
@@ -992,6 +1001,32 @@ tr:hover td{background:var(--surface);}
 // DATA
 // ══════════════════════════════════════════════
 var FB_URL='https://store-and-invoicing-default-rtdb.asia-southeast1.firebasedatabase.app';
+// ── PASSWORD LOCK ──
+var _PW_HASH='69e399851c8419993d46757025fd51e415e0277e8def8cb283dfbe7867212e8a';
+async function _sha256(str){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+async function unlockApp(){
+  var pw=document.getElementById('lock-pw').value;
+  var err=document.getElementById('lock-err');
+  if(!pw){err.textContent='Please enter a password.';return;}
+  var btn=document.getElementById('lock-btn');
+  btn.textContent='Checking...';btn.disabled=true;
+  var hash=await _sha256(pw);
+  if(hash===_PW_HASH){
+    document.getElementById('lock-screen').style.display='none';
+    document.getElementById('lock-pw').value='';
+    // Load fresh data from Upstash on login
+    loadDB();
+  } else {
+    err.textContent='Incorrect password. Please try again.';
+    document.getElementById('lock-pw').value='';
+    document.getElementById('lock-pw').focus();
+    btn.textContent='Unlock';btn.disabled=false;
+  }
+}
+// End lock
 var LS_KEY='bee-accounts-v1';
 
 var CATEGORIES=['Cost of Goods','Petrol','Logistics','Import Freight','Online Purchases','Packaging','Raw Materials','Rent','Utilities','Miscellaneous'];
@@ -1009,6 +1044,7 @@ var _shipItems=[];
 var _amazonRows=[];
 var _activeCompany='both';
 var _SYNC_URL='https://accounts-ten-eta.vercel.app/api/sync';
+
 var _syncTimer=null;
 
 function loadDB(){
