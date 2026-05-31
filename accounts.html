@@ -1008,14 +1008,43 @@ var _currentShipEdit=null;
 var _shipItems=[];
 var _amazonRows=[];
 var _activeCompany='both';
+var _SYNC_URL='https://accounts-ten-eta.vercel.app/api/sync';
+var _syncTimer=null;
 
 function loadDB(){
+  // Load from localStorage first for instant display
   try{var s=localStorage.getItem(LS_KEY);if(s)DB=JSON.parse(s);}catch(e){}
   DB.shipments=DB.shipments||[];
   DB.expenses=DB.expenses||[];
   DB.amazonOrders=DB.amazonOrders||[];
+  // Then fetch from Vercel KV (source of truth)
+  fetch(_SYNC_URL)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.ok&&data.db){
+        DB=data.db;
+        DB.shipments=DB.shipments||[];
+        DB.expenses=DB.expenses||[];
+        DB.amazonOrders=DB.amazonOrders||[];
+        localStorage.setItem(LS_KEY,JSON.stringify(DB));
+        renderDashboard();renderShipments();renderExpenses();renderSales();renderProductPL();
+      }
+    })
+    .catch(function(e){console.warn('KV load failed, using localStorage',e);});
 }
-function saveDB(){localStorage.setItem(LS_KEY,JSON.stringify(DB));}
+
+function saveDB(){
+  localStorage.setItem(LS_KEY,JSON.stringify(DB));
+  // Debounce KV save — 800ms after last change
+  clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(function(){
+    fetch(_SYNC_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({db:DB})
+    }).catch(function(e){console.warn('KV save failed',e);});
+  },800);
+}
 
 // ── Firebase load (invoices + products for revenue/FIFO) ──
 function fbLoad(){
