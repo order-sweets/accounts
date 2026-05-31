@@ -2027,46 +2027,38 @@ function renderGST(){
 function runOCR(input,type){
   var file=input.files[0];if(!file)return;
   var statusEl=document.getElementById(type==='shipment'?'ship-ocr-status':'exp-ocr-status');
-  statusEl.textContent='🔍 Reading document…';statusEl.className='ocr-status loading';
+  statusEl.textContent='Scanning document...';statusEl.className='ocr-status loading';
   var reader=new FileReader();
   reader.onload=function(e){
     var base64=e.target.result.split(',')[1];
-    var mediaType=file.type||'image/jpeg';
-    var isPDF=file.name.toLowerCase().endsWith('.pdf')||mediaType==='application/pdf';
-    var prompt=type==='shipment'
-      ?'Extract from this supplier invoice: supplier name, invoice date (YYYY-MM-DD), total USD amount, list of products with quantity and unit price in USD. Return JSON only: {"supplier":"","date":"","totalUSD":0,"items":[{"product":"","qty":0,"usdPerCase":0}]}'
-      :'Extract from this receipt: date (YYYY-MM-DD), total amount in SGD (convert if needed), merchant/description, expense category from: Cost of Goods, Petrol, Logistics, Import Freight, Online Purchases, Packaging, Raw Materials, Rent, Utilities, Miscellaneous. Return JSON only: {"date":"","amount":0,"desc":"","category":""}';
-    fetch('https://api.anthropic.com/v1/messages',{
+    fetch('https://accounts-ten-eta.vercel.app/api/ocr',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:1000,
-        messages:[{role:'user',content:[
-          isPDF?{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}}:{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},
-          {type:'text',text:prompt}
-        ]}]
-      })
+      body:JSON.stringify({image:base64})
     }).then(function(r){return r.json();}).then(function(data){
-      var text=(data.content||[]).map(function(c){return c.text||'';}).join('');
-      var clean=text.replace(/```json|```/g,'').trim();
-      var parsed=JSON.parse(clean);
+      if(!data.ok||!data.text)throw new Error('No text extracted');
+      var txt=data.text;
+      var lines=txt.split('\n');
       if(type==='shipment'){
-        if(parsed.supplier)document.getElementById('ship-supplier').value=parsed.supplier;
-        if(parsed.date)document.getElementById('ship-date').value=parsed.date;
-        if(parsed.totalUSD)document.getElementById('ship-usd').value=parsed.totalUSD;
-        if(parsed.items&&parsed.items.length){
-          _shipItems=parsed.items.map(function(it,i){return{id:'si_'+Date.now()+'_'+i,product:it.product||'',cases:it.qty||0,usdPerCase:it.usdPerCase||0};});
-          renderShipItemsTable();
-        }
-        statusEl.textContent='✓ Auto-filled from invoice. Please review and adjust.';statusEl.className='ocr-status done';
+        var dateM=txt.match(/\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})\b/);
+        var totM=txt.match(/(?:total|amount|grand)[^\d]*(\d+[.,]\d{2})/i);
+        if(lines[0])document.getElementById('ship-supplier').value=lines[0].trim();
+        if(dateM){var p=dateM[1].split(/[\/\-]/);if(p[2]&&p[2].length===4)document.getElementById('ship-date').value=p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}
+        if(totM)document.getElementById('ship-usd').value=parseFloat(totM[1].replace(',','.'));
+        statusEl.textContent='Extracted. Please review and adjust.';statusEl.className='ocr-status done';
       }else{
-        if(parsed.date)document.getElementById('exp-date').value=parsed.date;
-        if(parsed.amount)document.getElementById('exp-amount').value=parsed.amount;
-        if(parsed.desc)document.getElementById('exp-desc').value=parsed.desc;
-        if(parsed.category)document.getElementById('exp-cat').value=parsed.category;
-        statusEl.textContent='✓ Auto-filled from receipt. Please review.';statusEl.className='ocr-status done';
+        var dateM=txt.match(/\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})\b/);
+        var amtM=txt.match(/(?:total|amount|sgd|\$)[^\d]*(\d+[.,]\d{2})/i)||txt.match(/(\d+[.,]\d{2})/);
+        var descLines=lines.filter(function(l){return l.trim().length>3;});
+        if(dateM){var p=dateM[1].split(/[\/\-]/);if(p[2]&&p[2].length===4)document.getElementById('exp-date').value=p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}
+        if(amtM)document.getElementById('exp-amount').value=parseFloat(amtM[1].replace(',','.'));
+        if(descLines[0])document.getElementById('exp-desc').value=descLines[0].trim();
+        statusEl.textContent='Extracted. Please review and adjust.';statusEl.className='ocr-status done';
       }
-    }).catch(function(err){statusEl.textContent='Could not read document. Please fill in manually.';statusEl.className='ocr-status error';});
+    }).catch(function(){
+      statusEl.textContent='Could not read. Please fill in manually.';
+      statusEl.className='ocr-status error';
+    });
   };
   reader.readAsDataURL(file);
 }
