@@ -1041,6 +1041,7 @@ async function unlockApp(){
   btn.textContent='Checking...';btn.disabled=true;
   var hash=await _sha256(pw);
   if(hash===_PW_HASH){
+    sessionStorage.setItem('bee_unlocked','1');
     document.getElementById('lock-screen').style.display='none';
     document.getElementById('lock-pw').value='';
     // Load fresh data from Upstash on login
@@ -2556,6 +2557,16 @@ function initQuickAdd(){
 // ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
+// Lock screen: show on every fresh page load unless sessionStorage flag is set
+document.addEventListener('DOMContentLoaded',function(){
+  if(sessionStorage.getItem('bee_unlocked')==='1'){
+    document.getElementById('lock-screen').style.display='none';
+    loadDB();
+  } else {
+    document.getElementById('lock-screen').style.display='flex';
+    setTimeout(function(){document.getElementById('lock-pw').focus();},100);
+  }
+});
 // loadDB() is called after password unlock only
 try{populateFilters();}catch(e){console.warn('populateFilters error',e);}
 try{populateCatSelect();}catch(e){console.warn('populateCatSelect error',e);}
