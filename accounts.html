@@ -737,13 +737,15 @@ tr:hover td{background:#F0F8E8;}
           <label>Order No.</label>
           <input type="text" id="ship-name" placeholder="e.g. ORD-12345">
         </div>
-        <div class="form-field">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;margin-bottom:12px;">
+        <div class="form-field" style="margin:0;">
           <label>Order Date</label>
-          <input type="date" id="ship-date">
+          <input type="date" id="ship-date" style="width:100%;">
         </div>
-        <div class="form-field">
+        <div class="form-field" style="margin:0;">
           <label>Arrival Date</label>
-          <input type="date" id="ship-arrival">
+          <input type="date" id="ship-arrival" style="width:100%;">
         </div>
       </div>
 
@@ -753,13 +755,6 @@ tr:hover td{background:#F0F8E8;}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Goods Payment</div>
           <button class="btn btn-ghost btn-sm" onclick="addFxRow()">+ Add Transfer</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px 20px;gap:6px;margin-bottom:4px;">
-          <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Date</span>
-          <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">USD Paid</span>
-          <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">SGD Transferred</span>
-          <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Rate</span>
-          <span></span>
         </div>
         <div id="ship-fx-rows"></div>
         <div class="calc-display" id="fx-display" style="display:none;margin-top:6px;line-height:1.6;"></div>
@@ -779,14 +774,14 @@ tr:hover td{background:#F0F8E8;}
       <!-- Freight -->
       <hr class="divider">
       <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Freight & Insurance</div>
-      <div class="form-grid" style="margin-bottom:6px;">
-        <div class="form-field">
+      <div style="display:grid;grid-template-columns:1fr 100px;gap:8px;margin-bottom:6px;">
+        <div class="form-field" style="margin:0;">
           <label>Amount</label>
-          <input type="number" id="ship-freight" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()">
+          <input type="number" id="ship-freight" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()" style="width:100%;">
         </div>
-        <div class="form-field" id="ship-freight-cur-field">
+        <div class="form-field" id="ship-freight-cur-field" style="margin:0;">
           <label>Currency</label>
-          <select id="ship-freight-cur" onchange="recalcLanded()">
+          <select id="ship-freight-cur" onchange="recalcLanded()" style="width:100%;">
             <option value="SGD">SGD</option>
             <option value="USD">USD</option>
           </select>
@@ -799,22 +794,13 @@ tr:hover td{background:#F0F8E8;}
         <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Other Charges</div>
         <button class="btn btn-ghost btn-sm" onclick="addOtherCharge()">+ Add</button>
       </div>
-      <div style="display:grid;grid-template-columns:2fr 1fr 60px 1fr 20px;gap:6px;margin-bottom:4px;" id="ship-other-hdr">
-        <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Description</span>
-        <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Amount</span>
-        <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Cur</span>
-        <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">SGD Paid</span>
-        <span></span>
-      </div>
+      <div id="ship-other-hdr" style="display:none;"></div>
       <div id="ship-other-rows"></div>
 
       <!-- SG Customs Tax -->
       <hr class="divider">
       <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">SG Customs Tax</div>
-      <div class="form-field">
-        <label>Amount (SGD)</label>
-        <input type="number" id="ship-customs-tax" placeholder="0.00" min="0" step="0.01" onchange="recalcLanded()" style="width:100%;">
-      </div>
+      <input type="number" id="ship-customs-tax" placeholder="0.00" min="0" step="0.01" onchange="recalcLanded()" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;">
 
       <!-- Grand Total Summary -->
       <hr class="divider">
@@ -1321,12 +1307,22 @@ function renderFxRows(){
   if(!el)return;
   el.innerHTML=_fxRows.map(function(r){
     var rate=(parseFloat(r.usd)>0&&parseFloat(r.sgd)>0)?(parseFloat(r.sgd)/parseFloat(r.usd)):0;
-    return'<div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px 20px;gap:6px;margin-bottom:6px;align-items:center;" data-id="'+r.id+'">'
-      +'<input type="date" value="'+esc(r.date)+'" style="font-size:12px;padding:7px 6px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'date\',this.value)">'
-      +'<input type="number" value="'+esc(r.usd)+'" placeholder="USD" min="0" step="0.01" style="font-size:13px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'usd\',this.value)">'
-      +'<input type="number" value="'+esc(r.sgd)+'" placeholder="SGD" min="0" step="0.01" style="font-size:13px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'sgd\',this.value)">'
-      +'<span id="fxrate-'+r.id+'" style="font-size:11px;font-weight:600;color:var(--green-text);">'+(rate>0?rate.toFixed(4):'—')+'</span>'
-      +'<button type="button" onclick="removeFxRow(\''+r.id+'\')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-muted);">×</button>'
+    return'<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">'
+      // Date row
+      +'<div style="margin-bottom:6px;">'
+        +'<div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Date</div>'
+        +'<input type="date" value="'+esc(r.date)+'" style="font-size:12px;padding:7px 6px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'date\',this.value)">'
+      +'</div>'
+      // USD / SGD / Rate / × row
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 50px 24px;gap:6px;align-items:end;">'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">USD Paid</div>'
+          +'<input type="number" value="'+esc(r.usd)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'usd\',this.value)"></div>'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">SGD Transferred</div>'
+          +'<input type="number" value="'+esc(r.sgd)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'sgd\',this.value)"></div>'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Rate</div>'
+          +'<div id="fxrate-'+r.id+'" style="font-size:12px;font-weight:700;color:var(--green-text);padding:9px 4px;">'+(rate>0?rate.toFixed(4):'—')+'</div></div>'
+        +'<div style="padding-bottom:8px;"><button type="button" onclick="removeFxRow(\''+r.id+'\')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);padding:0;">×</button></div>'
+      +'</div>'
     +'</div>';
   }).join('');
   calcFX();
@@ -1342,6 +1338,7 @@ function calcFX(){
     el.style.display='block';
   }else{el.style.display='none';}
   recalcLanded();
+  updateShipSummary();
 }
 
 function getFXRate(){
@@ -1361,18 +1358,27 @@ function updateOtherCharge(id,field,val){var r=_otherCharges.find(function(x){re
 function renderOtherCharges(){
   var el=document.getElementById('ship-other-rows');
   if(!el)return;
-  document.getElementById('ship-other-hdr').style.display=_otherCharges.length?'grid':'none';
   el.innerHTML=_otherCharges.map(function(r){
     var isUSD=r.cur==='USD';
     var rate=(isUSD&&parseFloat(r.amount)>0&&parseFloat(r.sgdPaid)>0)?(parseFloat(r.sgdPaid)/parseFloat(r.amount)):0;
-    return'<div style="display:grid;grid-template-columns:2fr 1fr 60px 1fr 20px;gap:6px;margin-bottom:6px;align-items:center;">'
-      +'<input type="text" value="'+esc(r.desc)+'" placeholder="e.g. Customs fee" style="font-size:12px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'desc\',this.value)">'
-      +'<input type="number" value="'+esc(r.amount)+'" placeholder="0.00" min="0" step="0.01" style="font-size:12px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'amount\',this.value)">'
-      +'<select onchange="updateOtherCharge(\''+r.id+'\',\'cur\',this.value)" style="font-size:12px;padding:7px 4px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;"><option value="SGD"'+(r.cur==='SGD'?' selected':'')+'>SGD</option><option value="USD"'+(r.cur==='USD'?' selected':'')+'>USD</option></select>'
-      +(isUSD
-        ?'<div style="display:flex;align-items:center;gap:4px;"><input type="number" value="'+esc(r.sgdPaid)+'" placeholder="SGD paid" min="0" step="0.01" style="font-size:12px;padding:7px 6px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'sgdPaid\',this.value)"><span style="font-size:10px;color:var(--green-text);white-space:nowrap;font-weight:600;">'+(rate>0?rate.toFixed(3):'')+'</span></div>'
-        :'<span style="font-size:12px;color:var(--text-muted);">—</span>')
-      +'<button type="button" onclick="removeOtherCharge(\''+r.id+'\')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-muted);">×</button>'
+    return'<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">'
+      // Description row
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">'
+        +'<input type="text" value="'+esc(r.desc)+'" placeholder="e.g. Customs fee" style="font-size:12px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);flex:1;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'desc\',this.value)">'
+        +'<button type="button" onclick="removeOtherCharge(\''+r.id+'\')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);padding:0 4px;">×</button>'
+      +'</div>'
+      // Amount / Currency row
+      +'<div style="display:grid;grid-template-columns:1fr 100px'+(isUSD?' 1fr':'')+(isUSD&&rate>0?' 44px':'')+';gap:8px;align-items:end;">'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Amount</div>'
+          +'<input type="number" value="'+esc(r.amount)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'amount\',this.value)"></div>'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Cur</div>'
+          +'<select onchange="updateOtherCharge(\''+r.id+'\',\'cur\',this.value)" style="font-size:13px;padding:9px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;"><option value="SGD"'+(r.cur==='SGD'?' selected':'')+'>SGD</option><option value="USD"'+(r.cur==='USD'?' selected':'')+'>USD</option></select></div>'
+        +(isUSD
+          ?'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">SGD Paid</div>'
+            +'<input type="number" value="'+esc(r.sgdPaid)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'sgdPaid\',this.value)"></div>'
+            +(rate>0?'<div style="padding-bottom:10px;font-size:11px;font-weight:700;color:var(--green-text);">'+rate.toFixed(3)+'</div>':'')
+          :'')
+      +'</div>'
     +'</div>';
   }).join('');
   recalcLanded();
@@ -1465,21 +1471,22 @@ function updateShipSummary(){
   var freightSGD=getFreightSGD();
   var otherSGD=getOtherChargesSGD();
   var customsTax=parseFloat(document.getElementById('ship-customs-tax')?document.getElementById('ship-customs-tax').value||0:0);
-  var totalCases=_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0);},0);
   var isLocal=document.getElementById('ship-type')&&document.getElementById('ship-type').value==='local';
-  var totalUSDCost=isLocal?0:_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0)*parseFloat(i.usdPerCase||0);},0);
-  var totalSGDCost=isLocal?(parseFloat(document.getElementById('ship-sgd-local').value||0)):totalUSDCost*rate;
-  var total=totalSGDCost+freightSGD+otherSGD+customsTax;
+  // Cost of Goods = total SGD from Goods Payment transfers (or local SGD paid)
+  var cogsUSD=_fxRows.reduce(function(s,r){return s+parseFloat(r.usd||0);},0);
+  var cogsSGD=isLocal
+    ?(parseFloat(document.getElementById('ship-sgd-local').value||0))
+    :_fxRows.reduce(function(s,r){return s+parseFloat(r.sgd||0);},0);
+  var total=cogsSGD+freightSGD+otherSGD+customsTax;
   var el=document.getElementById('ship-summary');
   if(!el)return;
-  if(totalCases===0&&totalSGDCost===0){el.innerHTML='';return;}
   el.innerHTML='<div style="display:flex;flex-direction:column;gap:4px;font-size:13px;">'
-    +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Product Cost</span><span>S$'+fmt(totalSGDCost)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Cost of Goods</span><span>'+(cogsSGD>0?'S$'+fmt(cogsSGD):'—')+'</span></div>'
     +(freightSGD>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Freight</span><span>S$'+fmt(freightSGD)+'</span></div>':'')
     +(otherSGD>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Other Charges</span><span>S$'+fmt(otherSGD)+'</span></div>':'')
     +(customsTax>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">SG Customs Tax</span><span>S$'+fmt(customsTax)+'</span></div>':'')
     +(!isLocal&&rate!==1?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Blended FX Rate</span><span>1 USD = S$'+rate.toFixed(4)+'</span></div>':'')
-    +'<div style="display:flex;justify-content:space-between;border-top:2px solid #0A0A0A;padding-top:6px;margin-top:2px;font-weight:700;font-size:14px;"><span>Total Landed (SGD)</span><span>S$'+fmt(total)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;border-top:2px solid #0A0A0A;padding-top:6px;margin-top:2px;font-weight:700;font-size:14px;"><span>Total Landed (SGD)</span><span>'+(total>0?'S$'+fmt(total):'—')+'</span></div>'
     +'</div>';
   document.getElementById('landed-summary').style.display='none';
 }
