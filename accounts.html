@@ -825,9 +825,13 @@ tr:hover td{background:#F0F8E8;}
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('shipment-modal')">Cancel</button>
-      <button class="btn btn-green" onclick="saveShipment()">
+      <button class="btn btn-ghost" onclick="saveShipment('draft')" style="border-color:#8B5CF6;color:#8B5CF6;">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Draft
+      </button>
+      <button class="btn btn-green" onclick="saveShipment('submit')">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Save Shipment
+        Submit Shipment
       </button>
     </div>
   </div>
@@ -1335,7 +1339,7 @@ function calcFX(){
   var el=document.getElementById('fx-display');
   if(totalUSD>0&&totalSGD>0){
     var blended=totalSGD/totalUSD;
-    el.innerHTML='Total: USD $'+fmt(totalUSD)+' → S$'+fmt(totalSGD)+'<br>Blended rate: 1 USD = S$'+blended.toFixed(4);
+    el.innerHTML='Total: USD $'+fmt(totalUSD)+' → S$'+fmt(totalSGD)+'<br>Blended rate: 1 USD = '+blended.toFixed(4)+' SGD';
     el.style.display='block';
   }else{el.style.display='none';}
   recalcLanded();
@@ -1426,6 +1430,7 @@ function renderShipItemsTable(){
   var totalCases=_shipItems.reduce(function(s,i){return s+parseFloat(i.cases||0);},0);
   var isLocal=document.getElementById('ship-type')&&document.getElementById('ship-type').value==='local';
   var totalUnits=_shipItems.reduce(function(s,i){return s+(parseFloat(i.cases||0)*getPPC(i.product));},0);
+  var customsTax=parseFloat(document.getElementById('ship-customs-tax')?document.getElementById('ship-customs-tax').value||0:0);
   var rows=_shipItems.map(function(item,idx){
     var usdCost=isLocal?0:parseFloat(item.usdPerCase||0);
     var sgdCost=usdCost*rate;
@@ -1495,7 +1500,7 @@ function updateShipSummary(){
     +(freightSGD>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Freight</span><span>S$'+fmt(freightSGD)+'</span></div>':'')
     +(otherSGD>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Other Charges</span><span>S$'+fmt(otherSGD)+'</span></div>':'')
     +(customsTax>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">SG Customs Tax</span><span>S$'+fmt(customsTax)+'</span></div>':'')
-    +(!isLocal&&blendedRate>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Blended FX Rate</span><span>1 USD = S$'+blendedRate.toFixed(4)+'</span></div>':'')
+    +(!isLocal&&blendedRate>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Blended FX Rate</span><span>1 USD = '+blendedRate.toFixed(4)+' SGD</span></div>':'')
     +'<div style="display:flex;justify-content:space-between;border-top:2px solid #0A0A0A;padding-top:6px;margin-top:2px;font-weight:700;font-size:14px;"><span>Total Landed (SGD)</span><span>'+(total>0?'S$'+fmt(total):'—')+'</span></div>'
     +'</div>';
   document.getElementById('landed-summary').style.display='none';
@@ -1534,7 +1539,9 @@ function openShipmentModal(id,forceType){
   openModal('shipment-modal');
 }
 
-function saveShipment(){
+function saveShipment(mode){
+  mode=mode||'submit';
+  var isDraft=mode==='draft';
   var name=document.getElementById('ship-name').value.trim();
   var date=document.getElementById('ship-date').value;
   var supplier=document.getElementById('ship-supplier').value.trim();
@@ -1542,7 +1549,7 @@ function saveShipment(){
   var shipType=document.getElementById('ship-type').value;
   if(!name){toast('Please enter an order number or reference.');return;}
   if(!date){toast('Please enter a date.');return;}
-  if(!_shipItems.some(function(i){return(i.product||'').trim()&&i.cases>0;})){toast('Please add at least one product with cases > 0.');return;}
+  if(!isDraft&&!_shipItems.some(function(i){return(i.product||'').trim()&&i.cases>0;})){toast('Please add at least one product with cases > 0.');return;}
   var arrival=document.getElementById('ship-arrival').value;
   var rate=getFXRate();
   var freightSGD=getFreightSGD();
@@ -1581,6 +1588,7 @@ function saveShipment(){
   var shipment={
     id:_currentShipEdit||('ship_'+Date.now()),name:name,date:date,arrival:arrival,supplier:supplier,
     company:company,shipType:shipType,usdPaid:usdPaid,sgdPaid:sgdPaid,fxRate:rate,
+    draft:isDraft,
     fxTransfers:_fxRows.map(function(r){return{usd:parseFloat(r.usd||0),sgd:parseFloat(r.sgd||0),date:r.date||''};}),
     freight:parseFloat(document.getElementById('ship-freight').value||0),
     freightCur:document.getElementById('ship-freight-cur').value,
@@ -1594,7 +1602,7 @@ function saveShipment(){
   saveDB();
   closeModal('shipment-modal');
   renderShipments();
-  toast('✓ Shipment saved!');
+  toast(isDraft?'📝 Draft saved!':'✓ Shipment submitted!');
 }
 
 function renderShipments(){
@@ -1615,22 +1623,32 @@ function renderShipments(){
     var itemRows=items.map(function(it){
       return '<tr><td>'+esc(it.product)+'</td><td>'+it.cases+'</td><td>S$'+fmt(it.usdPerCase*s.fxRate)+'</td><td>S$'+fmt(it.freightPerCase)+'</td><td>S$'+fmt(it.landedPerCase)+'</td><td>'+(it.landedPerUnit>0?'S$'+fmt(it.landedPerUnit):'—')+'</td></tr>';
     }).join('');
+    var totalQty=items.reduce(function(sum,it){return sum+(parseFloat(it.cases||0)*(it.ppc||1));},0);
+    var productCount=items.length;
+    var byline=fmtDate(s.date)+(s.arrival?' → '+fmtDate(s.arrival):'')+(productCount>0?' · '+productCount+' product'+(productCount!==1?'s':'')+', '+Math.round(totalQty)+' units':'');
     return '<div class="ship-card" id="sc-'+s.id+'">'
       +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')">'
-        +'<div class="ship-icon">📦</div>'
-        +'<div class="ship-info"><div class="ship-name">'+esc(s.name)+'</div><div class="ship-meta">Order: '+fmtDate(s.date)+(s.arrival?' · Arrived: '+fmtDate(s.arrival):'')+' · '+esc(s.supplier||'')+(s.fxRate?' · 1 USD = S$'+s.fxRate.toFixed(4):'')+'</div></div>'
-        +'<div>'
-          +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'" style="margin-right:8px;">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
+        +'<div class="ship-info">'
+          +'<div class="ship-name" style="display:flex;align-items:center;gap:8px;">'
+            +esc(s.supplier||s.name||'Unnamed')
+            +(s.draft?'<span class="badge" style="background:#8B5CF6;color:#fff;font-size:9px;">DRAFT</span>':'')
+          +'</div>'
+          +'<div class="ship-meta">'+byline+'</div>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
+          +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
           +'<span class="ship-total">S$'+fmt(s.totalSGD)+'</span>'
         +'</div>'
         +'<span class="ship-chev" id="sc-chev-'+s.id+'">▼</span>'
       +'</div>'
       +'<div class="ship-body" id="sc-body-'+s.id+'">'
-        +'<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Cases</th><th>SGD cost/case</th><th>Freight/case</th><th>Landed/case</th><th>Landed/unit</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>'
+        +(items.length?'<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Cases</th><th>SGD cost/case</th><th>Freight/case</th><th>Landed/case</th><th>Landed/unit</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>':'<div style="color:var(--text-hint);font-size:13px;padding:8px 0;">No products — edit to add.</div>')
         +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'
-          +(s.stockApplied
-            ?'<span class="badge badge-green" style="padding:6px 12px;font-size:12px;">✓ Stock applied '+(s.stockAppliedAt?fmtDate(s.stockAppliedAt):'')+'</span>'
-            :'<button class="btn btn-green btn-sm" onclick="openApplyStock(\''+s.id+'\');event.stopPropagation()">📦 Apply to Stock</button>')
+          +(!s.draft
+            ?(s.stockApplied
+              ?'<span class="badge badge-green" style="padding:6px 12px;font-size:12px;">✓ Stock applied '+(s.stockAppliedAt?fmtDate(s.stockAppliedAt):'')+'</span>'
+              :'<button class="btn btn-green btn-sm" onclick="openApplyStock(\''+s.id+'\');event.stopPropagation()">📦 Apply to Stock</button>')
+            :'')
           +'<button class="btn btn-ghost btn-sm" onclick="openShipmentModal(\''+s.id+'\');event.stopPropagation()">✏️ Edit</button>'
           +'<button class="btn btn-danger btn-sm" onclick="deleteShipment(\''+s.id+'\');event.stopPropagation()">🗑 Delete</button>'
         +'</div>'
@@ -2786,19 +2804,19 @@ function renderReminders(){
   }
 
   // Draft shipments pending completion
-  var drafts=DB.shipments.filter(function(s){return s.isDraft;});
+  var drafts=DB.shipments.filter(function(s){return s.isDraft||s.draft;});
   if(drafts.length){
     reminders.push({
       type:'amber',icon:'✏️',
       title:drafts.length+' draft shipment'+(drafts.length>1?'s':'')+' need completing',
-      sub:drafts.map(function(d){return d.name;}).join(', '),
+      sub:drafts.map(function(d){return d.supplier||d.name;}).join(', '),
       action:'Go to Shipments',
       onclick:'showPanel(\'shipments\')'
     });
   }
 
   // Shipments not yet applied to stock
-  var unapplied=DB.shipments.filter(function(s){return !s.isDraft&&!s.stockApplied&&(s.items||[]).length>0;});
+  var unapplied=DB.shipments.filter(function(s){return !s.isDraft&&!s.draft&&!s.stockApplied&&(s.items||[]).length>0;});
   if(unapplied.length){
     reminders.push({
       type:'green',icon:'📥',
