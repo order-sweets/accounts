@@ -405,7 +405,7 @@ tr:hover td{background:#F0F8E8;}
   <div class="panel-title">Expenses</div>
   <div class="panel-sub">Log all business expenses.</div>
 
-  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
     <button class="btn btn-primary" onclick="openExpenseModal()">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Expense
@@ -1705,8 +1705,6 @@ function renderExpenses(){
     var baseAmt=parseFloat(e.amount||0);
     var gstAmt=e.hasGST?baseAmt*0.09:0;
     var totalAmt=baseAmt+gstAmt;
-    var co_badge='<span class="badge badge-'+(e.company==='bee'?'bee':'swits')+'" style="font-size:9px;">'+(e.company==='bee'?'Bee':'SWITS')+'</span>';
-    var cat_badge='<span class="badge badge-amber" style="font-size:9px;">'+esc(e.category)+'</span>';
 
     // Items detail
     var itemsHtml='';
@@ -1732,18 +1730,19 @@ function renderExpenses(){
 
     return'<div style="border-bottom:1px solid var(--border);">'
       +'<div style="display:grid;grid-template-columns:52px 1fr auto 18px;gap:0;align-items:center;cursor:pointer;padding:10px 10px;" onclick="toggleExpRow(\''+e.id+'\')">'
-        +'<div style="font-size:13px;font-weight:700;line-height:1.2;">'+fmtDateShort(e.date)+'</div>'
+        +'<div style="font-size:13px;font-weight:400;line-height:1.2;color:var(--text-muted);">'+fmtDateShort(e.date)+'</div>'
         +'<div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(e.supplier||e.desc||'—')+'</div>'
-        +'<div style="text-align:right;font-size:13px;font-weight:700;color:var(--red-text);white-space:nowrap;">S$'+fmt(totalAmt)+'</div>'
+        +'<div style="text-align:right;font-size:13px;font-weight:400;color:var(--red-text);white-space:nowrap;">S$'+fmt(totalAmt)+'</div>'
         +'<div style="text-align:right;padding-left:4px;"><span id="exp-chev-'+e.id+'" style="font-size:10px;color:var(--text-hint);display:inline-block;transition:transform .2s;">▼</span></div>'
       +'</div>'
       +'<div id="exp-detail-'+e.id+'" style="display:none;padding:10px 12px 12px;border-top:1px solid var(--border);">'
         +itemsHtml
         +gstBreakdown
-        +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center;">'
-          +cat_badge+co_badge
-          +(e.paymentMode?'<span style="font-size:10px;font-weight:600;color:var(--text-muted);">'+esc(e.paymentMode)+'</span>':'')
-          +(e.notes?'<span style="font-size:11px;color:var(--text-muted);">'+esc(e.notes)+'</span>':'')
+        +'<div style="font-size:12px;margin-top:8px;color:var(--text-muted);">'
+          +'<span style="color:var(--text-muted);">Category:</span> <span style="color:var(--text);font-weight:600;">'+esc(e.category)+'</span>'
+          +' · <span style="color:var(--text-muted);">Company:</span> <span style="color:var(--text);font-weight:600;">'+(e.company==='bee'?'Bee Events':'SWITS')+'</span>'
+          +(e.paymentMode?' · <span style="color:var(--text-muted);">Payment:</span> <span style="color:var(--text);font-weight:600;">'+esc(e.paymentMode.charAt(0).toUpperCase()+e.paymentMode.slice(1))+'</span>':'')
+          +(e.notes?' · <span style="color:var(--text-muted);">'+esc(e.notes)+'</span>':'')
         +'</div>'
         +'<div style="display:flex;gap:6px;margin-top:8px;">'
           +'<button class="btn btn-ghost" onclick="openExpenseModal(\''+e.id+'\')" style="font-size:11px;padding:4px 10px;">✏️ Edit</button>'
