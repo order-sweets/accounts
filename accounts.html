@@ -178,7 +178,7 @@ tr:hover td{background:#F0F8E8;}
 .ship-info{flex:1;min-width:0;}
 .ship-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ship-meta{font-size:12px;color:var(--text-muted);margin-top:1px;}
-.ship-total{font-size:12px;font-weight:700;color:var(--text);text-align:right;flex-shrink:0;}
+.ship-total{font-size:14px;font-weight:700;color:var(--text);text-align:right;flex-shrink:0;}
 .ship-chev{font-size:11px;color:var(--text-hint);transition:transform .2s;flex-shrink:0;}
 .ship-chev.open{transform:rotate(180deg);}
 .ship-body{display:none;border-top:1px solid var(--border);padding:14px 16px;}
@@ -1817,9 +1817,9 @@ function renderShipments(){
     return '<div class="ship-card" id="sc-'+s.id+'">'
       +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')" style="align-items:flex-start;">'
         +'<div class="ship-info" style="flex:1;min-width:0;">'
-          +'<div class="ship-name" style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;">'
+          +'<div class="ship-name">'
             +esc(s.supplier||s.name||'Unnamed')
-            +(s.draft?'<span style="font-size:11px;font-weight:400;color:#8B5CF6;white-space:nowrap;">(Draft)</span>':'')
+            +(s.draft?' <span style="font-size:11px;font-weight:400;color:#8B5CF6;">(Draft)</span>':'')
           +'</div>'
           +'<div class="ship-meta" style="font-size:11px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+bylineLine1+'</div>'
           +'<div class="ship-meta" style="font-size:10px;line-height:1.4;color:var(--text-muted);">'+bylineLine2+'</div>'
