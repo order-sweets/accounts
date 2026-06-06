@@ -1812,7 +1812,8 @@ function renderShipments(){
     var totalQty=items.reduce(function(sum,it){return sum+(parseFloat(it.cases||0)*(it.ppc||1));},0);
     var totalCasesCard=items.reduce(function(sum,it){return sum+parseFloat(it.cases||0);},0);
     var productCount=items.length;
-    var byline='Ordered: '+fmtDate(s.date)+(s.arrival?' → '+fmtDate(s.arrival):'')+' · '+(productCount>0?productCount+' items, '+Math.round(totalCasesCard)+' boxes, '+Math.round(totalQty)+' pcs':'No products yet');
+    var bylineLine1='Ordered: '+fmtDate(s.date)+(s.arrival?' → '+fmtDate(s.arrival):'');
+    var bylineLine2=productCount>0?productCount+' items · '+Math.round(totalCasesCard)+' boxes · '+Math.round(totalQty)+' pcs':'No products yet';
     return '<div class="ship-card" id="sc-'+s.id+'">'
       +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')" style="align-items:flex-start;">'
         +'<div class="ship-info" style="flex:1;min-width:0;">'
@@ -1820,7 +1821,8 @@ function renderShipments(){
             +esc(s.supplier||s.name||'Unnamed')
             +(s.draft?' <span style="font-size:11px;font-weight:400;color:#8B5CF6;">(Draft)</span>':'')
           +'</div>'
-          +'<div class="ship-meta" style="font-size:10px;line-height:1.5;color:var(--text-muted);">'+byline+'</div>'
+          +'<div class="ship-meta" style="font-size:10px;line-height:1.5;">'+bylineLine1+'</div>'
+          +'<div class="ship-meta" style="font-size:10px;line-height:1.5;color:var(--text-muted);">'+bylineLine2+'</div>'
         +'</div>'
         +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px;">'
           +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
