@@ -148,7 +148,7 @@ tr:hover td{background:#F0F8E8;}
 /* ── SHIPMENT ITEMS TABLE ── */
 .ship-items{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
 .ship-items th{font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;}
-.ship-items td{padding:8px 8px;border-bottom:1px solid var(--border);}
+.ship-items td{padding:8px 8px;border-bottom:1px solid var(--border);vertical-align:top;}
 .ship-items td input,.ship-items td select{font-size:13px;padding:6px 8px;border:1.5px solid var(--border-md);border-radius:7px;background:#fff;color:var(--text);font-family:inherit;outline:none;width:100%;}
 .ship-items td input:focus,.ship-items td select:focus{border-color:var(--text);}
 .ship-items .td-calc{font-size:12px;font-weight:700;color:var(--green-text);text-align:right;white-space:nowrap;}
@@ -723,24 +723,26 @@ tr:hover td{background:#F0F8E8;}
       <input type="hidden" id="ship-type" value="import">
 
       <!-- Company toggle -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
         <button type="button" id="ship-co-bee" onclick="setShipCompany('bee')" style="padding:10px;border-radius:var(--r);border:2px solid #0A0A0A;background:#fff;color:#0A0A0A;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">🐝 Bee Events</button>
         <button type="button" id="ship-co-swits" onclick="setShipCompany('swits')" style="padding:10px;border-radius:var(--r);border:2px solid #0A0A0A;background:#8B5CF6;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">⚡ SWITS</button>
       </div>
       <input type="hidden" id="ship-company" value="swits">
 
-      <!-- Basic details -->
-      <div class="form-grid">
-        <div class="form-field">
+      <!-- General section -->
+      <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">General</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="form-field" style="margin:0;">
           <label>Supplier</label>
-          <input type="text" id="ship-supplier" placeholder="e.g. Amazon US">
+          <input type="text" id="ship-supplier" placeholder="e.g. Amazon US" style="width:100%;">
         </div>
-        <div class="form-field">
+        <div class="form-field" style="margin:0;">
           <label>Order No.</label>
-          <input type="text" id="ship-name" placeholder="e.g. ORD-12345">
+          <input type="text" id="ship-name" placeholder="e.g. ORD-12345" style="width:100%;">
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
         <div class="form-field" style="margin:0;">
           <label>Order Date</label>
           <input type="date" id="ship-date" style="width:100%;">
@@ -753,10 +755,9 @@ tr:hover td{background:#F0F8E8;}
 
       <!-- FX Transfers — import only -->
       <div id="ship-fx-section">
-        <hr class="divider">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Goods Payment</div>
-          <button class="btn btn-ghost btn-sm" onclick="addFxRow()">+ Add Transfer</button>
+        <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-top:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">
+          <span>Goods Payment</span>
+          <button class="btn btn-ghost btn-sm" onclick="addFxRow()" style="padding:2px 8px;font-size:11px;line-height:1.4;">+ Add Transfer</button>
         </div>
         <div id="ship-fx-rows"></div>
         <div class="calc-display" id="fx-display" style="display:none;margin-top:6px;line-height:1.6;"></div>
@@ -764,19 +765,16 @@ tr:hover td{background:#F0F8E8;}
 
       <!-- Local SGD — local purchase only -->
       <div id="ship-local-section" style="display:none;">
-        <hr class="divider">
-        <div class="form-grid">
-          <div class="form-field full">
-            <label>Total SGD Paid</label>
-            <input type="number" id="ship-sgd-local" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()">
-          </div>
+        <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-top:16px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Payment</div>
+        <div class="form-field">
+          <label>Total SGD Paid</label>
+          <input type="number" id="ship-sgd-local" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()" style="width:100%;">
         </div>
       </div>
 
       <!-- Freight -->
-      <hr class="divider">
-      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Freight & Insurance</div>
-      <div style="display:grid;grid-template-columns:1fr 100px;gap:8px;margin-bottom:6px;">
+      <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-top:16px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Freight & Insurance</div>
+      <div style="display:grid;grid-template-columns:1fr 100px;gap:8px;margin-bottom:12px;">
         <div class="form-field" style="margin:0;">
           <label>Amount</label>
           <input type="number" id="ship-freight" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()" style="width:100%;">
@@ -791,22 +789,19 @@ tr:hover td{background:#F0F8E8;}
       </div>
 
       <!-- Other Charges -->
-      <hr class="divider">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Other Charges</div>
-        <button class="btn btn-ghost btn-sm" onclick="addOtherCharge()">+ Add</button>
+      <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-top:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">
+        <span>Other Charges</span>
+        <button class="btn btn-ghost btn-sm" onclick="addOtherCharge()" style="padding:2px 8px;font-size:11px;line-height:1.4;">+ Add</button>
       </div>
       <div id="ship-other-hdr" style="display:none;"></div>
       <div id="ship-other-rows"></div>
 
       <!-- SG Customs Tax -->
-      <hr class="divider">
-      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">SG Customs Tax ($)</div>
-      <input type="number" id="ship-customs-tax" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;">
+      <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-top:16px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">SG Customs Tax ($)</div>
+      <input type="number" id="ship-customs-tax" placeholder="0.00" min="0" step="0.01" oninput="recalcLanded()" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;margin-bottom:12px;">
 
       <!-- Grand Total Summary -->
-      <hr class="divider">
-      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Summary</div>
+      <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-top:16px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Cost Summary</div>
       <div id="ship-summary" style="font-size:13px;"></div>
       <div class="calc-display" id="landed-summary" style="margin-top:10px;display:none;"></div>
     </div>
@@ -1600,12 +1595,8 @@ function renderShipItemsTable(){
     var landedPerUnit=ppc>0?totalLandedPerCase/ppc:0;
     var mainRow='<tr style="'+(item.isNew?'background:#F9F5FF;':'')+'">'
       +'<td style="min-width:130px;">'
-        +'<label style="display:flex;align-items:center;gap:5px;font-size:10px;color:#7C3AED;font-weight:600;margin-bottom:4px;cursor:pointer;">'
-          +'<input type="checkbox" '+(item.isNew?'checked':'')+' onchange="toggleNewProduct('+idx+')" style="cursor:pointer;width:12px;height:12px;">'
-          +'New product'
-        +'</label>'
         +(item.isNew
-          ?'<input type="text" placeholder="Product name *" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #8B5CF6;border-radius:var(--r);">'
+          ?'<input type="text" placeholder="Product name *" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #8B5CF6;border-radius:var(--r);margin-bottom:3px;">'
           :(_fbProducts.length
             ?'<select onchange="shipItemProductSel('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">'
               +'<option value="">— Pick —</option>'
@@ -1613,6 +1604,10 @@ function renderShipItemsTable(){
             +'</select>'
             :'<input type="text" placeholder="Product name" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">')
         )
+        +'<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#7C3AED;font-weight:600;margin-top:3px;cursor:pointer;">'
+          +'<input type="checkbox" '+(item.isNew?'checked':'')+' onchange="toggleNewProduct('+idx+')" style="cursor:pointer;width:11px;height:11px;">'
+          +'New product'
+        +'</label>'
       +'</td>'
       +'<td><input type="number" value="'+(item.cases||0)+'" min="0" step="1" onchange="shipItemField('+idx+',\'cases\',this.value)" style="width:52px;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></td>'
       +'<td>'+(isLocal?'<span style="color:var(--text-hint);font-size:11px;">N/A</span>':'<input type="number" value="'+(item.usdPerCase||0)+'" min="0" step="0.01" onchange="shipItemField('+idx+',\'usdPerCase\',this.value)" style="width:62px;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">')+'</td>'
@@ -1822,11 +1817,12 @@ function renderShipments(){
     return '<div class="ship-card" id="sc-'+s.id+'">'
       +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')" style="align-items:flex-start;">'
         +'<div class="ship-info" style="flex:1;min-width:0;">'
-          +'<div class="ship-name" style="display:flex;align-items:center;gap:6px;">'
+          +'<div class="ship-name" style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;">'
             +esc(s.supplier||s.name||'Unnamed')
-            +(s.draft?'<span class="badge" style="background:#8B5CF6;color:#fff;font-size:9px;">DRAFT</span>':'')
+            +(s.draft?'<span style="font-size:11px;font-weight:400;color:#8B5CF6;">(Draft)</span>':'')
           +'</div>'
-          +'<div class="ship-meta" style="font-size:11px;line-height:1.5;">'+bylineLine1+'<br>'+bylineLine2+'</div>'
+          +'<div class="ship-meta" style="font-size:11px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+bylineLine1+'</div>'
+          +'<div class="ship-meta" style="font-size:10px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-muted);">'+bylineLine2+'</div>'
         +'</div>'
         +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px;">'
           +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
