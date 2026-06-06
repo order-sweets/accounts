@@ -57,12 +57,7 @@ body{font-family:'Space Grotesk',-apple-system,sans-serif;background:var(--bg);c
 .sb-item:hover{background:#D9F000;color:#0A0A0A;border-radius:6px;}
 .sb-item.active{background:#FF5500;color:#fff;border-radius:6px;font-weight:700;}
 .sb-item.active svg{stroke:#fff;}
-.sb-bottom{padding:12px 10px;border-top:2px solid #0A0A0A;}
-.company-pill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;background:#D9F000;border:2px solid #0A0A0A;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;width:100%;justify-content:space-between;}
-.company-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.company-dot.bee{background:var(--bee);}
-.company-dot.swits{background:var(--swits);}
-.company-dot.both{background:linear-gradient(135deg,var(--bee) 50%,var(--swits) 50%);}
+
 
 /* ── PANELS ── */
 .panel{display:none;padding:28px 32px;max-width:860px;box-sizing:border-box;}
@@ -152,19 +147,7 @@ tr:hover td{background:#F0F8E8;}
 .ship-items .td-calc{font-size:12px;font-weight:700;color:var(--green-text);text-align:right;white-space:nowrap;}
 .add-item-row{display:flex;gap:8px;margin-top:10px;}
 
-/* ── OCR DROP ZONE ── */
-.ocr-zone{border:3px dashed #0A0A0A;border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);}
-.ocr-zone:hover,.ocr-zone.drag{border-color:#3D55F0;background:#EAECFF;}
-.ocr-zone-icon{font-size:32px;margin-bottom:8px;}
-.ocr-zone-label{font-size:13px;font-weight:600;color:var(--text);}
-.ocr-zone-sub{font-size:12px;color:var(--text-muted);margin-top:4px;}
-.ocr-status{font-size:12px;padding:8px 12px;border-radius:8px;margin-top:10px;display:none;}
-.ocr-status.loading{background:var(--amber-bg);color:var(--amber-text);display:block;}
-.ocr-status.done{background:var(--green-bg);color:var(--green-text);display:block;}
-.ocr-status.error{background:var(--red-bg);color:var(--red-text);display:block;}
-.ocr-raw{display:none;margin-top:10px;}
-.ocr-raw textarea{width:100%;height:120px;font-size:11px;font-family:monospace;padding:8px;border:1.5px solid var(--border);border-radius:8px;resize:vertical;background:#f9f9f9;color:#333;line-height:1.5;}
-.ocr-raw-label{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;display:block;}
+
 
 /* ── FILTER BAR ── */
 .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
@@ -224,15 +207,7 @@ tr:hover td{background:#F0F8E8;}
 .qs-product-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
 .qs-product-row:last-child{border-bottom:none;}
 
-/* ── TODO STRIP ── */
-.todo-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px;}
-.todo-card{background:#fff;border:2px solid #0A0A0A;border-radius:var(--r-lg);padding:14px;cursor:pointer;transition:all .15s;}
-.todo-card:hover{background:#D9F000;border-color:#0A0A0A;}
-.todo-card-icon{font-size:24px;margin-bottom:6px;}
-.todo-card-label{font-size:12px;font-weight:700;color:var(--text);}
-.todo-card-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
-.todo-card.urgent{border-color:#FF5500;background:#FF5500;}
-.todo-card.urgent .todo-card-label{color:#fff;}
+
 
 /* ── PROGRESS BAR ── */
 .prog-wrap{background:#E0E0E0;border-radius:0;height:6px;overflow:hidden;margin-top:4px;}
@@ -349,15 +324,7 @@ tr:hover td{background:#F0F8E8;}
       How to Use
     </button>
   </nav>
-  <div class="sb-bottom">
-    <button class="company-pill" onclick="cycleCompany()">
-      <span style="display:flex;align-items:center;gap:7px;">
-        <span class="company-dot" id="co-dot"></span>
-        <span id="co-label" style="font-size:12px;font-weight:600;"></span>
-      </span>
-      <span style="font-size:10px;color:var(--text-hint);">tap to switch</span>
-    </button>
-  </div>
+
 </aside>
 
 <!-- MOBILE TOPBAR -->
@@ -377,9 +344,6 @@ tr:hover td{background:#F0F8E8;}
 
   <!-- Reminders -->
   <div class="reminder-strip" id="reminder-strip"></div>
-
-  <!-- Quick actions -->
-  <div class="todo-strip" id="todo-strip"></div>
 
   <div class="filter-bar">
     <select id="dash-month" onchange="renderDashboard()">
@@ -439,16 +403,12 @@ tr:hover td{background:#F0F8E8;}
 <!-- ══ EXPENSES ══ -->
 <div class="panel" id="panel-expenses">
   <div class="panel-title">Expenses</div>
-  <div class="panel-sub">Log all business expenses. Upload a receipt for auto-fill.</div>
+  <div class="panel-sub">Log all business expenses.</div>
 
   <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
     <button class="btn btn-primary" onclick="openExpenseModal()">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Expense
-    </button>
-    <button class="btn btn-ghost" onclick="openOCRModal('expense')">
-      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      Scan Receipt
     </button>
     <button class="btn btn-ghost" onclick="openAmazonImport()">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -644,7 +604,7 @@ tr:hover td{background:#F0F8E8;}
           <div class="help-step-desc">Save the shipment right after ordering. When goods physically arrive, expand the card and click 📦 Apply to Stock. This updates your store inventory and locks in the cost for profit tracking. This can only be done once per shipment.</div>
         </div>
       </div>
-      <div class="help-tip">💡 Upload your supplier invoice using Take Photo or Upload File — Claude will auto-fill the supplier, date and all line items.</div>
+      <div class="help-tip">💡 Save the shipment as soon as you order — then come back to apply it to stock when goods physically arrive.</div>
     </div>
 
     <div class="help-section">
@@ -659,19 +619,11 @@ tr:hover td{background:#F0F8E8;}
       <div class="help-step">
         <div class="help-step-num">2</div>
         <div class="help-step-body">
-          <div class="help-step-title">Scan a receipt</div>
-          <div class="help-step-desc">Click 📷 Take Photo to open your camera directly, or 📁 Upload File for a saved PDF or image. Claude reads the receipt and auto-fills the details for you to review.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">3</div>
-        <div class="help-step-body">
           <div class="help-step-title">Import Amazon orders in bulk</div>
           <div class="help-step-desc">On Amazon: Account → Order History Reports → Request report → Download CSV. Then in Expenses click Import Amazon CSV and upload it. All orders come in at once under "Online Purchases".</div>
         </div>
       </div>
       <div class="help-tip">💡 For shared expenses (e.g. rent split between both companies), select "Both (split equally)" — the system splits it 50/50 in all reports automatically.</div>
-    </div>
 
     <div class="help-section">
       <div class="help-section-title">📊 Product P&L</div>
@@ -753,29 +705,6 @@ tr:hover td{background:#F0F8E8;}
       <button class="modal-close" onclick="closeModal('shipment-modal')">✕</button>
     </div>
     <div class="modal-body">
-
-      <!-- OCR zone -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
-        <button type="button" class="btn btn-primary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('ship-camera-input').click()">
-          <span style="font-size:22px;line-height:1;">📷</span>
-          <span style="font-size:13px;">Take Photo</span>
-          <span style="font-size:11px;opacity:.75;font-weight:400;">Opens camera</span>
-        </button>
-        <button type="button" class="btn btn-ghost" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('ship-ocr-input').click()">
-          <span style="font-size:22px;line-height:1;">📁</span>
-          <span style="font-size:13px;">Upload File</span>
-          <span style="font-size:11px;opacity:.75;font-weight:400;">PDF, JPG, PNG</span>
-        </button>
-      </div>
-      <input type="file" id="ship-camera-input" accept="image/*" capture="environment" style="display:none" onchange="runOCR(this,'shipment')">
-      <input type="file" id="ship-ocr-input" accept="image/*,.pdf" style="display:none" onchange="runOCR(this,'shipment')">
-      <div class="ocr-status" id="ship-ocr-status" style="margin-top:8px;"></div>
-      <div class="ocr-raw" id="ship-ocr-raw">
-        <span class="ocr-raw-label">Extracted text — copy what you need into the fields below:</span>
-        <textarea id="ship-ocr-text" readonly></textarea>
-      </div>
-
-      <hr class="divider">
 
       <div class="form-grid">
         <div class="form-field">
@@ -878,27 +807,6 @@ tr:hover td{background:#F0F8E8;}
       <button class="modal-close" onclick="closeModal('expense-modal')">✕</button>
     </div>
     <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
-        <button type="button" class="btn btn-primary" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('exp-camera-input').click()">
-          <span style="font-size:22px;line-height:1;">📷</span>
-          <span style="font-size:13px;">Take Photo</span>
-          <span style="font-size:11px;opacity:.75;font-weight:400;">Opens camera</span>
-        </button>
-        <button type="button" class="btn btn-ghost" style="justify-content:center;padding:14px;flex-direction:column;gap:4px;height:auto;" onclick="document.getElementById('exp-ocr-input').click()">
-          <span style="font-size:22px;line-height:1;">📁</span>
-          <span style="font-size:13px;">Upload File</span>
-          <span style="font-size:11px;opacity:.75;font-weight:400;">PDF, JPG, PNG</span>
-        </button>
-      </div>
-      <!-- hidden inputs -->
-      <input type="file" id="exp-camera-input" accept="image/*" capture="environment" style="display:none" onchange="runOCR(this,'expense')">
-      <input type="file" id="exp-ocr-input" accept="image/*,.pdf" style="display:none" onchange="runOCR(this,'expense')">
-      <div class="ocr-status" id="exp-ocr-status" style="margin-top:8px;"></div>
-      <div class="ocr-raw" id="exp-ocr-raw">
-        <span class="ocr-raw-label">Extracted text — copy what you need into the fields below:</span>
-        <textarea id="exp-ocr-text" readonly></textarea>
-      </div>
-      <hr class="divider">
       <div class="form-grid">
         <div class="form-field">
           <label>Date</label>
@@ -952,10 +860,10 @@ tr:hover td{background:#F0F8E8;}
         <strong>How to get your Amazon order CSV:</strong><br>
         Amazon → Account & Lists → Order History Reports → Request report → Select date range → Download CSV
       </div>
-      <div class="ocr-zone" onclick="document.getElementById('amazon-csv-input').click()">
-        <div class="ocr-zone-icon">📊</div>
-        <div class="ocr-zone-label">Upload Amazon order CSV</div>
-        <div class="ocr-zone-sub">The report CSV from Amazon Order History</div>
+      <div style="border:3px dashed #0A0A0A;border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;background:var(--surface);" onclick="document.getElementById('amazon-csv-input').click()">
+        <div style="font-size:32px;margin-bottom:8px;">📊</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Upload Amazon order CSV</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">The report CSV from Amazon Order History</div>
         <input type="file" id="amazon-csv-input" accept=".csv" style="display:none" onchange="parseAmazonCSV(this)">
       </div>
       <div id="amazon-preview" style="margin-top:14px;display:none;">
@@ -1069,7 +977,6 @@ var _fbProducts=[];
 var _currentShipEdit=null;
 var _shipItems=[];
 var _amazonRows=[];
-var _activeCompany='both';
 var _SYNC_URL='https://accounts-ten-eta.vercel.app/api/sync';
 
 var _syncTimer=null;
@@ -1216,22 +1123,6 @@ function showPanel(id){
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-overlay').classList.add('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-overlay').classList.remove('open');}
 
-// ── Company switcher ──
-var COMPANIES=['both','bee','swits'];
-var CO_IDX=0;
-function cycleCompany(){
-  CO_IDX=(CO_IDX+1)%COMPANIES.length;
-  _activeCompany=COMPANIES[CO_IDX];
-  updateCompanyPill();
-}
-function updateCompanyPill(){
-  var dot=document.getElementById('co-dot');
-  var lbl=document.getElementById('co-label');
-  if(_activeCompany==='both'){dot.className='company-dot both';lbl.textContent='Both Companies';}
-  else if(_activeCompany==='bee'){dot.className='company-dot bee';lbl.textContent='Bee Events';}
-  else{dot.className='company-dot swits';lbl.textContent='SWITS';}
-}
-
 // ══════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════
@@ -1247,7 +1138,6 @@ function renderDashboard(){
   var periodLabel=(!month&&!year)?'All time':(MONTHS[(parseInt(month)||1)-1]||'')+(year?' '+year:'');
   document.getElementById('dash-period').textContent='Showing: '+periodLabel+' · '+(co==='both'?'Both companies':co==='bee'?'Bee Events':'SWITS');
   renderReminders();
-  renderTodo();
   document.getElementById('dash-stats').innerHTML=
     statCard('Total Revenue','$'+fmt(rev),'From confirmed invoices','green')+
     statCard('Cost of Goods','$'+fmt(cogs),'Shipment landed costs','')+
@@ -1295,7 +1185,6 @@ function openShipmentModal(id){
   _shipItems=s?JSON.parse(JSON.stringify(s.items||[])):[{id:'si_'+Date.now(),product:'',cases:0,usdPerCase:0}];
   renderShipItemsTable();
   calcFX();
-  document.getElementById('ship-ocr-status').className='ocr-status';
   openModal('shipment-modal');
 }
 
@@ -1612,7 +1501,6 @@ function openExpenseModal(id){
   document.getElementById('exp-cat').value=e?e.category:CATEGORIES[0];
   document.getElementById('exp-company').value=e?e.company:'swits';
   document.getElementById('exp-notes').value=e?e.notes:'';
-  document.getElementById('exp-ocr-status').className='ocr-status';
   document.getElementById('expense-modal').dataset.editId=id||'';
   openModal('expense-modal');
 }
@@ -2038,72 +1926,6 @@ function renderGST(){
 }
 
 // ══════════════════════════════════════════════
-// OCR (Claude API)
-// ══════════════════════════════════════════════
-function runOCR(input,type){
-  var file=input.files[0];if(!file)return;
-  var statusEl=document.getElementById(type==='shipment'?'ship-ocr-status':'exp-ocr-status');
-  var rawBox=document.getElementById(type==='shipment'?'ship-ocr-raw':'exp-ocr-raw');
-  var rawText=document.getElementById(type==='shipment'?'ship-ocr-text':'exp-ocr-text');
-  statusEl.textContent='Scanning document...';statusEl.className='ocr-status loading';
-  rawBox.style.display='none';
-  var img=new Image();
-  var url=URL.createObjectURL(file);
-  img.onload=function(){
-    var MAX=1200;
-    var w=img.width,h=img.height;
-    if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
-    var canvas=document.createElement('canvas');
-    canvas.width=w;canvas.height=h;
-    canvas.getContext('2d').drawImage(img,0,0,w,h);
-    var base64=canvas.toDataURL('image/jpeg',0.8).split(',')[1];
-    URL.revokeObjectURL(url);
-    fetch('https://accounts-ten-eta.vercel.app/api/ocr',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({image:base64})
-    }).then(function(r){return r.json();}).then(function(data){
-      if(!data.ok||!data.text)throw new Error('No text extracted');
-      var txt=data.text;
-      // Show raw extracted text
-      rawText.value=txt;
-      rawBox.style.display='block';
-      // Also attempt basic auto-fill
-      var lines=txt.split('\n');
-      if(type==='shipment'){
-        var dateM=txt.match(/\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})\b/);
-        var totM=txt.match(/(?:total|amount|grand)[^\d]*(\d+[.,]\d{2})/i);
-        if(lines[0])document.getElementById('ship-supplier').value=lines[0].trim();
-        if(dateM){var p=dateM[1].split(/[\/\-]/);if(p[2]&&p[2].length===4)document.getElementById('ship-date').value=p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}
-        if(totM)document.getElementById('ship-usd').value=parseFloat(totM[1].replace(',','.'));
-      }else{
-        var dateM=txt.match(/\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})\b/);
-        var amtM=txt.match(/(?:total|amount|sgd|\$)[^\d]*(\d+[.,]\d{2})/i)||txt.match(/(\d+[.,]\d{2})/);
-        var descLines=lines.filter(function(l){return l.trim().length>3;});
-        if(dateM){var p=dateM[1].split(/[\/\-]/);if(p[2]&&p[2].length===4)document.getElementById('exp-date').value=p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}
-        if(amtM)document.getElementById('exp-amount').value=parseFloat(amtM[1].replace(',','.'));
-        if(descLines[0])document.getElementById('exp-desc').value=descLines[0].trim();
-      }
-      statusEl.textContent='Text extracted below. Auto-filled where possible — please review.';statusEl.className='ocr-status done';
-    }).catch(function(){
-      statusEl.textContent='Could not read. Please fill in manually.';
-      statusEl.className='ocr-status error';
-      rawBox.style.display='none';
-    });
-  };
-  img.src=url;
-}
-
-function handleOCRDrop(e,type){
-  e.preventDefault();e.currentTarget.classList.remove('drag');
-  var file=e.dataTransfer.files[0];if(!file)return;
-  var input=document.getElementById(type==='shipment'?'ship-ocr-input':'exp-ocr-input');
-  var dt=new DataTransfer();dt.items.add(file);input.files=dt.files;
-  runOCR(input,type);
-}
-function openOCRModal(type){if(type==='expense')openExpenseModal();}
-
-// ══════════════════════════════════════════════
 // AMAZON CSV
 // ══════════════════════════════════════════════
 function openAmazonImport(){openModal('amazon-modal');}
@@ -2364,8 +2186,12 @@ function populateFilters(){
   var yearOpts='<option value="">All years</option>'+years.map(function(y){return'<option value="'+y+'"'+(y===now.getFullYear()?' selected':'')+'>'+y+'</option>';}).join('');
   ['dash-month','ship-filter-month','exp-filter-month','sales-filter-month','pl-month','exp-month'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=monthOpts;});
   ['dash-year','ship-filter-year','exp-filter-year','sales-filter-year','pl-year','exp-year','gst-year'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=yearOpts;});
+  // Default all month filters to current month
+  ['dash-month','ship-filter-month','exp-filter-month','sales-filter-month','pl-month','exp-month'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value=String(now.getMonth()+1);
+  });
   // Set current quarter default for GST
-  var q=Math.ceil((new Date().getMonth()+1)/3);
+  var q=Math.ceil((now.getMonth()+1)/3);
   var gstQ=document.getElementById('gst-quarter');
   if(gstQ)gstQ.value=String(q);
 }
@@ -2400,15 +2226,6 @@ function quickAddExpense(){
   document.getElementById('qe-desc').value='';
   openModal('quick-expense-modal');
   setTimeout(function(){document.getElementById('qe-amount').focus();},100);
-}
-function quickScanReceipt(){
-  closeQuickMenu();
-  openExpenseModal();
-  // Trigger camera immediately
-  setTimeout(function(){
-    var cam=document.getElementById('exp-camera-input');
-    if(cam)cam.click();
-  },300);
 }
 function quickBoughtStock(){
   closeQuickMenu();
@@ -2468,8 +2285,7 @@ function renderReminders(){
     var prevMonthName=MONTHS[prevMonth-1];
     reminders.push({
       type:'amber',icon:'📦',
-      title:'Import '+prevMonthName+' Amazon orders',
-      sub:'It\'s a new month — import last month\'s Amazon CSV to keep expenses up to date.',
+      title:'Reminder: It\'s a new month — import '+prevMonthName+' Amazon orders',
       action:'Import now',
       onclick:'openAmazonImport()'
     });
@@ -2481,8 +2297,7 @@ function renderReminders(){
     var prevQ=quarter===1?4:quarter-1;
     reminders.push({
       type:'swits',icon:'🧾',
-      title:'Q'+prevQ+' GST filing due soon',
-      sub:'SWITS GST return for Q'+prevQ+' should be filed with IRAS. Check your net payable.',
+      title:'Reminder: Q'+prevQ+' IRAS GST filing due soon',
       action:'View GST Summary',
       onclick:'showPanel(\'gst\')'
     });
@@ -2518,40 +2333,20 @@ function renderReminders(){
   strip.innerHTML=reminders.map(function(r){
     return'<div class="reminder '+r.type+'" onclick="'+r.onclick+'">'
       +'<span class="reminder-icon">'+r.icon+'</span>'
-      +'<div class="reminder-body"><div class="reminder-title">'+r.title+'</div><div class="reminder-sub">'+esc(r.sub)+'</div></div>'
+      +'<div class="reminder-body"><div class="reminder-title">'+r.title+'</div></div>'
       +'<span class="reminder-action">'+r.action+' →</span>'
     +'</div>';
   }).join('');
 }
 
 // ── Todo / quick-action cards ──
-function renderTodo(){
-  var cards=[
-    {icon:'💸',label:'Log an expense',sub:'Takes 10 seconds',onclick:'quickAddExpense()',urgent:false},
-    {icon:'📷',label:'Scan a receipt',sub:'Auto-fills from photo',onclick:'quickScanReceipt()',urgent:false},
-    {icon:'📦',label:'I bought stock',sub:'Save a draft shipment',onclick:'quickBoughtStock()',urgent:false},
-    {icon:'📊',label:'View P&L',sub:'See your profit',onclick:'showPanel(\'pl\')',urgent:false},
-  ];
-  var strip=document.getElementById('todo-strip');
-  if(!strip)return;
-  strip.innerHTML=cards.map(function(c){
-    return'<div class="todo-card'+(c.urgent?' urgent':'')+'" onclick="'+c.onclick+'">'
-      +'<div class="todo-card-icon">'+c.icon+'</div>'
-      +'<div class="todo-card-label">'+c.label+'</div>'
-      +'<div class="todo-card-sub">'+c.sub+'</div>'
-    +'</div>';
-  }).join('');
-}
-
 function initQuickAdd(){
-  // Close quick menu when clicking elsewhere
   document.addEventListener('click',function(e){
     if(_qaMenuOpen&&!e.target.closest('#quick-add-btn')&&!e.target.closest('.quick-add-menu')){
       closeQuickMenu();
     }
   });
   renderReminders();
-  renderTodo();
 }
 
 // ══════════════════════════════════════════════
@@ -2570,7 +2365,6 @@ document.addEventListener('DOMContentLoaded',function(){
 // loadDB() is called after password unlock only
 try{populateFilters();}catch(e){console.warn('populateFilters error',e);}
 try{populateCatSelect();}catch(e){console.warn('populateCatSelect error',e);}
-try{updateCompanyPill();}catch(e){console.warn('updateCompanyPill error',e);}
 try{renderDashboard();}catch(e){console.warn('renderDashboard error',e);}
 try{fbLoad();}catch(e){console.warn('fbLoad error',e);}
 try{initQuickAdd();}catch(e){console.warn('initQuickAdd error',e);}
@@ -2579,7 +2373,6 @@ try{initQuickAdd();}catch(e){console.warn('initQuickAdd error',e);}
 <!-- ══ FLOATING QUICK-ADD BUTTON ══ -->
 <div class="quick-add-menu" id="quick-add-menu" style="display:none;">
   <button class="qa-item" onclick="quickAddExpense()"><span class="qa-item-icon">💸</span>Log an expense</button>
-  <button class="qa-item" onclick="quickScanReceipt()"><span class="qa-item-icon">📷</span>Scan receipt</button>
   <button class="qa-item" onclick="quickBoughtStock()"><span class="qa-item-icon">📦</span>I bought stock</button>
 </div>
 <button id="quick-add-btn" onclick="toggleQuickMenu()" title="Quick add">
