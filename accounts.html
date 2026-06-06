@@ -811,7 +811,6 @@ tr:hover td{background:#F0F8E8;}
       <div class="calc-display" id="landed-summary" style="margin-top:10px;display:none;"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('shipment-modal')">Cancel</button>
       <button class="btn btn-ghost" onclick="saveShipment('draft')" style="border-color:#8B5CF6;color:#8B5CF6;">
         <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         Save Draft
@@ -825,19 +824,20 @@ tr:hover td{background:#F0F8E8;}
 
 <!-- ══ SHIPMENT STEP 2 — Products (full-screen) ══ -->
 <div id="ship-step2" style="display:none;position:fixed;inset:0;z-index:600;flex-direction:column;background:#fff;">
-  <!-- Header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#0A0A0A;color:#fff;flex-shrink:0;">
-    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;" id="ship2-title">Products</div>
-    <button onclick="closeShipStep2()" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);cursor:pointer;font-size:14px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+  <!-- Header — fixed -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:2px solid #0A0A0A;flex-shrink:0;">
+    <span id="ship2-title" style="font-size:16px;font-weight:700;color:var(--text);">Products</span>
+    <button onclick="closeShipStep2()" style="width:28px;height:28px;border-radius:50%;background:#F0F0F0;border:1.5px solid #ccc;cursor:pointer;font-size:14px;color:#333;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
   </div>
 
-  <!-- Cost summary bar -->
-  <div id="ship2-summary-bar" style="padding:8px 16px;background:#F8F4FF;border-bottom:2px solid #8B5CF6;font-size:12px;flex-shrink:0;overflow-x:auto;white-space:nowrap;"></div>
+  <!-- Scrollable body: summary + toolbar + table all scroll together -->
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
-  <!-- Toolbar -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid var(--border);flex-shrink:0;gap:8px;">
-    <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Products</div>
-    <div style="display:flex;gap:6px;">
+    <!-- Cost summary — scrolls away -->
+    <div id="ship2-summary-bar" style="padding:8px 18px;font-size:12px;border-bottom:1px solid #E5E7EB;"></div>
+
+    <!-- Toolbar -->
+    <div style="display:flex;align-items:center;justify-content:flex-end;padding:8px 16px;border-bottom:1px solid var(--border);gap:8px;">
       <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ship-xlsx-input').click()">
         <svg viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         Import Excel
@@ -845,10 +845,8 @@ tr:hover td{background:#F0F8E8;}
       <input type="file" id="ship-xlsx-input" accept=".xlsx" style="display:none" onchange="importShipmentExcel(this)">
       <button class="btn btn-ghost btn-sm" onclick="addShipItem()">+ Add Product</button>
     </div>
-  </div>
 
-  <!-- Products table — scrollable body -->
-  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+    <!-- Products table -->
     <div style="overflow-x:auto;">
       <table class="ship-items" style="width:100%;min-width:340px;">
         <thead><tr>
@@ -866,7 +864,7 @@ tr:hover td{background:#F0F8E8;}
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- Footer — fixed -->
   <div style="padding:12px 16px;border-top:2px solid #0A0A0A;display:flex;gap:8px;justify-content:space-between;flex-shrink:0;background:#fff;flex-wrap:wrap;">
     <button class="btn btn-ghost" onclick="shipGoToStep1()">← Back</button>
     <div style="display:flex;gap:8px;">
@@ -1526,6 +1524,7 @@ function closeShipStep2(){
 }
 function refreshStep2SummaryBar(){
   var bar=document.getElementById('ship2-summary-bar');if(!bar)return;
+  var toggle=document.getElementById('ship2-summary-toggle');
   var isLocal=document.getElementById('ship-type')&&document.getElementById('ship-type').value==='local';
   var freightSGD=getFreightSGD();
   var otherSGD=getOtherChargesSGD();
@@ -1538,14 +1537,33 @@ function refreshStep2SummaryBar(){
   _otherCharges.forEach(function(r){if(r.cur==='USD'&&parseFloat(r.amount||0)>0&&parseFloat(r.sgdPaid||0)>0){blendUSD+=parseFloat(r.amount);blendSGD+=parseFloat(r.sgdPaid);}});
   var blendedRate=blendUSD>0&&blendSGD>0?blendSGD/blendUSD:0;
   var total=cogsSGD+freightSGD+otherSGD+customsTax;
-  var parts=[];
-  if(cogsSGD>0)parts.push('<span>Goods <strong>S$'+fmt(cogsSGD)+'</strong></span>');
-  if(freightSGD>0)parts.push('<span>Freight <strong>S$'+fmt(freightSGD)+'</strong></span>');
-  if(otherSGD>0)parts.push('<span>Other <strong>S$'+fmt(otherSGD)+'</strong></span>');
-  if(customsTax>0)parts.push('<span>Customs <strong>S$'+fmt(customsTax)+'</strong></span>');
-  if(!isLocal&&blendedRate>0)parts.push('<span>FX <strong>1 USD = '+blendedRate.toFixed(4)+' SGD</strong></span>');
-  parts.push('<span style="color:#5B21B6;font-weight:800;">Total S$'+fmt(total)+'</span>');
-  bar.innerHTML=parts.join('<span style="color:#C4B5FD;margin:0 6px;">·</span>');
+  var row=function(label,val){return'<div style="display:flex;justify-content:space-between;padding:2px 0;"><span style="color:var(--text-muted);">'+label+'</span><span>'+val+'</span></div>';};
+  var html='<div style="font-size:10px;font-weight:700;color:#8B5CF6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;text-align:center;">Cost Summary</div>'
+    +'<div style="max-width:360px;margin:0 auto;">'
+    +(cogsSGD>0?row('Cost of Goods','S$'+fmt(cogsSGD)):'')
+    +(freightSGD>0?row('Freight','S$'+fmt(freightSGD)):'')
+    +(otherSGD>0?row('Other Charges','S$'+fmt(otherSGD)):'')
+    +(customsTax>0?row('SG Customs Tax','S$'+fmt(customsTax)):'')
+    +(!isLocal&&blendedRate>0?row('Blended FX','1 USD = '+blendedRate.toFixed(4)+' SGD'):'')
+    +'<div style="display:flex;justify-content:space-between;padding:4px 0 0;border-top:1px solid #D1D5DB;margin-top:3px;font-weight:700;font-size:12px;"><span>Total Landed</span><span>S$'+fmt(total)+'</span></div>'
+    +'</div>';
+  bar.innerHTML=html;
+  // Show toggle button on mobile, hide bar by default if not yet expanded
+  if(toggle){
+    var isMobile=window.innerWidth<=600;
+    toggle.style.display=isMobile?'block':'none';
+    if(isMobile&&!bar.dataset.expanded){bar.style.display='none';}
+    else{bar.style.display='';}
+  }
+}
+function toggleSummaryBar(){
+  var bar=document.getElementById('ship2-summary-bar');
+  var toggle=document.getElementById('ship2-summary-toggle');
+  if(!bar)return;
+  var hidden=bar.style.display==='none';
+  bar.style.display=hidden?'':'none';
+  bar.dataset.expanded=hidden?'1':'';
+  if(toggle)toggle.textContent='Cost Summary '+(hidden?'▴':'▾');
 }
 
 // ── PRODUCT ROW FUNCTIONS ──
@@ -1582,6 +1600,10 @@ function renderShipItemsTable(){
     var landedPerUnit=ppc>0?totalLandedPerCase/ppc:0;
     var mainRow='<tr style="'+(item.isNew?'background:#F9F5FF;':'')+'">'
       +'<td style="min-width:130px;">'
+        +'<label style="display:flex;align-items:center;gap:5px;font-size:10px;color:#7C3AED;font-weight:600;margin-bottom:4px;cursor:pointer;">'
+          +'<input type="checkbox" '+(item.isNew?'checked':'')+' onchange="toggleNewProduct('+idx+')" style="cursor:pointer;width:12px;height:12px;">'
+          +'New product'
+        +'</label>'
         +(item.isNew
           ?'<input type="text" placeholder="Product name *" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #8B5CF6;border-radius:var(--r);">'
           :(_fbProducts.length
@@ -1592,10 +1614,6 @@ function renderShipItemsTable(){
             :'')
           +(!item.isNew?'<input type="text" placeholder="Or type name" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">':'')
         )
-        +'<label style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text-muted);margin-top:3px;cursor:pointer;">'
-          +'<input type="checkbox" '+(item.isNew?'checked':'')+' onchange="toggleNewProduct('+idx+')" style="cursor:pointer;">'
-          +'New product'
-        +'</label>'
       +'</td>'
       +'<td><input type="number" value="'+(item.cases||0)+'" min="0" step="1" onchange="shipItemField('+idx+',\'cases\',this.value)" style="width:52px;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></td>'
       +'<td>'+(isLocal?'<span style="color:var(--text-hint);font-size:11px;">N/A</span>':'<input type="number" value="'+(item.usdPerCase||0)+'" min="0" step="0.01" onchange="shipItemField('+idx+',\'usdPerCase\',this.value)" style="width:62px;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">')+'</td>'
