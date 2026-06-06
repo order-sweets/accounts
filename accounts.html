@@ -392,13 +392,13 @@ tr:hover td{background:#F0F8E8;}
   </div>
 
   <div class="filter-bar" style="display:flex;flex-wrap:nowrap;gap:6px;">
-    <select id="ship-filter-month" onchange="renderShipments()" style="flex:2;min-width:0;font-size:12px;padding:7px 6px;">
+    <select id="ship-filter-month" onchange="renderShipments()" style="flex:1.4;min-width:0;font-size:12px;padding:7px 6px;">
       <option value="">All months</option>
     </select>
     <select id="ship-filter-year" onchange="renderShipments()" style="flex:0 0 76px;min-width:0;font-size:12px;padding:7px 4px;">
       <option value="">All years</option>
     </select>
-    <select id="ship-filter-co" onchange="renderShipments()" style="flex:2;min-width:0;font-size:12px;padding:7px 6px;">
+    <select id="ship-filter-co" onchange="renderShipments()" style="flex:2.6;min-width:0;font-size:12px;padding:7px 6px;">
       <option value="">All companies</option>
       <option value="bee">Bee Events</option>
       <option value="swits">SWITS</option>
@@ -1634,7 +1634,7 @@ function renderShipments(){
             +esc(s.supplier||s.name||'Unnamed')
             +(s.draft?'<span class="badge" style="background:#8B5CF6;color:#fff;font-size:9px;">DRAFT</span>':'')
           +'</div>'
-          +'<div class="ship-meta">'+byline+'</div>'
+          +'<div class="ship-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;">'+byline+'</div>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
           +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
