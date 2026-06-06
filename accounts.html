@@ -391,15 +391,15 @@ tr:hover td{background:#F0F8E8;}
     </button>
   </div>
 
-  <div class="filter-bar">
-    <select id="ship-filter-month" onchange="renderShipments()">
+  <div class="filter-bar" style="display:flex;flex-wrap:nowrap;gap:6px;">
+    <select id="ship-filter-month" onchange="renderShipments()" style="flex:1;min-width:0;">
       <option value="">All months</option>
     </select>
-    <select id="ship-filter-year" onchange="renderShipments()">
+    <select id="ship-filter-year" onchange="renderShipments()" style="flex:1;min-width:0;">
       <option value="">All years</option>
     </select>
-    <select id="ship-filter-co" onchange="renderShipments()">
-      <option value="">All companies</option>
+    <select id="ship-filter-co" onchange="renderShipments()" style="flex:1;min-width:0;">
+      <option value="">All cos</option>
       <option value="bee">Bee Events</option>
       <option value="swits">SWITS</option>
     </select>
@@ -1624,8 +1624,9 @@ function renderShipments(){
       return '<tr><td>'+esc(it.product)+'</td><td>'+it.cases+'</td><td>S$'+fmt(it.usdPerCase*s.fxRate)+'</td><td>S$'+fmt(it.freightPerCase)+'</td><td>S$'+fmt(it.landedPerCase)+'</td><td>'+(it.landedPerUnit>0?'S$'+fmt(it.landedPerUnit):'—')+'</td></tr>';
     }).join('');
     var totalQty=items.reduce(function(sum,it){return sum+(parseFloat(it.cases||0)*(it.ppc||1));},0);
+    var totalCases=items.reduce(function(sum,it){return sum+parseFloat(it.cases||0);},0);
     var productCount=items.length;
-    var byline=fmtDate(s.date)+(s.arrival?' → '+fmtDate(s.arrival):'')+(productCount>0?' · '+productCount+' product'+(productCount!==1?'s':'')+', '+Math.round(totalQty)+' units':'');
+    var byline='Ordered: '+fmtDate(s.date)+(productCount>0?' · '+productCount+' product'+(productCount!==1?'s':'')+', '+Math.round(totalCases)+' cases, '+Math.round(totalQty)+' units':'');
     return '<div class="ship-card" id="sc-'+s.id+'">'
       +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')">'
         +'<div class="ship-info">'
@@ -1643,14 +1644,14 @@ function renderShipments(){
       +'</div>'
       +'<div class="ship-body" id="sc-body-'+s.id+'">'
         +(items.length?'<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Cases</th><th>SGD cost/case</th><th>Freight/case</th><th>Landed/case</th><th>Landed/unit</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>':'<div style="color:var(--text-hint);font-size:13px;padding:8px 0;">No products — edit to add.</div>')
-        +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'
+        +'<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:nowrap;">'
           +(!s.draft
             ?(s.stockApplied
-              ?'<span class="badge badge-green" style="padding:6px 12px;font-size:12px;">✓ Stock applied '+(s.stockAppliedAt?fmtDate(s.stockAppliedAt):'')+'</span>'
-              :'<button class="btn btn-green btn-sm" onclick="openApplyStock(\''+s.id+'\');event.stopPropagation()">📦 Apply to Stock</button>')
+              ?'<span class="badge badge-green" style="padding:6px 12px;font-size:12px;">&#10003; Stock applied '+(s.stockAppliedAt?fmtDate(s.stockAppliedAt):'')+'</span>'
+              :'<button class="btn btn-green btn-sm" onclick="openApplyStock(\''+s.id+'\');event.stopPropagation()" style="flex:1;justify-content:center;">Apply to Stock</button>')
             :'')
-          +'<button class="btn btn-ghost btn-sm" onclick="openShipmentModal(\''+s.id+'\');event.stopPropagation()">✏️ Edit</button>'
-          +'<button class="btn btn-danger btn-sm" onclick="deleteShipment(\''+s.id+'\');event.stopPropagation()">🗑 Delete</button>'
+          +'<button class="btn btn-ghost btn-sm" onclick="openShipmentModal(\''+s.id+'\');event.stopPropagation()" style="flex:1;justify-content:center;">Edit</button>'
+          +'<button class="btn btn-danger btn-sm" onclick="deleteShipment(\''+s.id+'\');event.stopPropagation()" style="flex:1;justify-content:center;">Delete</button>'
         +'</div>'
       +'</div>'
       +'</div>';
@@ -2694,10 +2695,11 @@ function populateFilters(){
   var yearOpts='<option value="">All years</option>'+years.map(function(y){return'<option value="'+y+'"'+(y===now.getFullYear()?' selected':'')+'>'+y+'</option>';}).join('');
   ['dash-month','ship-filter-month','exp-filter-month','pl-month','exp-month'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=monthOpts;});
   ['dash-year','ship-filter-year','exp-filter-year','sales-filter-year','pl-year','exp-year','gst-year'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=yearOpts;});
-  // Default all month filters to current month
-  ['dash-month','ship-filter-month','exp-filter-month','sales-filter-month','pl-month','exp-month'].forEach(function(id){
+  // Default month filters to current month — except shipments which shows All months
+  ['dash-month','exp-filter-month','pl-month','exp-month'].forEach(function(id){
     var el=document.getElementById(id);if(el)el.value=String(now.getMonth()+1);
   });
+  // Shipments: All months, current year (already set via yearOpts selected attr)
   // Set current quarter default for GST
   var q=Math.ceil((now.getMonth()+1)/3);
   var gstQ=document.getElementById('gst-quarter');
