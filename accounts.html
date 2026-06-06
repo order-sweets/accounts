@@ -1738,11 +1738,11 @@ function renderExpenses(){
       +'<div id="exp-detail-'+e.id+'" style="display:none;padding:10px 12px 12px;border-top:1px solid var(--border);">'
         +itemsHtml
         +gstBreakdown
-        +'<div style="font-size:12px;margin-top:8px;color:var(--text-muted);">'
-          +'<span style="color:var(--text-muted);">Category:</span> <span style="color:var(--text);font-weight:600;">'+esc(e.category)+'</span>'
-          +' · <span style="color:var(--text-muted);">Company:</span> <span style="color:var(--text);font-weight:600;">'+(e.company==='bee'?'Bee Events':'SWITS')+'</span>'
-          +(e.paymentMode?' · <span style="color:var(--text-muted);">Payment:</span> <span style="color:var(--text);font-weight:600;">'+esc(e.paymentMode.charAt(0).toUpperCase()+e.paymentMode.slice(1))+'</span>':'')
-          +(e.notes?' · <span style="color:var(--text-muted);">'+esc(e.notes)+'</span>':'')
+        +'<div style="font-size:12px;margin-top:8px;display:flex;flex-direction:column;gap:3px;">'
+          +'<div><span style="color:var(--text-muted);">Company:</span> <span style="color:var(--text);font-weight:600;">'+(e.company==='bee'?'Bee Events':'SWITS')+'</span></div>'
+          +'<div><span style="color:var(--text-muted);">Category:</span> <span style="color:var(--text);font-weight:600;">'+esc(e.category)+'</span></div>'
+          +(e.paymentMode?'<div><span style="color:var(--text-muted);">Payment:</span> <span style="color:var(--text);font-weight:600;">'+esc(e.paymentMode.charAt(0).toUpperCase()+e.paymentMode.slice(1))+'</span></div>':'')
+          +(e.notes?'<div style="color:var(--text-muted);margin-top:2px;">'+esc(e.notes)+'</div>':'')
         +'</div>'
         +'<div style="display:flex;gap:6px;margin-top:8px;">'
           +'<button class="btn btn-ghost" onclick="openExpenseModal(\''+e.id+'\')" style="font-size:11px;padding:4px 10px;">✏️ Edit</button>'
