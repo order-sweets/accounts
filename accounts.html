@@ -136,7 +136,7 @@ tr:hover td{background:#F0F8E8;}
 /* ── MODAL ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
 .modal-overlay.open{display:flex;}
-.modal{background:#fff;border-radius:var(--r-xl);width:100%;max-width:600px;margin:auto;box-shadow:var(--shadow-md);border:3px solid #0A0A0A;}
+.modal{background:#fff;border-radius:var(--r-xl);width:100%;max-width:600px;margin:auto;box-shadow:var(--shadow-md);border:3px solid #0A0A0A;overflow:hidden;}
 .modal-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:3px solid #0A0A0A;background:#3D55F0;color:#fff;}
 .modal-title{font-family:'Syne',sans-serif;font-size:20px;}
 .modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;}
@@ -295,7 +295,7 @@ tr:hover td{background:#F0F8E8;}
     <div class="sb-section">Costs</div>
     <button class="sb-item" id="nav-shipments" onclick="showPanel('shipments')">
       <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-      Purchase of Stock
+      Stock Purchases
     </button>
     <button class="sb-item" id="nav-expenses" onclick="showPanel('expenses')">
       <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
@@ -377,13 +377,17 @@ tr:hover td{background:#F0F8E8;}
 
 <!-- ══ IMPORT SHIPMENTS ══ -->
 <div class="panel" id="panel-shipments">
-  <div class="panel-title">Purchase of Stock</div>
-  <div class="panel-sub">Track each import — supplier costs, freight, FX conversion and landed cost per unit.</div>
+  <div class="panel-title">Stock Purchases</div>
+  <div class="panel-sub">Track stock purchases — imports with FX conversion or local purchases in SGD.</div>
 
-  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-    <button class="btn btn-primary" onclick="openShipmentModal()">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
+    <button class="btn btn-primary" onclick="openShipmentModal(null,'import')" style="justify-content:center;font-size:12px;padding:9px 8px;">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      New Shipment
+      Import
+    </button>
+    <button class="btn btn-primary" onclick="openShipmentModal(null,'local')" style="justify-content:center;font-size:12px;padding:9px 8px;">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Local Purchase
     </button>
   </div>
 
@@ -577,12 +581,12 @@ tr:hover td{background:#F0F8E8;}
     <div class="panel-sub">A quick guide to getting the most out of this accounting system.</div>
 
     <div class="help-section">
-      <div class="help-section-title">📦 Purchase of Stock</div>
+      <div class="help-section-title">📦 Stock Purchases</div>
       <div class="help-step">
         <div class="help-step-num">1</div>
         <div class="help-step-body">
           <div class="help-step-title">Create a new shipment</div>
-          <div class="help-step-desc">Go to Purchase of Stock → New Shipment. Fill in the name, supplier, order date and arrival date. You can upload your supplier invoice to auto-fill everything.</div>
+          <div class="help-step-desc">Go to Stock Purchases → New Shipment. Fill in the name, supplier, order date and arrival date. You can upload your supplier invoice to auto-fill everything.</div>
         </div>
       </div>
       <div class="help-step">
@@ -1208,7 +1212,7 @@ function getCOGS(month,year,co){
 // NAVIGATION
 // ══════════════════════════════════════════════
 var PANELS=['dashboard','shipments','expenses','sales','products','pl','export','gst','help'];
-var PANEL_TITLES={dashboard:'Dashboard',shipments:'Purchase of Stock',expenses:'Expenses',sales:'Revenue Summary',products:'Product P&L',pl:'P&L Report',export:'Export',gst:'GST Summary',help:'How to Use'};
+var PANEL_TITLES={dashboard:'Dashboard',shipments:'Stock Purchases',expenses:'Expenses',sales:'Revenue Summary',products:'Product P&L',pl:'P&L Report',export:'Export',gst:'GST Summary',help:'How to Use'};
 
 function showPanel(id){
   PANELS.forEach(function(p){
@@ -1271,10 +1275,10 @@ function statCard(lbl,val,sub,cls){
 // ══════════════════════════════════════════════
 // SHIPMENTS
 // ══════════════════════════════════════════════
-function openShipmentModal(id){
+function openShipmentModal(id,forceType){
   _currentShipEdit=id||null;
   var s=id?DB.shipments.find(function(x){return x.id===id;}):null;
-  document.getElementById('ship-modal-title').textContent=s?'Edit Shipment':'New Import Shipment';
+  document.getElementById('ship-modal-title').textContent=s?'Edit Shipment':'New Shipment';
   document.getElementById('ship-name').value=s?s.name:'';
   document.getElementById('ship-date').value=s?s.date:new Date().toISOString().split('T')[0];
   document.getElementById('ship-arrival').value=s?(s.arrival||''):'';
@@ -1290,8 +1294,8 @@ function openShipmentModal(id){
   _shipItems=s?JSON.parse(JSON.stringify(s.items||[])):[{id:'si_'+Date.now(),product:'',cases:0,usdPerCase:0}];
   renderShipItemsTable();
   calcFX();
-  // Set purchase type
-  var type=s?(s.shipType||'import'):'import';
+  // Set purchase type — forceType for new, saved type for edits
+  var type=forceType||(s?(s.shipType||'import'):'import');
   document.getElementById('ship-type').value=type;
   setShipType(type);
   openModal('shipment-modal');
@@ -2628,7 +2632,7 @@ function saveQuickStock(){
   DB.shipments.push(draft);
   saveDB();
   closeModal('quick-stock-modal');
-  toast('✓ Draft shipment saved! Complete it in Purchase of Stock.');
+  toast('✓ Draft shipment saved! Complete it in Stock Purchases.');
   renderDashboard();
 }
 
@@ -2780,7 +2784,7 @@ try{initQuickAdd();}catch(e){console.warn('initQuickAdd error',e);}
         </div>
       </div>
       <div style="background:var(--amber-bg);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--amber-text);margin-top:12px;">
-        💡 This saves a draft shipment. Go to Purchase of Stock to complete it with exact product costs and apply to stock when goods arrive.
+        💡 This saves a draft shipment. Go to Stock Purchases to complete it with exact product costs and apply to stock when goods arrive.
       </div>
     </div>
     <div class="modal-footer">
