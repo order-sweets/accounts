@@ -1607,12 +1607,11 @@ function renderShipItemsTable(){
         +(item.isNew
           ?'<input type="text" placeholder="Product name *" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #8B5CF6;border-radius:var(--r);">'
           :(_fbProducts.length
-            ?'<select onchange="shipItemProductSel('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);margin-bottom:3px;">'
+            ?'<select onchange="shipItemProductSel('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">'
               +'<option value="">— Pick —</option>'
               +_fbProducts.map(function(p){return'<option value="'+esc(p.name)+'"'+(item.product===p.name?' selected':'')+'>'+esc(p.name)+'</option>';}).join('')
             +'</select>'
-            :'')
-          +(!item.isNew?'<input type="text" placeholder="Or type name" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">':'')
+            :'<input type="text" placeholder="Product name" value="'+esc(item.product)+'" oninput="shipItemCustomName('+idx+',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);">')
         )
       +'</td>'
       +'<td><input type="number" value="'+(item.cases||0)+'" min="0" step="1" onchange="shipItemField('+idx+',\'cases\',this.value)" style="width:52px;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></td>'
