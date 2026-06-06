@@ -81,14 +81,15 @@ body{font-family:'Space Grotesk',-apple-system,sans-serif;background:var(--bg);c
 
 /* ── SECTION CARD ── */
 .sec-card{background:#fff;border:2px solid #0A0A0A;border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden;}
-.sec-card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:2px solid #0A0A0A;background:#D9F000;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+.sec-card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:2px solid #0A0A0A;background:#8B5CF6;color:#fff;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+.sec-card-title{color:#fff;}
 .sec-card-title{font-size:14px;font-weight:800;letter-spacing:-.01em;}
 .sec-card-body{padding:16px 18px;}
 
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:all .15s;white-space:nowrap;}
 .btn svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.btn-primary{background:#0A0A0A;color:#fff;border:2px solid #0A0A0A;}
+.btn-primary{background:#D9F000;color:#0A0A0A;border:2px solid #0A0A0A;}
 .btn-primary:hover{opacity:.88;}
 .btn-green{background:var(--green);color:#fff;}
 .btn-green:hover{background:#0f6e56;}
@@ -122,7 +123,7 @@ body{font-family:'Space Grotesk',-apple-system,sans-serif;background:var(--bg);c
 /* ── TABLES ── */
 .tbl-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-th{font-size:11px;font-weight:800;color:#0A0A0A;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;border-bottom:3px solid #0A0A0A;text-align:left;white-space:nowrap;background:#D9F000;}
+th{font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;border-bottom:3px solid #0A0A0A;text-align:left;white-space:nowrap;background:#8B5CF6;}
 td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#F0F8E8;}
@@ -344,7 +345,6 @@ tr:hover td{background:#F0F8E8;}
 <!-- ══ DASHBOARD ══ -->
 <div class="panel active" id="panel-dashboard">
   <div class="panel-title">Dashboard</div>
-  <div class="panel-sub" id="dash-period">Loading…</div>
 
   <!-- Reminders -->
   <div class="reminder-strip" id="reminder-strip"></div>
@@ -454,10 +454,7 @@ tr:hover td{background:#F0F8E8;}
 <!-- ══ SALES ══ -->
 <div class="panel" id="panel-sales">
   <div class="panel-title">Revenue Summary</div>
-  <div class="panel-sub">Auto-pulled from confirmed invoices in the invoicing system.</div>
-  <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--amber-text);margin-bottom:16px;line-height:1.6;">
-    B2B revenue reflects confirmed invoices only. Shopee figures are updated on the 15th of each month — current month is provisional until then.
-  </div>
+  <div class="panel-sub">Auto-pulled from confirmed invoices in the invoicing system. Shopee figures are updated on the 15th of each month.</div>
   <div class="filter-bar">
     <select id="sales-filter-year" onchange="renderSales()"><option value="">All years</option></select>
   </div>
@@ -467,18 +464,18 @@ tr:hover td{background:#F0F8E8;}
       <span id="sales-total-display" style="font-size:13px;font-weight:700;"></span>
     </div>
     <!-- Desktop header -->
-    <div class="rev-desktop" style="display:grid;grid-template-columns:120px 1fr 1fr 1fr 1fr 1fr;gap:0;border-bottom:3px solid #0A0A0A;background:#D9F000;padding:7px 12px;">
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Month</span>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Bee Events</span>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;">SWITS</span>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Returns</span>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Shopee</span>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Total</span>
+    <div class="rev-desktop" style="display:grid;grid-template-columns:120px 1fr 1fr 1fr 1fr 1fr;gap:0;border-bottom:3px solid #0A0A0A;background:#8B5CF6;padding:7px 12px;">
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#fff;">Month</span>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;color:#fff;">Bee Events</span>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;color:#fff;">SWITS</span>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;color:#fff;">Returns</span>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;color:#fff;">Shopee</span>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;color:#fff;">Total</span>
     </div>
     <!-- Mobile header -->
-    <div class="rev-mobile" style="display:none;grid-template-columns:1fr auto 20px;gap:0;border-bottom:3px solid #0A0A0A;background:#D9F000;padding:7px 12px;">
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;">Month</span>
-      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;">Total</span>
+    <div class="rev-mobile" style="display:none;grid-template-columns:1fr auto 20px;gap:0;border-bottom:3px solid #0A0A0A;background:#8B5CF6;padding:7px 12px;">
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#fff;">Month</span>
+      <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;text-align:right;color:#fff;">Total</span>
       <span></span>
     </div>
     <div id="sales-tbody"></div>
@@ -1216,7 +1213,6 @@ function renderDashboard(){
   var totalCost=exp+cogs;
   var profit=rev-totalCost;
   var periodLabel=(!month&&!year)?'All time':(MONTHS[(parseInt(month)||1)-1]||'')+(year?' '+year:'');
-  document.getElementById('dash-period').textContent='Showing: '+periodLabel+' · '+(co==='both'?'Both companies':co==='bee'?'Bee Events':'SWITS');
   renderReminders();
   document.getElementById('dash-stats').innerHTML=
     statCard('Total Revenue','$'+fmt(rev),'From confirmed invoices','green')+
@@ -1741,10 +1737,10 @@ function renderExpenses(){
   if(!list.length){container.innerHTML='<div style="text-align:center;color:var(--text-hint);padding:24px;">No expenses found.</div>';return;}
 
   // Column header row
-  var html='<div style="display:grid;grid-template-columns:52px 1fr auto 18px;gap:0;border-bottom:2px solid #0A0A0A;background:var(--surface2);">'
-    +'<span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;color:var(--text-muted);">Date</span>'
-    +'<span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;color:var(--text-muted);">Supplier</span>'
-    +'<span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;color:var(--text-muted);text-align:right;">Amount</span>'
+  var html='<div style="display:grid;grid-template-columns:52px 1fr auto 18px;gap:0;border-bottom:2px solid #0A0A0A;background:#8B5CF6;">'
+    +'<span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;color:#fff;">Date</span>'
+    +'<span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;color:#fff;">Supplier</span>'
+    +'<span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;color:#fff;text-align:right;">Amount</span>'
     +'<span></span>'
   +'</div>';
 
@@ -2634,8 +2630,7 @@ function renderReminders(){
   strip.innerHTML=reminders.map(function(r){
     return'<div class="reminder '+r.type+'" onclick="'+r.onclick+'">'
       +'<span class="reminder-icon">'+r.icon+'</span>'
-      +'<div class="reminder-body"><div class="reminder-title">'+r.title+'</div></div>'
-      +'<span class="reminder-action">'+r.action+' →</span>'
+      +'<div class="reminder-body"><div class="reminder-title">'+r.title+'</div>'+(r.sub?'<div class="reminder-sub">'+esc(r.sub)+'</div>':'')+'</div>'
     +'</div>';
   }).join('');
 }
