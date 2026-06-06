@@ -799,7 +799,7 @@ tr:hover td{background:#F0F8E8;}
 
       <!-- SG Customs Tax -->
       <hr class="divider">
-      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">SG Customs Tax</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">SG Customs Tax ($)</div>
       <input type="number" id="ship-customs-tax" placeholder="0.00" min="0" step="0.01" onchange="recalcLanded()" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;">
 
       <!-- Grand Total Summary -->
@@ -1307,21 +1307,22 @@ function renderFxRows(){
   if(!el)return;
   el.innerHTML=_fxRows.map(function(r){
     var rate=(parseFloat(r.usd)>0&&parseFloat(r.sgd)>0)?(parseFloat(r.sgd)/parseFloat(r.usd)):0;
-    return'<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">'
+    return'<div style="margin-bottom:14px;">'
       // Date row
-      +'<div style="margin-bottom:6px;">'
+      +'<div style="margin-bottom:8px;">'
         +'<div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Date</div>'
-        +'<input type="date" value="'+esc(r.date)+'" style="font-size:12px;padding:7px 6px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'date\',this.value)">'
+        +'<input type="date" value="'+esc(r.date)+'" style="font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;background:#fff;" onchange="updateFxRow(\''+r.id+'\',\'date\',this.value)">'
       +'</div>'
-      // USD / SGD / Rate / × row
-      +'<div style="display:grid;grid-template-columns:1fr 1fr 50px 24px;gap:6px;align-items:end;">'
-        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">USD Paid</div>'
-          +'<input type="number" value="'+esc(r.usd)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'usd\',this.value)"></div>'
-        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">SGD Transferred</div>'
-          +'<input type="number" value="'+esc(r.sgd)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateFxRow(\''+r.id+'\',\'sgd\',this.value)"></div>'
-        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Rate</div>'
-          +'<div id="fxrate-'+r.id+'" style="font-size:12px;font-weight:700;color:var(--green-text);padding:9px 4px;">'+(rate>0?rate.toFixed(4):'—')+'</div></div>'
-        +'<div style="padding-bottom:8px;"><button type="button" onclick="removeFxRow(\''+r.id+'\')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);padding:0;">×</button></div>'
+      // Amount(USD) / Remitted(SGD) / Rate / × row
+      +'<div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:end;">'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Amount (USD)</div>'
+          +'<input type="number" value="'+esc(r.usd)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;background:#fff;" onchange="updateFxRow(\''+r.id+'\',\'usd\',this.value)"></div>'
+        +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Remitted (SGD)</div>'
+          +'<input type="number" value="'+esc(r.sgd)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;background:#fff;" onchange="updateFxRow(\''+r.id+'\',\'sgd\',this.value)"></div>'
+        +'<div style="padding-bottom:2px;"><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Rate</div>'
+          +'<div id="fxrate-'+r.id+'" style="font-size:13px;font-weight:700;color:var(--green-text);padding:9px 4px;white-space:nowrap;">'+(rate>0?rate.toFixed(4):'—')+'</div></div>'
+        +'<div style="padding-bottom:2px;"><div style="font-size:10px;margin-bottom:3px;">&nbsp;</div>'
+          +'<button type="button" onclick="removeFxRow(\''+r.id+'\')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);padding:9px 4px;">×</button></div>'
       +'</div>'
     +'</div>';
   }).join('');
@@ -1361,7 +1362,7 @@ function renderOtherCharges(){
   el.innerHTML=_otherCharges.map(function(r){
     var isUSD=r.cur==='USD';
     var rate=(isUSD&&parseFloat(r.amount)>0&&parseFloat(r.sgdPaid)>0)?(parseFloat(r.sgdPaid)/parseFloat(r.amount)):0;
-    return'<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">'
+    return'<div style="margin-bottom:14px;">'
       // Description row
       +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;">'
         +'<input type="text" value="'+esc(r.desc)+'" placeholder="e.g. Customs fee" style="font-size:12px;padding:7px 8px;border:2px solid #0A0A0A;border-radius:var(--r);flex:1;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'desc\',this.value)">'
@@ -1372,7 +1373,7 @@ function renderOtherCharges(){
         +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Amount</div>'
           +'<input type="number" value="'+esc(r.amount)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'amount\',this.value)"></div>'
         +'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">Cur</div>'
-          +'<select onchange="updateOtherCharge(\''+r.id+'\',\'cur\',this.value)" style="font-size:13px;padding:9px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;"><option value="SGD"'+(r.cur==='SGD'?' selected':'')+'>SGD</option><option value="USD"'+(r.cur==='USD'?' selected':'')+'>USD</option></select></div>'
+          +'<select onchange="updateOtherCharge(\''+r.id+'\',\'cur\',this.value)" style="font-size:13px;padding:9px 8px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;background:#fff;"><option value="SGD"'+(r.cur==='SGD'?' selected':'')+'>SGD</option><option value="USD"'+(r.cur==='USD'?' selected':'')+'>USD</option></select></div>'
         +(isUSD
           ?'<div><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:3px;">SGD Paid</div>'
             +'<input type="number" value="'+esc(r.sgdPaid)+'" placeholder="0.00" min="0" step="0.01" style="font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);width:100%;font-family:inherit;" onchange="updateOtherCharge(\''+r.id+'\',\'sgdPaid\',this.value)"></div>'
@@ -1467,7 +1468,6 @@ function addShipItem(){_shipItems.push({id:'si_'+Date.now(),product:'',cases:0,u
 function removeShipItem(idx){_shipItems.splice(idx,1);renderShipItemsTable();}
 
 function updateShipSummary(){
-  var rate=getFXRate();
   var freightSGD=getFreightSGD();
   var otherSGD=getOtherChargesSGD();
   var customsTax=parseFloat(document.getElementById('ship-customs-tax')?document.getElementById('ship-customs-tax').value||0:0);
@@ -1477,6 +1477,16 @@ function updateShipSummary(){
   var cogsSGD=isLocal
     ?(parseFloat(document.getElementById('ship-sgd-local').value||0))
     :_fxRows.reduce(function(s,r){return s+parseFloat(r.sgd||0);},0);
+  // Blended FX = goods payment + any USD other charges with their own SGD paid
+  var blendUSD=cogsUSD;
+  var blendSGD=cogsSGD;
+  _otherCharges.forEach(function(r){
+    if(r.cur==='USD'&&parseFloat(r.amount||0)>0&&parseFloat(r.sgdPaid||0)>0){
+      blendUSD+=parseFloat(r.amount);
+      blendSGD+=parseFloat(r.sgdPaid);
+    }
+  });
+  var blendedRate=blendUSD>0&&blendSGD>0?blendSGD/blendUSD:0;
   var total=cogsSGD+freightSGD+otherSGD+customsTax;
   var el=document.getElementById('ship-summary');
   if(!el)return;
@@ -1485,7 +1495,7 @@ function updateShipSummary(){
     +(freightSGD>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Freight</span><span>S$'+fmt(freightSGD)+'</span></div>':'')
     +(otherSGD>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Other Charges</span><span>S$'+fmt(otherSGD)+'</span></div>':'')
     +(customsTax>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">SG Customs Tax</span><span>S$'+fmt(customsTax)+'</span></div>':'')
-    +(!isLocal&&rate!==1?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Blended FX Rate</span><span>1 USD = S$'+rate.toFixed(4)+'</span></div>':'')
+    +(!isLocal&&blendedRate>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Blended FX Rate</span><span>1 USD = S$'+blendedRate.toFixed(4)+'</span></div>':'')
     +'<div style="display:flex;justify-content:space-between;border-top:2px solid #0A0A0A;padding-top:6px;margin-top:2px;font-weight:700;font-size:14px;"><span>Total Landed (SGD)</span><span>'+(total>0?'S$'+fmt(total):'—')+'</span></div>'
     +'</div>';
   document.getElementById('landed-summary').style.display='none';
