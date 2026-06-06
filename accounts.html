@@ -1815,20 +1815,24 @@ function renderShipments(){
     var bylineLine1='Ordered: '+fmtDate(s.date)+(s.arrival?' → '+fmtDate(s.arrival):'');
     var bylineLine2=productCount>0?productCount+' items · '+Math.round(totalCasesCard)+' boxes · '+Math.round(totalQty)+' pcs':'No products yet';
     return '<div class="ship-card" id="sc-'+s.id+'">'
-      +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')" style="align-items:flex-start;">'
-        +'<div class="ship-info" style="flex:1;min-width:0;">'
-          +'<div class="ship-name">'
+      +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')" style="flex-direction:column;align-items:stretch;gap:4px;">'
+        +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
+          +'<div class="ship-name" style="flex:1;min-width:0;">'
             +esc(s.supplier||s.name||'Unnamed')
             +(s.draft?' <span style="font-size:11px;font-weight:400;color:#8B5CF6;">(Draft)</span>':'')
           +'</div>'
-          +'<div class="ship-meta" style="font-size:10px;line-height:1.5;">'+bylineLine1+'</div>'
-          +'<div class="ship-meta" style="font-size:10px;line-height:1.5;color:var(--text-muted);">'+bylineLine2+'</div>'
+          +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">'
+            +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
+            +'<span class="ship-chev" id="sc-chev-'+s.id+'">▼</span>'
+          +'</div>'
         +'</div>'
-        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px;">'
-          +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
-          +'<span class="ship-total">S$'+fmt(s.totalSGD)+'</span>'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
+          +'<div>'
+            +'<div class="ship-meta" style="font-size:10px;line-height:1.5;">'+bylineLine1+'</div>'
+            +'<div class="ship-meta" style="font-size:10px;line-height:1.5;color:var(--text-muted);">'+bylineLine2+'</div>'
+          +'</div>'
+          +'<span class="ship-total" style="flex-shrink:0;">S$'+fmt(s.totalSGD)+'</span>'
         +'</div>'
-        +'<span class="ship-chev" id="sc-chev-'+s.id+'" style="margin-left:4px;">▼</span>'
       +'</div>'
       +'<div class="ship-body" id="sc-body-'+s.id+'">'
         +(items.length?'<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Cases</th><th>SGD/case</th><th>Freight/case</th><th>Landed/case</th><th>Landed/unit</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>':'<div style="color:var(--text-hint);font-size:13px;padding:8px 0;">No products — edit to add.</div>')
