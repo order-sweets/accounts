@@ -1862,10 +1862,10 @@ function renderSales(){
       // Expandable detail (both mobile and desktop)
       +'<div id="'+rowId+'" style="display:none;padding:10px 14px 12px;background:var(--surface);border-top:1px solid var(--border);">'
         +'<div style="font-size:12px;display:flex;flex-direction:column;gap:4px;">'
-          +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Bee Events</span><span style="font-weight:600;color:var(--bee-text);">S$'+fmt(b.bee)+'</span></div>'
-          +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">SWITS</span><span style="font-weight:600;color:var(--swits-text);">S$'+fmt(b.swits)+'</span></div>'
+          +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Bee Events</span><span style="font-weight:600;color:#3D55F0;">S$'+fmt(b.bee)+'</span></div>'
+          +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">SWITS</span><span style="font-weight:600;color:#3D55F0;">S$'+fmt(b.swits)+'</span></div>'
+          +(shopee!==null?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Shopee</span><span style="font-weight:600;color:#3D55F0;">S$'+fmt(shopee)+'</span></div>':'')
           +(b.returns>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Returns</span><span style="font-weight:600;color:var(--red-text);">−S$'+fmt(b.returns)+'</span></div>':'')
-          +(shopee!==null?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Shopee</span><span style="font-weight:600;color:#f97316;">S$'+fmt(shopee)+'</span></div>':'')
           +'<div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:4px;margin-top:2px;"><span style="font-weight:700;">Total</span><span style="font-weight:700;color:var(--green-text);">S$'+fmt(total)+'</span></div>'
         +'</div>'
       +'</div>'
