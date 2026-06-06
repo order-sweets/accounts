@@ -1629,9 +1629,9 @@ function renderShipItemsTable(){
               +'<input type="number" value="'+esc(item.newPPC||'')+'" placeholder="e.g. 24" min="1" oninput="shipNewField('+idx+',\'newPPC\',this.value);renderShipItemsTable();" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></div>'
             +'<div><div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Weight per Piece</div>'
               +'<input type="text" value="'+esc(item.newWeight||'')+'" placeholder="e.g. 40g" oninput="shipNewField('+idx+',\'newWeight\',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></div>'
-            +'<div><div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Retail Price/piece ($) *</div>'
+            +'<div><div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Retail Price/piece ($)</div>'
               +'<input type="number" value="'+esc(item.newRetailPrice||'')+'" placeholder="0.00" min="0" step="0.01" oninput="shipNewField('+idx+',\'newRetailPrice\',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></div>'
-            +'<div><div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Dist Price/piece ($) *</div>'
+            +'<div><div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Dist Price/piece ($)</div>'
               +'<input type="number" value="'+esc(item.newDistPrice||'')+'" placeholder="0.00" min="0" step="0.01" oninput="shipNewField('+idx+',\'newDistPrice\',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></div>'
             +'<div style="grid-column:1/-1;">'
               +'<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">Show in Store</div>'
@@ -1912,8 +1912,6 @@ function confirmApplyStock(){
     var nit=newItems[ni];
     if(!nit.newBrand){toast('New product "'+nit.product+'" is missing Brand.');return;}
     if(!nit.ppc){toast('New product "'+nit.product+'" is missing Pieces per Box.');return;}
-    if(!nit.newRetailPrice){toast('New product "'+nit.product+'" is missing Retail Price.');return;}
-    if(!nit.newDistPrice){toast('New product "'+nit.product+'" is missing Distributor Price.');return;}
   }
   var applyDate=document.getElementById('apply-stock-date').value||new Date().toISOString().split('T')[0];
   var LS_INV='snack-inv-v5';
