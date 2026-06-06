@@ -1071,12 +1071,26 @@ function saveDB(){
 var _shopeeData={};
 
 function fbLoad(){
+  // Fetch invoices from /invoice.json (root level, not /store)
+  try{
+  fetch(FB_URL+'/invoice.json')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d)return;
+      if(Array.isArray(d.invoices))_fbInvoices=d.invoices;
+      else if(d.invoices&&typeof d.invoices==='object')_fbInvoices=Object.values(d.invoices);
+      renderDashboard();
+      renderSales();
+      renderProductPL();
+    }).catch(function(e){console.warn('invoice fbLoad failed',e);});
+  }catch(e){console.warn('fbLoad failed',e);}
+
+  // Fetch products from /store.json
   try{
   fetch(FB_URL+'/store.json')
     .then(function(r){return r.json();})
     .then(function(d){
       if(!d)return;
-      if(d.invoices)_fbInvoices=Array.isArray(d.invoices)?d.invoices:Object.values(d.invoices);
       if(d.brands){
         _fbProducts=[];
         var brands=Array.isArray(d.brands)?d.brands:Object.values(d.brands);
@@ -1084,11 +1098,9 @@ function fbLoad(){
           if(b&&b.products)(Array.isArray(b.products)?b.products:Object.values(b.products)).forEach(function(p){_fbProducts.push(p);});
         });
       }
-      renderDashboard();
-      renderSales();
       renderProductPL();
     }).catch(function(){});
-  }catch(e){console.warn('fbLoad failed',e);}
+  }catch(e){console.warn('store fbLoad failed',e);}
 
   // Fetch Shopee monthly data — read-only
   try{
