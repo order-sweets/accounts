@@ -10,17 +10,22 @@ async function kvGet(key) {
     headers: { Authorization: `Bearer ${KV_TOKEN}` }
   });
   const data = await res.json();
-  return data.result ? JSON.parse(data.result) : null;
+  if (!data.result) return null;
+  // Upstash returns the stored value as a string in data.result — parse once
+  let parsed = data.result;
+  if (typeof parsed === 'string') { try { parsed = JSON.parse(parsed); } catch(e) { return null; } }
+  return parsed;
 }
 
 async function kvSet(key, value) {
+  // Upstash REST SET expects the value as a JSON string in the body
   const res = await fetch(`${KV_URL}/set/${key}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${KV_TOKEN}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ value: JSON.stringify(value) })
+    body: JSON.stringify(JSON.stringify(value))
   });
   return res.json();
 }

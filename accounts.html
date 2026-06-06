@@ -1031,14 +1031,20 @@ function loadDB(){
   fetch(_SYNC_URL)
     .then(function(r){return r.json();})
     .then(function(data){
-      if(data.ok&&data.db){
-        DB=data.db;
-        DB.shipments=DB.shipments||[];
-        DB.expenses=DB.expenses||[];
-        DB.amazonOrders=DB.amazonOrders||[];
-        localStorage.setItem(LS_KEY,JSON.stringify(DB));
-        renderDashboard();renderShipments();renderExpenses();renderSales();renderProductPL();
-      }
+      if(!data.ok)return;
+      // Unwrap nested value layers from KV double-serialisation
+      var raw=data.db;
+      while(raw&&typeof raw==='object'&&typeof raw.value!=='undefined')raw=raw.value;
+      if(typeof raw==='string'){try{raw=JSON.parse(raw);}catch(e){return;}}
+      while(raw&&typeof raw==='object'&&typeof raw.value!=='undefined')raw=raw.value;
+      if(typeof raw==='string'){try{raw=JSON.parse(raw);}catch(e){return;}}
+      if(!raw||typeof raw!=='object')return;
+      DB=raw;
+      DB.shipments=DB.shipments||[];
+      DB.expenses=DB.expenses||[];
+      DB.amazonOrders=DB.amazonOrders||[];
+      localStorage.setItem(LS_KEY,JSON.stringify(DB));
+      renderDashboard();renderShipments();renderExpenses();renderSales();renderProductPL();
     })
     .catch(function(e){console.warn('KV load failed, using localStorage',e);});
 }
