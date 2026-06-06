@@ -405,30 +405,30 @@ tr:hover td{background:#F0F8E8;}
   <div class="panel-title">Expenses</div>
   <div class="panel-sub">Log all business expenses.</div>
 
-  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-    <button class="btn btn-primary" onclick="openExpenseModal()">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
+    <button class="btn btn-primary" onclick="openExpenseModal()" style="justify-content:center;font-size:12px;padding:9px 8px;">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Expense
     </button>
-    <button class="btn btn-ghost" onclick="openAmazonImport()">
+    <button class="btn btn-ghost" onclick="openAmazonImport()" style="justify-content:center;font-size:12px;padding:9px 8px;">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Import Amazon CSV
+      Import Amazon
     </button>
   </div>
 
-  <div class="filter-bar">
-    <select id="exp-filter-month" onchange="renderExpenses()">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+    <select id="exp-filter-month" onchange="renderExpenses()" style="font-size:13px;padding:7px 10px;border:2px solid #0A0A0A;border-radius:var(--r);background:#fff;font-family:inherit;outline:none;">
       <option value="">All months</option>
     </select>
-    <select id="exp-filter-year" onchange="renderExpenses()">
+    <select id="exp-filter-year" onchange="renderExpenses()" style="font-size:13px;padding:7px 10px;border:2px solid #0A0A0A;border-radius:var(--r);background:#fff;font-family:inherit;outline:none;">
       <option value="">All years</option>
     </select>
-    <select id="exp-filter-co" onchange="renderExpenses()">
+    <select id="exp-filter-co" onchange="renderExpenses()" style="font-size:13px;padding:7px 10px;border:2px solid #0A0A0A;border-radius:var(--r);background:#fff;font-family:inherit;outline:none;">
       <option value="">All companies</option>
       <option value="bee">Bee Events</option>
       <option value="swits">SWITS</option>
     </select>
-    <select id="exp-filter-cat" onchange="renderExpenses()">
+    <select id="exp-filter-cat" onchange="renderExpenses()" style="font-size:13px;padding:7px 10px;border:2px solid #0A0A0A;border-radius:var(--r);background:#fff;font-family:inherit;outline:none;">
       <option value="">All categories</option>
     </select>
   </div>
