@@ -392,13 +392,13 @@ tr:hover td{background:#F0F8E8;}
   </div>
 
   <div class="filter-bar" style="display:flex;flex-wrap:nowrap;gap:6px;">
-    <select id="ship-filter-month" onchange="renderShipments()" style="flex:1.4;min-width:0;font-size:12px;padding:7px 6px;">
+    <select id="ship-filter-month" onchange="renderShipments()" style="flex:0 1 auto;min-width:0;font-size:12px;padding:7px 6px;">
       <option value="">All months</option>
     </select>
-    <select id="ship-filter-year" onchange="renderShipments()" style="flex:0 0 76px;min-width:0;font-size:12px;padding:7px 4px;">
+    <select id="ship-filter-year" onchange="renderShipments()" style="flex:0 0 auto;min-width:0;font-size:12px;padding:7px 4px;">
       <option value="">All years</option>
     </select>
-    <select id="ship-filter-co" onchange="renderShipments()" style="flex:2.6;min-width:0;font-size:12px;padding:7px 6px;">
+    <select id="ship-filter-co" onchange="renderShipments()" style="flex:0 1 auto;min-width:0;font-size:12px;padding:7px 6px;">
       <option value="">All companies</option>
       <option value="bee">Bee Events</option>
       <option value="swits">SWITS</option>
@@ -1626,7 +1626,8 @@ function renderShipments(){
     var totalQty=items.reduce(function(sum,it){return sum+(parseFloat(it.cases||0)*(it.ppc||1));},0);
     var totalCases=items.reduce(function(sum,it){return sum+parseFloat(it.cases||0);},0);
     var productCount=items.length;
-    var byline='Ordered: '+fmtDate(s.date)+(productCount>0?' · '+productCount+' product'+(productCount!==1?'s':'')+', '+Math.round(totalCases)+' cases, '+Math.round(totalQty)+' units':'');
+    var bylineLine1='Ordered: '+fmtDate(s.date)+(s.arrival?' → Arrived: '+fmtDate(s.arrival):'');
+    var bylineLine2=productCount>0?productCount+' product'+(productCount!==1?'s':'')+' · '+Math.round(totalCases)+' cases · '+Math.round(totalQty)+' units':'No products yet';
     return '<div class="ship-card" id="sc-'+s.id+'">'
       +'<div class="ship-card-hd" onclick="toggleShipCard(\''+s.id+'\')">'
         +'<div class="ship-info">'
@@ -1634,7 +1635,7 @@ function renderShipments(){
             +esc(s.supplier||s.name||'Unnamed')
             +(s.draft?'<span class="badge" style="background:#8B5CF6;color:#fff;font-size:9px;">DRAFT</span>':'')
           +'</div>'
-          +'<div class="ship-meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;">'+byline+'</div>'
+          +'<div class="ship-meta" style="font-size:11px;line-height:1.5;">'+bylineLine1+'<br>'+bylineLine2+'</div>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">'
           +'<span class="badge badge-'+(s.company==='bee'?'bee':s.company==='swits'?'swits':'green')+'">'+(s.company==='bee'?'Bee Events':s.company==='swits'?'SWITS':'Both')+'</span>'
