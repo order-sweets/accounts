@@ -40,6 +40,7 @@ body{font-family:'Space Grotesk',-apple-system,sans-serif;background:var(--bg);c
   .mob-topbar{display:flex!important;}
   .panel-title{display:none;}
   .panel-sub{display:none;}
+  .rev-desktop{display:none;}
 }
 .mob-topbar{display:none;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-bottom:3px solid #0A0A0A;position:sticky;top:0;z-index:90;}
 .mob-menu-btn{width:38px;height:38px;border:1px solid var(--border-md);border-radius:8px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
@@ -301,7 +302,7 @@ tr:hover td{background:#F0F8E8;}
     <div class="sb-section">Revenue</div>
     <button class="sb-item" id="nav-sales" onclick="showPanel('sales')">
       <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-      Sales & Revenue
+      Revenue Summary
     </button>
     <button class="sb-item" id="nav-products" onclick="showPanel('products')">
       <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -451,22 +452,26 @@ tr:hover td{background:#F0F8E8;}
 
 <!-- ══ SALES ══ -->
 <div class="panel" id="panel-sales">
-  <div class="panel-title">Sales & Revenue</div>
+  <div class="panel-title">Revenue Summary</div>
   <div class="panel-sub">Auto-pulled from confirmed invoices in the invoicing system.</div>
+  <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--amber-text);margin-bottom:16px;line-height:1.6;">
+    B2B revenue reflects confirmed invoices only. Shopee figures are updated on the 15th of each month — current month is provisional until then.
+  </div>
   <div class="filter-bar">
-    <select id="sales-filter-month" onchange="renderSales()"><option value="">All months</option></select>
     <select id="sales-filter-year" onchange="renderSales()"><option value="">All years</option></select>
-    <select id="sales-filter-co" onchange="renderSales()">
-      <option value="">All companies</option>
-      <option value="bee">Bee Events</option>
-      <option value="swits">SWITS</option>
-    </select>
   </div>
   <div class="sec-card">
-    <div class="sec-card-hd"><span class="sec-card-title">Invoice Revenue</span><span id="sales-total-display" style="font-size:13px;font-weight:700;"></span></div>
+    <div class="sec-card-hd"><span class="sec-card-title">Monthly Revenue</span><span id="sales-total-display" style="font-size:13px;font-weight:700;"></span></div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Company</th><th class="td-r">Amount</th></tr></thead>
+        <thead><tr>
+          <th>Month</th>
+          <th class="td-r">Bee Events</th>
+          <th class="td-r">SWITS</th>
+          <th class="td-r">Returns</th>
+          <th class="td-r">Shopee</th>
+          <th class="td-r">Total</th>
+        </tr></thead>
         <tbody id="sales-tbody"></tbody>
       </table>
     </div>
@@ -1063,15 +1068,15 @@ function saveDB(){
 }
 
 // ── Firebase load (invoices + products for revenue/FIFO) ──
+var _shopeeData={};
+
 function fbLoad(){
   try{
   fetch(FB_URL+'/store.json')
     .then(function(r){return r.json();})
     .then(function(d){
       if(!d)return;
-      // Extract invoices
       if(d.invoices)_fbInvoices=Array.isArray(d.invoices)?d.invoices:Object.values(d.invoices);
-      // Extract products (brands array)
       if(d.brands){
         _fbProducts=[];
         var brands=Array.isArray(d.brands)?d.brands:Object.values(d.brands);
@@ -1084,6 +1089,17 @@ function fbLoad(){
       renderProductPL();
     }).catch(function(){});
   }catch(e){console.warn('fbLoad failed',e);}
+
+  // Fetch Shopee monthly data — read-only
+  try{
+  fetch(FB_URL+'/shopee/monthly.json')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d)return;
+      _shopeeData=d;
+      renderSales();
+    }).catch(function(){});
+  }catch(e){console.warn('shopee fetch failed',e);}
 }
 
 // ── Company detection ──
@@ -1149,7 +1165,7 @@ function getCOGS(month,year,co){
 // NAVIGATION
 // ══════════════════════════════════════════════
 var PANELS=['dashboard','shipments','expenses','sales','products','pl','export','gst','help'];
-var PANEL_TITLES={dashboard:'Dashboard',shipments:'Import Shipments',expenses:'Expenses',sales:'Sales & Revenue',products:'Product P&L',pl:'P&L Report',export:'Export',gst:'GST Summary',help:'How to Use'};
+var PANEL_TITLES={dashboard:'Dashboard',shipments:'Import Shipments',expenses:'Expenses',sales:'Revenue Summary',products:'Product P&L',pl:'P&L Report',export:'Export',gst:'GST Summary',help:'How to Use'};
 
 function showPanel(id){
   PANELS.forEach(function(p){
@@ -1659,6 +1675,15 @@ function saveExpense(){
 
 function fmtDateShort(d){if(!d)return'—';var dt=new Date(d);if(isNaN(dt))return d;return dt.getDate()+' '+MONTH_SHORT[dt.getMonth()];}
 
+function toggleRevRow(id){
+  var el=document.getElementById(id);
+  var chev=document.getElementById('rev-chev-'+id);
+  if(!el)return;
+  var open=el.style.display==='none';
+  el.style.display=open?'table-row':'none';
+  if(chev)chev.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+}
+
 function toggleExpRow(id){
   var el=document.getElementById('exp-detail-'+id);
   var chev=document.getElementById('exp-chev-'+id);
@@ -1762,36 +1787,82 @@ function deleteExpense(id){if(!confirm('Delete this expense?'))return;DB.expense
 // SALES
 // ══════════════════════════════════════════════
 function renderSales(){
-  var month=document.getElementById('sales-filter-month').value;
   var year=document.getElementById('sales-filter-year').value;
-  var co=document.getElementById('sales-filter-co').value;
   var invoices=(_fbInvoices||[]).filter(function(inv){
     if(!inv||!inv.confirmed)return false;
     var d=new Date(inv.date||'');
+    if(isNaN(d))return false;
     if(year&&d.getFullYear()!==parseInt(year))return false;
-    if(month&&(d.getMonth()+1)!==parseInt(month))return false;
     return true;
-  }).sort(function(a,b){return new Date(b.date)-new Date(a.date);});
-  var total=0;
-  var rows=[];
-  invoices.forEach(function(inv){
-    var lineTotal=(inv.lines||[]).reduce(function(s,l){return s+parseFloat(l.q||0)*parseFloat(l.p||0)*(l.ret?-1:1);},0);
-    // Determine dominant company
-    var beeAmt=0,switsAmt=0;
-    (inv.lines||[]).forEach(function(l){var c=productCompany(l.desc||'');var a=parseFloat(l.q||0)*parseFloat(l.p||0)*(l.ret?-1:1);if(c==='bee')beeAmt+=a;else switsAmt+=a;});
-    var invCo=beeAmt>switsAmt?'bee':'swits';
-    if(co&&invCo!==co)return;
-    total+=lineTotal;
-    rows.push('<tr>'
-      +'<td class="td-muted">'+fmtDate(inv.date)+'</td>'
-      +'<td style="font-weight:600;">'+esc(inv.num||'—')+'</td>'
-      +'<td>'+esc(inv.custName||'')+(inv.outlet?'<br><span style="font-size:11px;color:var(--text-muted);">'+esc(inv.outlet)+'</span>':'')+'</td>'
-      +'<td><span class="badge badge-'+(invCo==='bee'?'bee':'swits')+'">'+(invCo==='bee'?'Bee Events':'SWITS')+'</span></td>'
-      +'<td class="td-r td-num td-green">S$'+fmt(lineTotal)+'</td>'
-      +'</tr>');
   });
-  document.getElementById('sales-total-display').textContent=rows.length+' invoices · S$'+fmt(total);
-  document.getElementById('sales-tbody').innerHTML=rows.length?rows.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--text-hint);padding:24px;">No confirmed invoices found.</td></tr>';
+
+  // Build month buckets
+  var buckets={};
+  invoices.forEach(function(inv){
+    var d=new Date(inv.date||'');
+    var key=d.getFullYear()+'-'+(d.getMonth()+1);
+    if(!buckets[key])buckets[key]={year:d.getFullYear(),month:d.getMonth(),bee:0,swits:0,returns:0};
+    (inv.lines||[]).forEach(function(l){
+      var amt=parseFloat(l.q||0)*parseFloat(l.p||0);
+      if(l.ret){
+        buckets[key].returns+=amt;
+      } else {
+        var co=productCompany(l.desc||'');
+        buckets[key][co]=(buckets[key][co]||0)+amt;
+      }
+    });
+  });
+
+  var sorted=Object.values(buckets).sort(function(a,b){
+    return b.year!==a.year?b.year-a.year:b.month-a.month;
+  });
+
+  var grandBee=0,grandSwits=0,grandReturns=0,grandShopee=0;
+  var rows=sorted.map(function(b){
+    var key=b.year+'-'+(b.month+1<10?'0':'')+(b.month+1);
+    var shopee=_shopeeData&&_shopeeData[key]?parseFloat(_shopeeData[key].earnings||0):null;
+    grandBee+=b.bee;grandSwits+=b.swits;grandReturns+=b.returns;
+    if(shopee!==null)grandShopee+=shopee;
+    var total=b.bee+b.swits-b.returns+(shopee||0);
+    var rowId='rev-'+b.year+'-'+b.month;
+    return'<tr class="rev-main-row" onclick="toggleRevRow(\''+rowId+'\')" style="cursor:pointer;">'
+      +'<td style="font-weight:600;">'+MONTHS[b.month]+' '+b.year+'<span id="rev-chev-'+rowId+'" style="font-size:10px;color:var(--text-hint);margin-left:6px;display:inline-block;transition:transform .2s;">▼</span></td>'
+      +'<td class="td-r td-num" style="color:var(--bee-text);"><span class="rev-desktop">S$'+fmt(b.bee)+'</span></td>'
+      +'<td class="td-r td-num" style="color:var(--swits-text);"><span class="rev-desktop">S$'+fmt(b.swits)+'</span></td>'
+      +'<td class="td-r td-num" style="color:var(--red-text);"><span class="rev-desktop">'+(b.returns>0?'−S$'+fmt(b.returns):'—')+'</span></td>'
+      +'<td class="td-r td-num" style="color:#f97316;"><span class="rev-desktop">'+(shopee!==null?'S$'+fmt(shopee):'—')+'</span></td>'
+      +'<td class="td-r td-num td-green" style="font-weight:700;">S$'+fmt(total)+'</td>'
+    +'</tr>'
+    +'<tr id="'+rowId+'" style="display:none;background:var(--surface);">'
+      +'<td colspan="6" style="padding:10px 14px;">'
+        +'<div style="font-size:12px;display:flex;flex-direction:column;gap:4px;">'
+          +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Bee Events</span><span style="font-weight:600;color:var(--bee-text);">S$'+fmt(b.bee)+'</span></div>'
+          +'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">SWITS</span><span style="font-weight:600;color:var(--swits-text);">S$'+fmt(b.swits)+'</span></div>'
+          +(b.returns>0?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Returns</span><span style="font-weight:600;color:var(--red-text);">−S$'+fmt(b.returns)+'</span></div>':'')
+          +(shopee!==null?'<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Shopee</span><span style="font-weight:600;color:#f97316;">S$'+fmt(shopee)+'</span></div>':'')
+          +'<div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:4px;margin-top:2px;"><span style="font-weight:700;">Total</span><span style="font-weight:700;color:var(--green-text);">S$'+fmt(total)+'</span></div>'
+        +'</div>'
+      +'</td>'
+    +'</tr>';
+  });
+
+  // Totals row
+  if(sorted.length){
+    rows.push('<tr style="border-top:3px solid #0A0A0A;background:var(--surface);">'
+      +'<td style="font-weight:800;font-size:12px;">TOTAL</td>'
+      +'<td class="td-r td-num" style="color:var(--bee-text);font-weight:800;"><span class="rev-desktop">S$'+fmt(grandBee)+'</span></td>'
+      +'<td class="td-r td-num" style="color:var(--swits-text);font-weight:800;"><span class="rev-desktop">S$'+fmt(grandSwits)+'</span></td>'
+      +'<td class="td-r td-num" style="color:var(--red-text);font-weight:800;"><span class="rev-desktop">'+(grandReturns>0?'−S$'+fmt(grandReturns):'—')+'</span></td>'
+      +'<td class="td-r td-num" style="color:#f97316;font-weight:800;"><span class="rev-desktop">S$'+fmt(grandShopee)+'</span></td>'
+      +'<td class="td-r td-num td-green" style="font-weight:800;">S$'+fmt(grandBee+grandSwits-grandReturns+grandShopee)+'</td>'
+    +'</tr>');
+  }
+
+  var grandTotal=grandBee+grandSwits-grandReturns+grandShopee;
+  document.getElementById('sales-total-display').textContent=sorted.length+' months · S$'+fmt(grandTotal);
+  document.getElementById('sales-tbody').innerHTML=rows.length
+    ?rows.join('')
+    :'<tr><td colspan="6" style="text-align:center;color:var(--text-hint);padding:24px;">No confirmed invoices found.</td></tr>';
 }
 
 // ══════════════════════════════════════════════
@@ -2386,7 +2457,7 @@ function populateFilters(){
   for(var y=now.getFullYear();y>=now.getFullYear()-5;y--)years.push(y);
   var monthOpts='<option value="">All months</option>'+MONTHS.map(function(m,i){return'<option value="'+(i+1)+'">'+m+'</option>';}).join('');
   var yearOpts='<option value="">All years</option>'+years.map(function(y){return'<option value="'+y+'"'+(y===now.getFullYear()?' selected':'')+'>'+y+'</option>';}).join('');
-  ['dash-month','ship-filter-month','exp-filter-month','sales-filter-month','pl-month','exp-month'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=monthOpts;});
+  ['dash-month','ship-filter-month','exp-filter-month','pl-month','exp-month'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=monthOpts;});
   ['dash-year','ship-filter-year','exp-filter-year','sales-filter-year','pl-year','exp-year','gst-year'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=yearOpts;});
   // Default all month filters to current month
   ['dash-month','ship-filter-month','exp-filter-month','sales-filter-month','pl-month','exp-month'].forEach(function(id){
@@ -2556,6 +2627,12 @@ document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){document.getElementById('lock-pw').focus();},100);
   }
 });
+// Auto-refresh Firebase invoice/product data every 3 minutes — read-only, never writes to invoices
+setInterval(function(){
+  if(sessionStorage.getItem('bee_unlocked')==='1'){
+    try{fbLoad();}catch(e){console.warn('auto-refresh fbLoad failed',e);}
+  }
+},3*60*1000);
 // loadDB() is called after password unlock only
 try{populateFilters();}catch(e){console.warn('populateFilters error',e);}
 try{populateCatSelect();}catch(e){console.warn('populateCatSelect error',e);}
