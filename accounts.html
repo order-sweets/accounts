@@ -846,12 +846,12 @@ tr:hover td{background:#F0F8E8;}
       <table class="ship-items" style="width:100%;min-width:340px;">
         <thead><tr>
           <th style="min-width:130px;">Product</th>
-          <th style="min-width:55px;">Cases</th>
-          <th id="ship-col-usd" style="min-width:70px;">USD/case</th>
-          <th class="ship-col-desktop" style="min-width:70px;">SGD/case</th>
-          <th class="ship-col-desktop" style="min-width:75px;">Freight/case</th>
-          <th style="min-width:80px;">Landed/case</th>
-          <th class="ship-col-desktop" style="min-width:80px;">Landed/unit</th>
+          <th style="min-width:55px;">Boxes</th>
+          <th id="ship-col-usd" style="min-width:70px;">USD/box</th>
+          <th class="ship-col-desktop" style="min-width:70px;">SGD/box</th>
+          <th class="ship-col-desktop" style="min-width:75px;">Freight/box</th>
+          <th style="min-width:80px;">Landed/box</th>
+          <th class="ship-col-desktop" style="min-width:80px;">Landed/piece</th>
           <th style="width:30px;"></th>
         </tr></thead>
         <tbody id="ship-items-body"></tbody>
@@ -1562,7 +1562,7 @@ function toggleSummaryBar(){
 }
 
 // ── PRODUCT ROW FUNCTIONS ──
-function addShipItem(){_shipItems.push({id:'si_'+Date.now(),product:'',cases:0,usdPerCase:0,isNew:false,newBrand:'',newPPC:'',newWeight:'',newRetailPrice:'',newDistPrice:''});renderShipItemsTable();}
+function addShipItem(){_shipItems.push({id:'si_'+Date.now(),product:'',cases:0,usdPerCase:0,isNew:false,newBrand:'',newPPC:'',newWeight:'',newRetailPrice:'',newDistPrice:'',newVisRetail:false,newVisDist:false});renderShipItemsTable();}
 function removeShipItem(idx){_shipItems.splice(idx,1);renderShipItemsTable();}
 function toggleNewProduct(idx){_shipItems[idx].isNew=!_shipItems[idx].isNew;renderShipItemsTable();}
 function shipNewField(idx,field,val){_shipItems[idx][field]=val;}
@@ -1621,7 +1621,7 @@ function renderShipItemsTable(){
     if(item.isNew){
       extraRow='<tr style="background:#EDE9FE;">'
         +'<td colspan="8" style="padding:8px 10px;">'
-          +'<div style="font-size:10px;font-weight:700;color:#7C3AED;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">New Product Details (will be hidden in store until enabled)</div>'
+          +'<div style="font-size:10px;font-weight:700;color:#7C3AED;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">New Product Details</div>'
           +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">'
             +'<div><div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Brand *</div>'
               +'<input type="text" value="'+esc(item.newBrand||'')+'" placeholder="e.g. Haribo" oninput="shipNewField('+idx+',\'newBrand\',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></div>'
@@ -1633,6 +1633,19 @@ function renderShipItemsTable(){
               +'<input type="number" value="'+esc(item.newRetailPrice||'')+'" placeholder="0.00" min="0" step="0.01" oninput="shipNewField('+idx+',\'newRetailPrice\',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></div>'
             +'<div><div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">Dist Price/piece ($) *</div>'
               +'<input type="number" value="'+esc(item.newDistPrice||'')+'" placeholder="0.00" min="0" step="0.01" oninput="shipNewField('+idx+',\'newDistPrice\',this.value)" style="width:100%;font-size:11px;padding:4px;border:2px solid #0A0A0A;border-radius:var(--r);"></div>'
+            +'<div style="grid-column:1/-1;">'
+              +'<div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">Show in Store</div>'
+              +'<div style="display:flex;gap:16px;">'
+                +'<label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;">'
+                  +'<input type="checkbox" '+(item.newVisRetail?'checked':'')+' onchange="shipNewField('+idx+',\'newVisRetail\',this.checked)" style="cursor:pointer;width:13px;height:13px;">'
+                  +'Retailers'
+                +'</label>'
+                +'<label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;">'
+                  +'<input type="checkbox" '+(item.newVisDist?'checked':'')+' onchange="shipNewField('+idx+',\'newVisDist\',this.checked)" style="cursor:pointer;width:13px;height:13px;">'
+                  +'Distributors'
+                +'</label>'
+              +'</div>'
+            +'</div>'
           +'</div>'
         +'</td>'
       +'</tr>';
@@ -1664,10 +1677,12 @@ function importShipmentExcel(input){
         var ppc=parseInt(r[7])||0;
         var retPrice=parseFloat(r[8])||0;
         var distPrice=parseFloat(r[10])||0;
+        var usdPerBox=parseFloat(r[17])||0;
         var existing=(_fbProducts||[]).find(function(p){return p.name.toLowerCase()===name.toLowerCase();});
-        newItems.push({id:'si_'+Date.now()+'_'+i,product:existing?existing.name:name,cases:cases,usdPerCase:0,
+        newItems.push({id:'si_'+Date.now()+'_'+i,product:existing?existing.name:name,cases:cases,usdPerCase:usdPerBox,
           isNew:!existing,newBrand:existing?'':brand,newPPC:existing?'':String(ppc||''),
-          newWeight:existing?'':weight,newRetailPrice:existing?'':String(retPrice||''),newDistPrice:existing?'':String(distPrice||'')});
+          newWeight:existing?'':weight,newRetailPrice:existing?'':String(retPrice||''),newDistPrice:existing?'':String(distPrice||''),
+          newVisRetail:false,newVisDist:false});
         imported++;
       }
       if(!imported){toast('No products found. Check the template format.');input.value='';return;}
@@ -1710,7 +1725,8 @@ function openShipmentModal(id,forceType){
   _shipItems=s?JSON.parse(JSON.stringify(s.items||[])).map(function(it){
     return{id:it.id||('si_'+Date.now()),product:it.product||'',cases:it.cases||0,usdPerCase:it.usdPerCase||0,
       isNew:it.isNew||false,newBrand:it.newBrand||'',newPPC:it.ppc?String(it.ppc):'',
-      newWeight:it.newWeight||'',newRetailPrice:it.newRetailPrice||'',newDistPrice:it.newDistPrice||''};
+      newWeight:it.newWeight||'',newRetailPrice:it.newRetailPrice||'',newDistPrice:it.newDistPrice||'',
+      newVisRetail:it.newVisRetail||false,newVisDist:it.newVisDist||false};
   }):[{id:'si_'+Date.now(),product:'',cases:0,usdPerCase:0,isNew:false,newBrand:'',newPPC:'',newWeight:'',newRetailPrice:'',newDistPrice:''}];
   renderShipItemsTable();
   // Type
@@ -1766,7 +1782,7 @@ function saveShipment(mode){
     var customsPerCase=ppc>0?customsPerUnit*ppc:0;
     var totalLandedPerCase=landedPerCase+customsPerCase;
     var obj={id:item.id||('si_'+Date.now()),product:productName,cases:parseFloat(item.cases),usdPerCase:usdCost,sgdCostPerCase:sgdCost,freightPerCase:freightPerCase,landedPerCase:totalLandedPerCase,landedPerUnit:ppc>0?totalLandedPerCase/ppc:0,ppc:ppc,company:productCompany(productName)};
-    if(item.isNew){obj.isNew=true;obj.newBrand=item.newBrand||'';obj.newWeight=item.newWeight||'';obj.newRetailPrice=parseFloat(item.newRetailPrice||0);obj.newDistPrice=parseFloat(item.newDistPrice||0);}
+    if(item.isNew){obj.isNew=true;obj.newBrand=item.newBrand||'';obj.newWeight=item.newWeight||'';obj.newRetailPrice=parseFloat(item.newRetailPrice||0);obj.newDistPrice=parseFloat(item.newDistPrice||0);obj.newVisRetail=item.newVisRetail||false;obj.newVisDist=item.newVisDist||false;}
     return obj;
   });
 
@@ -1835,7 +1851,7 @@ function renderShipments(){
         +'</div>'
       +'</div>'
       +'<div class="ship-body" id="sc-body-'+s.id+'">'
-        +(items.length?'<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Cases</th><th>SGD/case</th><th>Freight/case</th><th>Landed/case</th><th>Landed/unit</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>':'<div style="color:var(--text-hint);font-size:13px;padding:8px 0;">No products — edit to add.</div>')
+        +(items.length?'<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Boxes</th><th>SGD/box</th><th>Freight/box</th><th>Landed/box</th><th>Landed/piece</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>':'<div style="color:var(--text-hint);font-size:13px;padding:8px 0;">No products — edit to add.</div>')
         +'<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:nowrap;">'
           +(!s.draft
             ?(s.stockApplied
@@ -1943,7 +1959,7 @@ function confirmApplyStock(){
       newItems.forEach(function(item){
         var pid=pidMap[item.product];
         var ppc=parseInt(item.ppc||1);
-        var newProd={id:pid,name:item.product,brand:item.newBrand||'Other',desc:'',price:parseFloat(item.newRetailPrice||0),priceDist:parseFloat(item.newDistPrice||0),ppc:ppc,cpRetail:0,cpDist:0,stockPieces:0,weight:item.newWeight||'',discount:0,section:'catalog',variations:[],visRetail:false,visDist:false,unitsRetail:'both',unitsDist:'both',category:''};
+        var newProd={id:pid,name:item.product,brand:item.newBrand||'Other',desc:'',price:parseFloat(item.newRetailPrice||0),priceDist:parseFloat(item.newDistPrice||0),ppc:ppc,cpRetail:0,cpDist:0,stockPieces:0,weight:item.newWeight||'',discount:0,section:'catalog',variations:[],visRetail:item.newVisRetail||false,visDist:item.newVisDist||false,unitsRetail:'both',unitsDist:'both',category:''};
         _fbProducts.push(newProd);
         var brandGroup=storeProds.brands.find(function(b){return b.brand&&b.brand.toLowerCase()===newProd.brand.toLowerCase();});
         if(brandGroup){if(!Array.isArray(brandGroup.products))brandGroup.products=[];brandGroup.products.push(newProd);}
@@ -2421,7 +2437,7 @@ function renderProductPL(){
           +'<span class="badge badge-'+(p.company==='bee'?'bee':'swits')+'">'+(p.company==='bee'?'Bee Events':'SWITS')+'</span>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
-          +'<span style="font-size:12px;color:var(--text-muted);">'+unitsLeft+' units · S$'+fmt(stockValue)+' stock value</span>'
+          +'<span style="font-size:12px;color:var(--text-muted);">'+unitsLeft+' pcs · S$'+fmt(stockValue)+' stock value</span>'
           +'<span style="font-size:13px;font-weight:700;color:'+(totalProfit>=0?'var(--green-text)':'var(--red-text)')+';">'+(totalProfit>=0?'+':'−')+'S$'+fmt(Math.abs(totalProfit))+'</span>'
           +'<span style="font-size:11px;color:var(--text-hint);">▼</span>'
         +'</div>'
