@@ -147,7 +147,7 @@ tr:hover td{background:#F0F8E8;}
 @media(max-width:600px){.ship-col-desktop{display:none!important;}.ship-cell-tap{font-size:10px!important;}}
 /* ── SHIPMENT ITEMS TABLE ── */
 .ship-items{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
-.ship-items th{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;}
+.ship-items th{font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;}
 .ship-items td{padding:8px 8px;border-bottom:1px solid var(--border);}
 .ship-items td input,.ship-items td select{font-size:13px;padding:6px 8px;border:1.5px solid var(--border-md);border-radius:7px;background:#fff;color:var(--text);font-family:inherit;outline:none;width:100%;}
 .ship-items td input:focus,.ship-items td select:focus{border-color:var(--text);}
@@ -826,7 +826,7 @@ tr:hover td{background:#F0F8E8;}
 <div id="ship-step2" style="display:none;position:fixed;inset:0;z-index:600;flex-direction:column;background:#fff;">
   <!-- Header — fixed -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:2px solid #0A0A0A;flex-shrink:0;">
-    <span id="ship2-title" style="font-size:16px;font-weight:700;color:var(--text);">Products</span>
+    <span id="ship2-title" style="font-family:'Syne',sans-serif;font-size:27px;font-weight:400;color:var(--text);">Products</span>
     <button onclick="closeShipStep2()" style="width:28px;height:28px;border-radius:50%;background:#F0F0F0;border:1.5px solid #ccc;cursor:pointer;font-size:14px;color:#333;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
   </div>
 
@@ -838,12 +838,12 @@ tr:hover td{background:#F0F8E8;}
 
     <!-- Toolbar -->
     <div style="display:flex;align-items:center;justify-content:flex-end;padding:8px 16px;border-bottom:1px solid var(--border);gap:8px;">
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ship-xlsx-input').click()">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ship-xlsx-input').click()" style="background:#D9F000;border-color:#D9F000;color:#0A0A0A;">
         <svg viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         Import Excel
       </button>
       <input type="file" id="ship-xlsx-input" accept=".xlsx" style="display:none" onchange="importShipmentExcel(this)">
-      <button class="btn btn-ghost btn-sm" onclick="addShipItem()">+ Add Product</button>
+      <button class="btn btn-ghost btn-sm" onclick="addShipItem()" style="background:#D9F000;border-color:#D9F000;color:#0A0A0A;">+ Add Product</button>
     </div>
 
     <!-- Products table -->
@@ -872,7 +872,7 @@ tr:hover td{background:#F0F8E8;}
         <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         Save Draft
       </button>
-      <button class="btn btn-green" onclick="saveShipment('submit')">
+      <button class="btn btn-green" onclick="saveShipment('submit')" style="background:#FF5500;border-color:#FF5500;">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         Submit
       </button>
