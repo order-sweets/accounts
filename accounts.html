@@ -77,7 +77,7 @@ body{font-family:'Space Grotesk',-apple-system,sans-serif;background:var(--bg);c
 
 /* ── SECTION CARD ── */
 .sec-card{background:#fff;border:2px solid #0A0A0A;border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden;}
-.sec-card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:2px solid #0A0A0A;background:#D9F000;}
+.sec-card-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:2px solid #0A0A0A;background:#D9F000;border-radius:var(--r-lg) var(--r-lg) 0 0;}
 .sec-card-title{font-size:14px;font-weight:800;letter-spacing:-.01em;}
 .sec-card-body{padding:16px 18px;}
 
@@ -132,7 +132,7 @@ tr:hover td{background:#F0F8E8;}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
 .modal-overlay.open{display:flex;}
 .modal{background:#fff;border-radius:var(--r-xl);width:100%;max-width:600px;margin:auto;box-shadow:var(--shadow-md);border:3px solid #0A0A0A;}
-.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:3px solid #0A0A0A;background:#3D55F0;color:#fff;}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:3px solid #0A0A0A;background:#3D55F0;color:#fff;border-radius:var(--r-xl) var(--r-xl) 0 0;}
 .modal-title{font-family:'Syne',sans-serif;font-size:20px;}
 .modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;}
 .modal-body{padding:20px;}
@@ -165,7 +165,7 @@ tr:hover td{background:#F0F8E8;}
 
 /* ── SHIPMENT CARD ── */
 .ship-card{background:#fff;border:2px solid #0A0A0A;border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;}
-.ship-card-hd{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;}
+.ship-card-hd{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;border-radius:var(--r-lg) var(--r-lg) 0 0;}
 .ship-card-hd:hover{background:var(--surface);}
 .ship-icon{width:40px;height:40px;border-radius:6px;background:#D9F000;border:2px solid #0A0A0A;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .ship-info{flex:1;min-width:0;}
@@ -220,7 +220,7 @@ tr:hover td{background:#F0F8E8;}
 
 /* ── GST SUMMARY ── */
 .gst-box{background:#fff;border:2px solid #0A0A0A;border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden;}
-.gst-box-title{font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:2px solid #0A0A0A;background:#8B5CF6;margin-bottom:0;}
+.gst-box-title{font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:2px solid #0A0A0A;background:#8B5CF6;margin-bottom:0;border-radius:var(--r-lg) var(--r-lg) 0 0;}
 .gst-row{display:flex;justify-content:space-between;padding:10px 18px;border-bottom:1px solid rgba(0,0,0,.08);font-size:13px;}
 .gst-row:last-child{border-bottom:none;font-weight:700;font-size:14px;padding:12px 18px;margin-top:0;border-top:2px solid #0A0A0A;background:#F5F5F5;}
 .gst-row-lbl{color:#555555;}
@@ -310,13 +310,13 @@ tr:hover td{background:#F0F8E8;}
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
       P&L Report
     </button>
-    <button class="sb-item" id="nav-export" onclick="showPanel('export')">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Export
-    </button>
     <button class="sb-item" id="nav-gst" onclick="showPanel('gst')">
       <svg viewBox="0 0 24 24"><path d="M9 14l6-6m-3.5-1.5h.01m1.99 7h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       GST Summary
+    </button>
+    <button class="sb-item" id="nav-export" onclick="showPanel('export')">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
     </button>
     <div class="sb-section">Help</div>
     <button class="sb-item" id="nav-help" onclick="showPanel('help')">
@@ -806,43 +806,83 @@ tr:hover td{background:#F0F8E8;}
       <span class="modal-title">Add Expense</span>
       <button class="modal-close" onclick="closeModal('expense-modal')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-field">
+    <div class="modal-body" style="padding:16px;">
+
+      <!-- Company toggle -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+        <button type="button" id="exp-co-bee" onclick="setExpCompany('bee')" style="padding:10px;border-radius:var(--r);border:2px solid #0A0A0A;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">🐝 Bee Events</button>
+        <button type="button" id="exp-co-swits" onclick="setExpCompany('swits')" style="padding:10px;border-radius:var(--r);border:2px solid #0A0A0A;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;">⚡ SWITS</button>
+      </div>
+      <input type="hidden" id="exp-company" value="swits">
+
+      <!-- Date + Category -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div class="form-field" style="margin:0;">
           <label>Date</label>
-          <input type="date" id="exp-date">
+          <input type="date" id="exp-date" style="width:100%;">
         </div>
-        <div class="form-field">
-          <label>Amount (SGD)</label>
-          <input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01">
-        </div>
-        <div class="form-field full">
-          <label>Description</label>
-          <input type="text" id="exp-desc" placeholder="e.g. Grab to supplier warehouse">
-        </div>
-        <div class="form-field">
+        <div class="form-field" style="margin:0;">
           <label>Category</label>
-          <select id="exp-cat"></select>
-        </div>
-        <div class="form-field">
-          <label>Company</label>
-          <select id="exp-company">
-            <option value="swits">SWITS</option>
-            <option value="bee">Bee Events</option>
-            <option value="both">Both (split equally)</option>
-          </select>
-        </div>
-        <div class="form-field full">
-          <label>Notes (optional)</label>
-          <textarea id="exp-notes" placeholder=""></textarea>
+          <select id="exp-cat" style="width:100%;"></select>
         </div>
       </div>
+
+      <!-- Supplier + Payment Mode -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div class="form-field" style="margin:0;">
+          <label>Supplier</label>
+          <input type="text" id="exp-supplier" list="exp-supplier-list" autocomplete="off" style="width:100%;">
+          <datalist id="exp-supplier-list"></datalist>
+        </div>
+        <div class="form-field" style="margin:0;">
+          <label>Payment Mode</label>
+          <select id="exp-payment-mode" style="width:100%;">
+            <option value="cash">Cash</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="card">Card</option>
+            <option value="paynow">PayNow</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Item rows -->
+      <div style="margin-bottom:4px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-size:12px;font-weight:600;color:var(--text-muted);">Details</label>
+          <button type="button" onclick="addExpItem()" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--r);border:2px solid #0A0A0A;background:#D9F000;cursor:pointer;font-family:inherit;">+ Add Item</button>
+        </div>
+        <!-- Column headers -->
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 20px;gap:6px;margin-bottom:4px;">
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted);">Item</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted);">Qty</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted);">Unit $</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text-muted);">Total</span>
+          <span></span>
+        </div>
+        <div id="exp-items-list"></div>
+        <!-- Grand total -->
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:2px solid #0A0A0A;">
+          <span style="font-size:12px;font-weight:600;color:var(--text-muted);">Grand Total</span>
+          <div id="exp-modal-total" style="font-size:14px;font-weight:700;min-width:80px;text-align:right;line-height:1.3;">—</div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;margin-top:4px;display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="exp-gst" onchange="calcExpTotal()" style="width:16px;height:16px;cursor:pointer;">
+        <label for="exp-gst" style="font-size:13px;font-weight:600;cursor:pointer;margin:0;">Includes GST (9%)</label>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-field">
+        <label>Notes (optional)</label>
+        <textarea id="exp-notes" style="width:100%;min-height:60px;"></textarea>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('expense-modal')">Cancel</button>
       <button class="btn btn-green" onclick="saveExpense()">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Save Expense
+        Log Expense
       </button>
     </div>
   </div>
@@ -964,7 +1004,7 @@ async function unlockApp(){
 // End lock
 var LS_KEY='bee-accounts-v1';
 
-var CATEGORIES=['Cost of Goods','Petrol','Logistics','Import Freight','Online Purchases','Packaging','Raw Materials','Rent','Utilities','Miscellaneous'];
+var CATEGORIES=['Cost of Goods','Import Freight','Logistics','Miscellaneous','Office Supplies','Online Purchases','Packaging','Petrol','Raw Materials','Rent','Salary','Subscription','Utilities','Warehousing'];
 var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 var MONTH_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -1493,34 +1533,122 @@ function populateCatSelect(){
   filterSel.innerHTML='<option value="">All categories</option>'+opts;
 }
 
+function setExpCompany(co){
+  document.getElementById('exp-company').value=co;
+  var bee=document.getElementById('exp-co-bee');
+  var swits=document.getElementById('exp-co-swits');
+  if(co==='bee'){
+    bee.style.background='#D9F000';bee.style.color='#0A0A0A';
+    swits.style.background='#fff';swits.style.color='#0A0A0A';
+  } else {
+    swits.style.background='#8B5CF6';swits.style.color='#fff';
+    bee.style.background='#fff';bee.style.color='#0A0A0A';
+  }
+}
+var _expItems=[];
+function addExpItem(item,qty,unit){
+  var id='ei_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  _expItems.push({id:id,item:item||'',qty:qty||'',unit:unit||''});
+  renderExpItems();
+}
+function removeExpItem(id){
+  _expItems=_expItems.filter(function(r){return r.id!==id;});
+  if(!_expItems.length)addExpItem();
+  else renderExpItems();
+}
+function renderExpItems(){
+  var list=document.getElementById('exp-items-list');
+  if(!list)return;
+  list.innerHTML=_expItems.map(function(r){
+    var rowTotal=(parseFloat(r.qty)||0)*(parseFloat(r.unit)||0);
+    return'<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 20px;gap:6px;margin-bottom:6px;align-items:center;" data-id="'+r.id+'">'
+      +'<input type="text" value="'+esc(r.item)+'" placeholder="" style="font-size:13px;padding:8px 10px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;width:100%;" oninput="updateExpItem(\''+r.id+'\',\'item\',this.value)">'
+      +'<input type="number" value="'+esc(r.qty)+'" min="0" step="any" style="font-size:13px;padding:8px 6px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;width:100%;" oninput="updateExpItem(\''+r.id+'\',\'qty\',this.value)">'
+      +'<input type="number" value="'+esc(r.unit)+'" min="0" step="0.01" inputmode="decimal" style="font-size:13px;padding:8px 6px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;width:100%;" oninput="updateExpItem(\''+r.id+'\',\'unit\',this.value)">'
+      +'<span style="font-size:13px;font-weight:700;text-align:right;">'+(rowTotal>0?'S$'+fmt(rowTotal):'—')+'</span>'
+      +'<button type="button" onclick="removeExpItem(\''+r.id+'\')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-muted);padding:0;line-height:1;">×</button>'
+    +'</div>';
+  }).join('');
+  calcExpTotal();
+}
+function updateExpItem(id,field,val){
+  var r=_expItems.find(function(x){return x.id===id;});
+  if(r)r[field]=val;
+  // Update just the row total display without full re-render (avoid focus loss)
+  calcExpTotal();
+  // Update row total span
+  var rows=document.getElementById('exp-items-list').children;
+  for(var i=0;i<rows.length;i++){
+    if(rows[i].dataset.id===id){
+      var rowTotal=(parseFloat(r.qty)||0)*(parseFloat(r.unit)||0);
+      rows[i].children[3].textContent=rowTotal>0?'S$'+fmt(rowTotal):'—';
+    }
+  }
+}
+function calcExpTotal(){
+  var hasGST=document.getElementById('exp-gst').checked;
+  var grand=_expItems.reduce(function(s,r){return s+(parseFloat(r.qty)||0)*(parseFloat(r.unit)||0);},0);
+  var el=document.getElementById('exp-modal-total');
+  if(!el)return;
+  if(!grand){el.innerHTML='—';return;}
+  var gstAmt=grand*0.09;
+  el.innerHTML='S$'+fmt(grand)+(hasGST?'<br><span style="font-size:11px;font-weight:500;color:var(--text-muted);">+GST S$'+fmt(gstAmt)+'</span>':'');
+}
+function getExpSuppliers(){
+  var seen={};
+  (DB.expenses||[]).forEach(function(e){if(e.supplier&&e.supplier.trim())seen[e.supplier.trim()]=true;});
+  return Object.keys(seen).sort();
+}
+
 function openExpenseModal(id){
   var e=id?DB.expenses.find(function(x){return x.id===id;}):null;
   document.getElementById('exp-date').value=e?e.date:new Date().toISOString().split('T')[0];
-  document.getElementById('exp-amount').value=e?e.amount:'';
-  document.getElementById('exp-desc').value=e?e.desc:'';
   document.getElementById('exp-cat').value=e?e.category:CATEGORIES[0];
-  document.getElementById('exp-company').value=e?e.company:'swits';
-  document.getElementById('exp-notes').value=e?e.notes:'';
+  document.getElementById('exp-supplier').value=e?(e.supplier||''):'';
+  document.getElementById('exp-gst').checked=e?!!e.hasGST:false;
+  document.getElementById('exp-notes').value=e?(e.notes||''):'';
+  // Supplier datalist
+  var dl=document.getElementById('exp-supplier-list');
+  dl.innerHTML=getExpSuppliers().map(function(s){return'<option value="'+esc(s)+'">';}).join('');
+  // Company
+  setExpCompany(e?(e.company||'swits'):'swits');
+  // Payment mode
+  document.getElementById('exp-payment-mode').value=e?(e.paymentMode||'cash'):'cash';
+  // Items — support multi-item, legacy single-item, or blank
+  _expItems=[];
+  if(e&&e.items&&e.items.length){
+    e.items.forEach(function(it){_expItems.push({id:'ei_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),item:it.item||'',qty:it.qty||'',unit:it.unitPrice||''});});
+  } else if(e&&e.item){
+    _expItems.push({id:'ei_'+Date.now(),item:e.item||'',qty:e.qty||'',unit:e.unitPrice||''});
+  } else {
+    _expItems.push({id:'ei_'+Date.now(),item:'',qty:'',unit:''});
+  }
+  renderExpItems();
   document.getElementById('expense-modal').dataset.editId=id||'';
   openModal('expense-modal');
 }
 
 function saveExpense(){
   var date=document.getElementById('exp-date').value;
-  var amount=parseFloat(document.getElementById('exp-amount').value||0);
-  var desc=document.getElementById('exp-desc').value.trim();
   var cat=document.getElementById('exp-cat').value;
+  var supplier=document.getElementById('exp-supplier').value.trim();
+  var hasGST=document.getElementById('exp-gst').checked;
   var company=document.getElementById('exp-company').value;
+  var paymentMode=document.getElementById('exp-payment-mode').value;
   var notes=document.getElementById('exp-notes').value.trim();
-  if(!date||!amount||!desc){toast('Please fill in date, amount and description.');return;}
+  var validItems=_expItems.filter(function(r){return r.item&&(parseFloat(r.qty)||0)*(parseFloat(r.unit)||0)>0;});
+  if(!date||!validItems.length){toast('Please fill in date and at least one item with qty and unit price.');return;}
+  var amount=parseFloat(validItems.reduce(function(s,r){return s+(parseFloat(r.qty)||0)*(parseFloat(r.unit)||0);},0).toFixed(2));
+  var desc=validItems.map(function(r){return r.item+(r.qty?' × '+r.qty+' @ S$'+fmt(r.unitPrice||r.unit):'');}).join(', ');
+  var items=validItems.map(function(r){return{item:r.item,qty:parseFloat(r.qty)||0,unitPrice:parseFloat(r.unit)||0};});
   var editId=document.getElementById('expense-modal').dataset.editId;
-  var expense={id:editId||('exp_'+Date.now()),date:date,amount:amount,desc:desc,category:cat,company:company,notes:notes};
+  var expense={id:editId||('exp_'+Date.now()),date:date,amount:amount,desc:desc,category:cat,company:company,supplier:supplier,items:items,hasGST:hasGST,paymentMode:paymentMode,notes:notes};
   if(editId){var idx=DB.expenses.findIndex(function(x){return x.id===editId;});if(idx>=0)DB.expenses[idx]=expense;}
   else DB.expenses.push(expense);
   saveDB();
   closeModal('expense-modal');
   renderExpenses();
-  toast('✓ Expense saved!');
+  toast('✓ Expense logged!');
 }
 
 function renderExpenses(){
@@ -1543,10 +1671,12 @@ function renderExpenses(){
   tbody.innerHTML=list.map(function(e){
     return'<tr>'
       +'<td class="td-muted">'+fmtDate(e.date)+'</td>'
-      +'<td style="font-weight:500;">'+esc(e.desc)+(e.notes?'<br><span style="font-size:11px;color:var(--text-muted);">'+esc(e.notes)+'</span>':'')+'</td>'
+      +'<td style="font-weight:500;">'+esc(e.desc)
+        +(e.supplier?'<br><span style="font-size:11px;color:var(--text-muted);">'+esc(e.supplier)+'</span>':'')
+        +(e.notes?'<br><span style="font-size:11px;color:var(--text-muted);">'+esc(e.notes)+'</span>':'')+'</td>'
       +'<td><span class="badge badge-amber">'+esc(e.category)+'</span></td>'
       +'<td><span class="badge badge-'+(e.company==='bee'?'bee':e.company==='swits'?'swits':'green')+'">'+esc(e.company==='bee'?'Bee Events':e.company==='swits'?'SWITS':'Both')+'</span></td>'
-      +'<td class="td-r td-num td-red">S$'+fmt(e.amount)+'</td>'
+      +'<td class="td-r td-num td-red">S$'+fmt(e.amount)+(e.hasGST?'<br><span style="font-size:11px;font-weight:500;color:var(--text-muted);">+GST S$'+fmt(e.amount*0.09)+'</span>':'')+'</td>'
       +'<td style="white-space:nowrap;">'
         +'<button class="btn btn-ghost btn-sm" onclick="openExpenseModal(\''+e.id+'\')" style="padding:4px 8px;">✏️</button> '
         +'<button class="btn btn-danger btn-sm" onclick="deleteExpense(\''+e.id+'\')" style="padding:4px 8px;">🗑</button>'
@@ -2217,15 +2347,7 @@ function closeQuickMenu(){
 }
 function quickAddExpense(){
   closeQuickMenu();
-  var qeCat=document.getElementById('qe-cat');
-  if(qeCat&&!qeCat.options.length){
-    CATEGORIES.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;qeCat.appendChild(o);});
-  }
-  document.getElementById('qe-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('qe-amount').value='';
-  document.getElementById('qe-desc').value='';
-  openModal('quick-expense-modal');
-  setTimeout(function(){document.getElementById('qe-amount').focus();},100);
+  openExpenseModal();
 }
 function quickBoughtStock(){
   closeQuickMenu();
