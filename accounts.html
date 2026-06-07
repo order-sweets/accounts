@@ -1271,6 +1271,8 @@ function fbLoad(){
       // Also capture restockHistory for Product P&L FIFO
       if(d.restockHistory)_fbRestockHistory=d.restockHistory;
       renderProductPL();
+      // Always refresh adjustments panel so product dropdown is ready
+      populateAdjProducts();renderAdjLog();
     }).catch(function(){});
   }catch(e){console.warn('store fbLoad failed',e);}
 
