@@ -2196,7 +2196,10 @@ function confirmApplyStock(){
     else{var fbProd=(_fbProducts||[]).find(function(p){return p.name===item.product;});pidMap[item.product]=fbProd?fbProd.id:item.product;}
   });
 
-  function doApplyStock(){
+  function doApplyStock(liveInv){
+    // Use live Firebase inv as base — never stale localStorage
+    // liveInv is fetched fresh before this function is called
+    Object.keys(liveInv).forEach(function(k){inv[k]=liveInv[k];});
     (s.items||[]).forEach(function(item){
       var pid=pidMap[item.product]||item.product;
       var ppc=parseInt(item.ppc||1);
@@ -2215,7 +2218,14 @@ function confirmApplyStock(){
     toast('✓ Stock updated!'+(newItems.length?' '+newItems.length+' new product'+(newItems.length>1?'s':'')+' added to store.':''));
   }
 
-  if(!newItems.length){doApplyStock();return;}
+  function fetchLiveAndApply(){
+    fetch(FB_URL+'/store/inv.json')
+      .then(function(r){return r.json();})
+      .then(function(liveInv){doApplyStock(liveInv||{});})
+      .catch(function(){toast('⚠ Could not fetch live stock. Check connection and try again.');});
+  }
+
+  if(!newItems.length){fetchLiveAndApply();return;}
 
   toast('Adding new products to store…');
   fetch(FB_URL+'/store/products.json')
@@ -2236,7 +2246,7 @@ function confirmApplyStock(){
       });
       return fetch(FB_URL+'/store.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({products:storeProds})});
     })
-    .then(function(){doApplyStock();})
+    .then(function(){fetchLiveAndApply();})
     .catch(function(err){console.error('Failed to create products:',err);toast('⚠ Could not reach store. Check connection and try again.');});
 }
 
@@ -2506,16 +2516,23 @@ function saveAdjustment(){
   if(!date){toast('Please enter a date.');return;}
   var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
   if(!p){toast('Product not found.');return;}
-  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
-  var stock=parseInt(inv[pid]||0);
   var units=_adjUnit==='pieces'?qty:qty*(p.ppc||1);
-  if(units>stock){toast('Quantity exceeds current stock ('+stock+' pcs).');return;}
 
-  // Deduct inventory
-  inv[pid]=stock-units;
-  localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
-  var patch={};patch[pid]=inv[pid];
-  fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(e){console.warn('inv sync failed',e);});
+  // Fetch live stock from Firebase before deducting — never use stale localStorage as base
+  fetch(FB_URL+'/store/inv.json')
+    .then(function(r){return r.json();})
+    .then(function(liveInv){
+      var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+      // Merge live Firebase inv over localStorage — live takes priority
+      if(liveInv&&typeof liveInv==='object')Object.keys(liveInv).forEach(function(k){inv[k]=liveInv[k];});
+      var stock=parseInt(inv[pid]||0);
+      if(units>stock){toast('Quantity exceeds current stock ('+stock+' pcs).');return;}
+
+      // Deduct inventory
+      inv[pid]=stock-units;
+      localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
+      var patch={};patch[pid]=inv[pid];
+      fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(e){console.warn('inv sync failed',e);});
 
   // ── FIFO consumption (Issue 1 fix) ──
   // Consume units from FIFO pool oldest-first, same as a sale
@@ -2550,6 +2567,7 @@ function saveAdjustment(){
   document.getElementById('adj-preview').style.display='none';
   renderAdjReasonGrid();
   toast('✓ Stock written off — '+units+' pcs removed, S$'+fmt(totalCost)+' cost recorded.');
+    }).catch(function(e){toast('⚠ Could not fetch live stock. Check connection.');console.warn('inv fetch failed',e);});
 }
 
 function saveRestore(){
@@ -2563,13 +2581,19 @@ function saveRestore(){
   if(!date){toast('Please enter a date.');return;}
   var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
   if(!p){toast('Product not found.');return;}
-  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
-  var stock=parseInt(inv[pid]||0);
   var units=_rstUnit==='pieces'?qty:qty*(p.ppc||1);
-  inv[pid]=stock+units;
-  localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
-  var patch={};patch[pid]=inv[pid];
-  fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(e){console.warn('inv sync failed',e);});
+
+  // Fetch live stock from Firebase before restoring — never use stale localStorage as base
+  fetch(FB_URL+'/store/inv.json')
+    .then(function(r){return r.json();})
+    .then(function(liveInv){
+      var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+      if(liveInv&&typeof liveInv==='object')Object.keys(liveInv).forEach(function(k){inv[k]=liveInv[k];});
+      var stock=parseInt(inv[pid]||0);
+      inv[pid]=stock+units;
+      localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
+      var patch={};patch[pid]=inv[pid];
+      fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(e){console.warn('inv sync failed',e);});
   if(!_fbRestockHistory)_fbRestockHistory={};
   if(!_fbRestockHistory[pid])_fbRestockHistory[pid]=[];
   _fbRestockHistory[pid].push({boxes:_rstUnit==='boxes'?qty:0,units:units,costPerUnit:0,shipmentId:'return',shipmentName:'Customer Return',ts:new Date(date).toISOString()});
@@ -2583,6 +2607,7 @@ function saveRestore(){
   document.getElementById('rst-note').value='';
   document.getElementById('rst-stock-display').style.display='none';
   document.getElementById('rst-preview').style.display='none';
+    }).catch(function(e){toast('⚠ Could not fetch live stock. Check connection.');console.warn('inv fetch failed',e);});
   toast('✓ Stock restored — '+units+' pcs added back at zero cost.');
 }
 
