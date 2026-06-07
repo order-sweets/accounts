@@ -1359,6 +1359,19 @@ function fbLoad(){
     }).catch(function(){});
   }catch(e){console.warn('store fbLoad failed',e);}
 
+  // Fetch live stock from /store/inv.json — read-only, updates localStorage for accurate display
+  try{
+  fetch(FB_URL+'/store/inv.json')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d||typeof d!=='object')return;
+      var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+      Object.keys(d).forEach(function(k){inv[k]=d[k];});
+      localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
+      if(document.getElementById('panel-prodmgmt')&&document.getElementById('panel-prodmgmt').classList.contains('active'))renderProdMgmt();
+    }).catch(function(){});
+  }catch(e){console.warn('inv fbLoad failed',e);}
+
   // Fetch Shopee monthly data — read-only
   try{
   fetch(FB_URL+'/shopee/monthly.json')
