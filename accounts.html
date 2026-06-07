@@ -303,9 +303,14 @@ tr:hover td{background:#F0F8E8;}
       <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
       Expenses
     </button>
+    <div class="sb-section">Inventory</div>
     <button class="sb-item" id="nav-adjustments" onclick="showPanel('adjustments')">
       <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Stock Adjustments
+    </button>
+    <button class="sb-item" id="nav-prodmgmt" onclick="showPanel('prodmgmt')">
+      <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+      Products
     </button>
     <div class="sb-section">Revenue</div>
     <button class="sb-item" id="nav-sales" onclick="showPanel('sales')">
@@ -551,6 +556,26 @@ tr:hover td{background:#F0F8E8;}
   </div>
 </div>
 
+<!-- ══ PRODUCTS ══ -->
+<div class="panel" id="panel-prodmgmt">
+  <div class="panel-title">Products</div>
+  <div class="panel-sub">Manage store visibility and delete discontinued products. Edit prices and photos in store admin.</div>
+
+  <input type="text" id="prodmgmt-search" placeholder="🔍  Search products…" oninput="renderProdMgmt()"
+    style="width:100%;font-size:14px;padding:8px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:12px;">
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <select id="prodmgmt-filter" onchange="renderProdMgmt()" style="font-size:13px;padding:7px 10px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;background:#fff;outline:none;">
+      <option value="">All products</option>
+      <option value="visible">Visible in store</option>
+      <option value="hidden">Hidden</option>
+      <option value="oos">Out of stock</option>
+    </select>
+  </div>
+
+  <div id="prodmgmt-list"></div>
+</div>
+
 <!-- ══ SALES ══ -->
 <div class="panel" id="panel-sales">
   <div class="panel-title">Revenue Summary</div>
@@ -676,132 +701,146 @@ tr:hover td{background:#F0F8E8;}
     <div class="panel-title">How to Use</div>
     <div class="panel-sub">A quick guide to getting the most out of this accounting system.</div>
 
+    <!-- STOCK PURCHASES -->
     <div class="help-section">
       <div class="help-section-title">📦 Stock Purchases</div>
-      <div class="help-step">
-        <div class="help-step-num">1</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Create a new shipment</div>
-          <div class="help-step-desc">Go to Stock Purchases → New Shipment. Fill in the name, supplier, order date and arrival date. You can upload your supplier invoice to auto-fill everything.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">2</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Enter FX conversion</div>
-          <div class="help-step-desc">Type the USD amount on the invoice and the SGD you actually transferred. The effective exchange rate is calculated automatically — this captures bank and transfer fees.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">3</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Add freight, insurance and GST</div>
-          <div class="help-step-desc">Freight is split equally across all cases. GST is applied on top of product cost + freight. Leave GST at "No GST" if the shipment is not subject to GST.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">4</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Add products</div>
-          <div class="help-step-desc">Click + Add Product for each item. Type the product name, number of cases, and USD cost per case. Landed cost per unit is calculated live.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">5</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Apply to Stock when goods arrive</div>
-          <div class="help-step-desc">Save the shipment right after ordering. When goods physically arrive, expand the card and click 📦 Apply to Stock. This updates your store inventory and locks in the cost for profit tracking. This can only be done once per shipment.</div>
-        </div>
-      </div>
-      <div class="help-tip">💡 Save the shipment as soon as you order — then come back to apply it to stock when goods physically arrive.</div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">Create a new shipment (2 steps)</div>
+        <div class="help-step-desc">Click + Import Shipment or + Local Purchase. Step 1 covers costs — supplier, dates, FX transfers, freight, other charges, customs tax. Step 2 covers products. Use Save Draft to save without products yet.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">FX conversion (imports only)</div>
+        <div class="help-step-desc">Enter the USD invoice amount and SGD you actually transferred. The blended FX rate is calculated automatically across multiple transfers, capturing bank fees accurately.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-body">
+        <div class="help-step-title">Add products — existing or new</div>
+        <div class="help-step-desc">Pick from the dropdown (existing store products) or tick "New product" to create a product in the store at the same time. You can also Import Excel using the product template — cases and USD/box cost pre-fill automatically.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">4</div><div class="help-step-body">
+        <div class="help-step-title">New products go to store hidden</div>
+        <div class="help-step-desc">When you add a new product via a shipment, it is created in the store as hidden. Toggle "Show in Store" in the new product fields to make it visible on Apply to Stock, or enable it later via the Products panel.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">5</div><div class="help-step-body">
+        <div class="help-step-title">Apply to Stock when goods arrive</div>
+        <div class="help-step-desc">Save the shipment when you order. When goods physically arrive, expand the card and click Apply to Stock. This updates store inventory and locks in the landed cost for FIFO profit tracking. Can only be done once per shipment.</div>
+      </div></div>
+      <div class="help-tip">💡 Save Draft right after ordering — come back to add products and apply stock when goods arrive.</div>
     </div>
 
+    <!-- EXPENSES -->
     <div class="help-section">
       <div class="help-section-title">💸 Expenses</div>
-      <div class="help-step">
-        <div class="help-step-num">1</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Add an expense manually</div>
-          <div class="help-step-desc">Go to Expenses → Add Expense. Fill in the date, amount in SGD, description, category, and company (Bee Events, SWITS, or Both).</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">2</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Import Amazon orders in bulk</div>
-          <div class="help-step-desc">On Amazon: Account → Order History Reports → Request report → Download CSV. Then in Expenses click Import Amazon CSV and upload it. All orders come in at once under "Online Purchases".</div>
-        </div>
-      </div>
-      <div class="help-tip">💡 For shared expenses (e.g. rent split between both companies), select "Both (split equally)" — the system splits it 50/50 in all reports automatically.</div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">Add an expense manually</div>
+        <div class="help-step-desc">Go to Expenses → Add Expense. Fill in date, amount, description, category, and company (Bee Events, SWITS, or Both).</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">Stock write-offs appear here automatically</div>
+        <div class="help-step-desc">When you write off stock (damaged, gift, content etc) in Stock Adjustments, the cost is automatically added to this panel under "Stock Write-offs". No manual entry needed.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-body">
+        <div class="help-step-title">Import Amazon orders in bulk</div>
+        <div class="help-step-desc">On Amazon: Account → Order History Reports → Request report → Download CSV. Then click Import Amazon CSV. All orders come in at once under "Online Purchases".</div>
+      </div></div>
+      <div class="help-tip">💡 For shared expenses, select "Both (split equally)" — the system splits it 50/50 in all reports automatically.</div>
+    </div>
 
+    <!-- STOCK ADJUSTMENTS -->
+    <div class="help-section">
+      <div class="help-section-title">✏️ Stock Adjustments</div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">Write-off — stock leaving without a sale</div>
+        <div class="help-step-desc">Use for damaged goods, gifts, samples, personal use, TikTok content, or stocktake corrections. Select the product, choose a reason, enter the quantity. The cost is calculated via FIFO and recorded as a business expense automatically.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">Restore Return — resellable goods returned by a customer</div>
+        <div class="help-step-desc">First add a deduction line on the original invoice in the invoicing system (this offsets the revenue). Then come here and restore the stock. Units are added back at zero cost — so when you resell them, the full price is profit.</div>
+      </div></div>
+      <div class="help-tip">💡 Always write off remaining stock before deleting a product — otherwise the cost disappears from your P&L silently.</div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="help-section">
+      <div class="help-section-title">🛍 Products</div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">Hide or show products in the store</div>
+        <div class="help-step-desc">Tap Hide/Show on any product to toggle visibility for both retail and distributor customers at once. Takes effect in the store immediately.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">Quick write-off shortcut</div>
+        <div class="help-step-desc">Tap Write-off on a product to jump straight to Stock Adjustments with that product pre-selected.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-body">
+        <div class="help-step-title">Delete a product</div>
+        <div class="help-step-desc">Tap Delete to permanently remove the product from the store. If stock remains, you will be warned — write off remaining units first for accurate P&L. For editing prices, photos, and sections, go to the store admin.</div>
+      </div></div>
+    </div>
+
+    <!-- PRODUCT P&L -->
     <div class="help-section">
       <div class="help-section-title">📊 Product P&L</div>
-      <div class="help-step">
-        <div class="help-step-num">1</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Revenue is pulled automatically</div>
-          <div class="help-step-desc">Once you confirm an invoice in the invoicing system, it appears here as revenue instantly. No manual entry needed.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">2</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Costs use FIFO (First In, First Out)</div>
-          <div class="help-step-desc">When you sell a product, its cost is taken from the oldest unsold batch first. So if you bought 100 units at $1.43 then 100 more at $1.61, the first 100 sales are costed at $1.43. This accurately reflects your real profit.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">3</div>
-        <div class="help-step-body">
-          <div class="help-step-title">See profit per sale and per customer</div>
-          <div class="help-step-desc">Expand any product card to see every sale, its exact cost, and profit — even when selling the same product at different prices to different customers.</div>
-        </div>
-      </div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">Revenue pulled automatically</div>
+        <div class="help-step-desc">Confirmed invoices from the invoicing system appear here instantly. Shopee revenue is added automatically on the 15th of each month.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">Costs use FIFO (First In, First Out)</div>
+        <div class="help-step-desc">When you sell a product, its cost is taken from the oldest unsold batch first. So if you bought 100 units at $1.43 then 100 more at $1.61, the first 100 sales are costed at $1.43. Write-offs also consume the FIFO pool so your remaining stock value is always accurate.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-body">
+        <div class="help-step-title">See profit per sale and per customer</div>
+        <div class="help-step-desc">Expand any product card to see every sale, its exact FIFO cost, and profit — even when selling the same product at different prices to different customers.</div>
+      </div></div>
     </div>
 
+    <!-- P&L REPORT -->
+    <div class="help-section">
+      <div class="help-section-title">📋 P&L Report</div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">COGS based on sales, not purchases</div>
+        <div class="help-step-desc">Cost of Goods Sold is calculated from units actually sold in the period using FIFO — not the shipment purchase date. A heavy buying month won't show inflated costs if nothing was sold yet.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">Expenses include write-offs</div>
+        <div class="help-step-desc">Stock write-off costs appear as "Stock Write-offs" under Operating Expenses in the P&L breakdown, so your net profit accurately reflects all stock losses.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-body">
+        <div class="help-step-title">Revenue includes Shopee</div>
+        <div class="help-step-desc">Shopee after-fee earnings are included in SWITS revenue automatically. The P&L shows your true total revenue across all channels.</div>
+      </div></div>
+    </div>
+
+    <!-- GST -->
     <div class="help-section">
       <div class="help-section-title">🧾 GST (SWITS only)</div>
-      <div class="help-tip">Bee Events is <strong>not</strong> GST-registered — no GST is charged on its sales. SWITS <strong>is</strong> GST-registered — 9% GST applies on all SWITS sales.</div>
-      <div class="help-step">
-        <div class="help-step-num">1</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Output Tax = 9% of SWITS revenue</div>
-          <div class="help-step-desc">This is the GST you collect from customers and hold on behalf of IRAS.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">2</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Input Tax = GST paid on imports</div>
-          <div class="help-step-desc">When logging a shipment, select "9% GST" if it applies. That amount is tracked as input tax you can offset against output tax.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">3</div>
-        <div class="help-step-body">
-          <div class="help-step-title">Net GST Payable = Output − Input</div>
-          <div class="help-step-desc">Go to GST Summary, select the quarter and year, and see exactly what to file with IRAS. Always verify with your accountant before submitting.</div>
-        </div>
-      </div>
+      <div class="help-tip">Bee Events is <strong>not</strong> GST-registered. SWITS <strong>is</strong> GST-registered — 9% GST applies on all SWITS sales.</div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">Output Tax = 9% of SWITS revenue</div>
+        <div class="help-step-desc">GST collected from customers and held on behalf of IRAS. Includes both B2B invoice revenue and Shopee revenue.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">Input Tax = GST paid on imports</div>
+        <div class="help-step-desc">When logging a shipment, select the applicable GST rate. That amount is tracked as input tax you can offset against output tax.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-body">
+        <div class="help-step-title">Net GST Payable = Output − Input</div>
+        <div class="help-step-desc">Go to GST Summary, select the quarter and year. Always verify with your accountant before filing with IRAS.</div>
+      </div></div>
     </div>
 
+    <!-- EXPORTING -->
     <div class="help-section">
       <div class="help-section-title">📤 Exporting</div>
-      <div class="help-step">
-        <div class="help-step-num">1</div>
-        <div class="help-step-body">
-          <div class="help-step-title">CSV — for Excel or your accountant</div>
-          <div class="help-step-desc">Downloads every transaction in full detail. Filter by month, year and company first. Opens cleanly in Excel or Google Sheets.</div>
-        </div>
-      </div>
-      <div class="help-step">
-        <div class="help-step-num">2</div>
-        <div class="help-step-body">
-          <div class="help-step-title">PDF — formal P&L report</div>
-          <div class="help-step-desc">Generates a professional P&L statement with your company details from the invoicing system settings. Select period and company, then click Download PDF — it opens in a new tab and prints automatically.</div>
-        </div>
-      </div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-body">
+        <div class="help-step-title">CSV — for Excel or your accountant</div>
+        <div class="help-step-desc">Downloads every transaction in full detail including shipments, expenses, and write-offs. Filter by month, year and company first.</div>
+      </div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-body">
+        <div class="help-step-title">PDF — formal P&L report</div>
+        <div class="help-step-desc">Generates a professional P&L statement. Select period and company, then click Download PDF.</div>
+      </div></div>
     </div>
+
   </div>
 
 </div><!-- /main -->
@@ -965,6 +1004,48 @@ tr:hover td{background:#F0F8E8;}
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         Submit
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DELETE PRODUCT MODAL ══ -->
+<div class="modal-overlay" id="delete-prod-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-title">Delete Product</span>
+      <button class="modal-close" onclick="closeModal('delete-prod-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="delete-prod-warning" style="display:none;background:#FEF3C7;border-left:4px solid #F59E0B;border-radius:0 var(--r) var(--r) 0;padding:12px 14px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:8px;">⚠ This product still has <span id="delete-prod-stock"></span> pcs in stock</div>
+        <div style="font-size:12px;color:#92400E;margin-bottom:10px;">Write off remaining units first for accurate P&L. Here's how:</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#F59E0B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+            <div style="font-size:12px;color:#92400E;">Go to <strong>Inventory → Stock Adjustments</strong></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#F59E0B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+            <div style="font-size:12px;color:#92400E;">Select this product, choose reason <strong>Stocktake Correction</strong> or relevant reason</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#F59E0B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+            <div style="font-size:12px;color:#92400E;">Enter <strong><span id="delete-prod-stock2"></span> pieces</strong> and confirm</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:20px;height:20px;border-radius:50%;background:#F59E0B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+            <div style="font-size:12px;color:#92400E;">Come back here and delete the product</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">You are about to permanently delete:</div>
+      <div id="delete-prod-name" style="font-size:15px;font-weight:700;margin-bottom:16px;"></div>
+      <div style="font-size:12px;color:var(--text-muted);">This removes the product from your store. Past invoices and P&L history are not affected.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('delete-prod-modal')">Cancel</button>
+      <button id="delete-prod-writeoff-btn" class="btn btn-ghost" onclick="deleteProdGoWriteOff()" style="border-color:#F59E0B;color:#F59E0B;display:none;">Write-off first →</button>
+      <button id="delete-prod-confirm-btn" class="btn btn-danger" onclick="deleteProdConfirm()">Delete Anyway</button>
     </div>
   </div>
 </div>
@@ -1273,6 +1354,8 @@ function fbLoad(){
       renderProductPL();
       // Always refresh adjustments panel so product dropdown is ready
       populateAdjProducts();renderAdjLog();
+      // Refresh product management panel
+      if(document.getElementById('panel-prodmgmt')&&document.getElementById('panel-prodmgmt').classList.contains('active'))renderProdMgmt();
     }).catch(function(){});
   }catch(e){console.warn('store fbLoad failed',e);}
 
@@ -1439,8 +1522,8 @@ function getCOGS(month,year,co){
 // ══════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════
-var PANELS=['dashboard','shipments','expenses','adjustments','sales','products','pl','export','gst','help'];
-var PANEL_TITLES={dashboard:'Dashboard',shipments:'Stock Purchases',expenses:'Expenses',adjustments:'Stock Adjustments',sales:'Revenue Summary',products:'Product P&L',pl:'P&L Report',export:'Export',gst:'GST Summary',help:'How to Use'};
+var PANELS=['dashboard','shipments','expenses','adjustments','prodmgmt','sales','products','pl','export','gst','help'];
+var PANEL_TITLES={dashboard:'Dashboard',shipments:'Stock Purchases',expenses:'Expenses',adjustments:'Stock Adjustments',prodmgmt:'Products',sales:'Revenue Summary',products:'Product P&L',pl:'P&L Report',export:'Export',gst:'GST Summary',help:'How to Use'};
 
 function showPanel(id){
   PANELS.forEach(function(p){
@@ -1453,6 +1536,7 @@ function showPanel(id){
   if(id==='shipments')renderShipments();
   if(id==='expenses')renderExpenses();
   if(id==='adjustments'){populateAdjProducts();renderAdjLog();}
+  if(id==='prodmgmt')renderProdMgmt();
   if(id==='sales')renderSales();
   if(id==='products')renderProductPL();
   if(id==='pl')renderPL();
@@ -2529,6 +2613,142 @@ function renderAdjLog(){
       +'</div>'
     +'</div>';
   }).join('');
+}
+
+// ══════════════════════════════════════════════
+// PRODUCT MANAGEMENT
+function renderProdMgmt(){
+  var el=document.getElementById('prodmgmt-list');if(!el)return;
+  var search=(document.getElementById('prodmgmt-search').value||'').toLowerCase().trim();
+  var filter=document.getElementById('prodmgmt-filter').value;
+  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+  var list=(_fbProducts||[]).filter(function(p){
+    if(search&&p.name.toLowerCase().indexOf(search)===-1&&(p.brand||'').toLowerCase().indexOf(search)===-1)return false;
+    var stock=parseInt(inv[p.id]||0);
+    var visible=p.visRetail||p.visDist;
+    if(filter==='visible'&&!visible)return false;
+    if(filter==='hidden'&&visible)return false;
+    if(filter==='oos'&&stock>0)return false;
+    return true;
+  }).sort(function(a,b){return(a.name||'').localeCompare(b.name||'');});
+  if(!list.length){el.innerHTML='<div style="text-align:center;color:var(--text-hint);padding:24px;">No products found.</div>';return;}
+  el.innerHTML=list.map(function(p){
+    var stock=parseInt(inv[p.id]||0);
+    var visRetail=p.visRetail||false;
+    var visDist=p.visDist||false;
+    var visible=visRetail||visDist;
+    var stockColor=stock===0?'var(--red-text)':stock<(p.ppc||1)*2?'var(--amber-text)':'var(--green-text)';
+    return'<div style="background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1.5px solid #E8E8E0;">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;">'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div style="font-size:13px;font-weight:700;margin-bottom:2px;">'+esc(p.name)+'</div>'
+          +'<div style="font-size:11px;color:var(--text-muted);">'+esc(p.brand||'')+(p.ppc?' · '+p.ppc+' pcs/box':'')+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0;">'
+          +'<div style="font-size:14px;font-weight:800;color:'+stockColor+';">'+stock+'</div>'
+          +'<div style="font-size:10px;color:var(--text-muted);">pcs</div>'
+        +'</div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">'
+        +'<div style="display:flex;gap:4px;flex-wrap:wrap;">'
+          +(visRetail?'<span class="badge" style="background:#3B82F6;color:#fff;font-size:9px;">Retail</span>':'<span class="badge" style="background:#E5E7EB;color:#6B7280;font-size:9px;">Retail hidden</span>')
+          +(visDist?'<span class="badge" style="background:#8B5CF6;color:#fff;font-size:9px;">Dist</span>':'<span class="badge" style="background:#E5E7EB;color:#6B7280;font-size:9px;">Dist hidden</span>')
+        +'</div>'
+        +'<div style="display:flex;gap:6px;flex-shrink:0;">'
+          +'<button class="btn btn-ghost btn-sm" onclick="toggleProdVisibility(\''+p.id+'\')" style="font-size:11px;padding:4px 10px;">'+(visible?'Hide':'Show')+'</button>'
+          +(stock>0?'<button class="btn btn-ghost btn-sm" onclick="quickWriteOff(\''+p.id+'\')" style="font-size:11px;padding:4px 10px;border-color:#D97706;color:#D97706;">Write-off</button>':'')
+          +'<button class="btn btn-danger btn-sm" onclick="deleteProdFromAccounts(\''+p.id+'\')" style="font-size:11px;padding:4px 10px;">Delete</button>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function toggleProdVisibility(pid){
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  if(!p){toast('Product not found.');return;}
+  var visible=p.visRetail||p.visDist;
+  p.visRetail=!visible;p.visDist=!visible;
+  fetch(FB_URL+'/store/products.json')
+    .then(function(r){return r.json();})
+    .then(function(sp){
+      sp=sp||{brands:[],newArrivals:[],hotSale:[]};
+      function upd(prod){if(prod.id===pid){prod.visRetail=p.visRetail;prod.visDist=p.visDist;}}
+      (sp.brands||[]).forEach(function(b){(b.products||[]).forEach(upd);});
+      (sp.newArrivals||[]).forEach(upd);(sp.hotSale||[]).forEach(upd);
+      return fetch(FB_URL+'/store.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({products:sp})});
+    })
+    .then(function(){toast(p.visRetail?'✓ Now visible in store.':'✓ Hidden from store.');renderProdMgmt();})
+    .catch(function(){toast('⚠ Could not update. Check connection.');});
+}
+
+function quickWriteOff(pid){
+  showPanel('adjustments');
+  setTimeout(function(){
+    var sel=document.getElementById('adj-product');
+    if(sel){sel.value=pid;adjProductChanged();}
+  },150);
+}
+
+var _deleteProdPid=null;
+
+function deleteProdFromAccounts(pid){
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  if(!p){toast('Product not found.');return;}
+  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+  var stock=parseInt(inv[pid]||0);
+  _deleteProdPid=pid;
+  document.getElementById('delete-prod-name').textContent=p.name;
+  document.getElementById('delete-prod-stock').textContent=stock;
+  document.getElementById('delete-prod-stock2').textContent=stock;
+  var warning=document.getElementById('delete-prod-warning');
+  var writeoffBtn=document.getElementById('delete-prod-writeoff-btn');
+  var confirmBtn=document.getElementById('delete-prod-confirm-btn');
+  if(stock>0){
+    warning.style.display='';
+    writeoffBtn.style.display='';
+    confirmBtn.textContent='Delete Anyway';
+  } else {
+    warning.style.display='none';
+    writeoffBtn.style.display='none';
+    confirmBtn.textContent='Delete Product';
+  }
+  openModal('delete-prod-modal');
+}
+
+function deleteProdGoWriteOff(){
+  closeModal('delete-prod-modal');
+  quickWriteOff(_deleteProdPid);
+}
+
+function deleteProdConfirm(){
+  var pid=_deleteProdPid;
+  if(!pid)return;
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  if(!p){closeModal('delete-prod-modal');return;}
+  var idx=_fbProducts.findIndex(function(x){return x.id===pid;});
+  if(idx>=0)_fbProducts.splice(idx,1);
+  fetch(FB_URL+'/store/products.json')
+    .then(function(r){return r.json();})
+    .then(function(sp){
+      sp=sp||{brands:[],newArrivals:[],hotSale:[]};
+      (sp.brands||[]).forEach(function(b){b.products=(b.products||[]).filter(function(x){return x.id!==pid;});});
+      sp.brands=sp.brands.filter(function(b){return(b.products||[]).length>0;});
+      sp.newArrivals=(sp.newArrivals||[]).filter(function(x){return x.id!==pid;});
+      sp.hotSale=(sp.hotSale||[]).filter(function(x){return x.id!==pid;});
+      return fetch(FB_URL+'/store.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({products:sp})});
+    })
+    .then(function(){
+      var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+      delete inv[pid];
+      localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
+      var patch={};patch[pid]=null;
+      fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(){});
+      closeModal('delete-prod-modal');
+      toast('✓ "'+p.name+'" deleted.');
+      renderProdMgmt();
+    })
+    .catch(function(){toast('⚠ Could not delete. Check connection.');});
 }
 
 function saveExpense(){
