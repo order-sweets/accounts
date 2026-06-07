@@ -2659,7 +2659,23 @@ function renderProdMgmt(){
   var el=document.getElementById('prodmgmt-list');if(!el)return;
   var search=(document.getElementById('prodmgmt-search').value||'').toLowerCase().trim();
   var filter=document.getElementById('prodmgmt-filter').value;
+  // Always fetch live stock from Firebase — never rely on stale localStorage
   var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+  fetch(FB_URL+'/store/inv.json')
+    .then(function(r){return r.json();})
+    .then(function(liveInv){
+      if(liveInv&&typeof liveInv==='object'){
+        Object.keys(liveInv).forEach(function(k){inv[k]=liveInv[k];});
+        localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
+      }
+      _renderProdMgmtWithInv(el,search,filter,inv);
+    })
+    .catch(function(){
+      // Fallback to localStorage if fetch fails
+      _renderProdMgmtWithInv(el,search,filter,inv);
+    });
+}
+function _renderProdMgmtWithInv(el,search,filter,inv){
   var list=(_fbProducts||[]).filter(function(p){
     if(search&&p.name.toLowerCase().indexOf(search)===-1&&(p.brand||'').toLowerCase().indexOf(search)===-1)return false;
     var stock=parseInt(inv[p.id]||0);
@@ -2706,17 +2722,34 @@ function toggleProdVisibility(pid){
   var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
   if(!p){toast('Product not found.');return;}
   var visible=p.visRetail||p.visDist;
-  p.visRetail=!visible;p.visDist=!visible;
+  if(visible){
+    // Hiding: save current retail/dist settings before hiding both
+    p._prevVisRetail=p.visRetail;
+    p._prevVisDist=p.visDist;
+    p.visRetail=false;p.visDist=false;
+  } else {
+    // Showing: restore previous retail/dist settings, or default both to true
+    p.visRetail=p._prevVisRetail!==undefined?p._prevVisRetail:true;
+    p.visDist=p._prevVisDist!==undefined?p._prevVisDist:true;
+  }
   fetch(FB_URL+'/store/products.json')
     .then(function(r){return r.json();})
     .then(function(sp){
       sp=sp||{brands:[],newArrivals:[],hotSale:[]};
-      function upd(prod){if(prod.id===pid){prod.visRetail=p.visRetail;prod.visDist=p.visDist;}}
+      function upd(prod){
+        if(prod.id===pid){
+          prod.visRetail=p.visRetail;
+          prod.visDist=p.visDist;
+          // Store prev values on Firebase product object so they survive page reload
+          if(p._prevVisRetail!==undefined)prod._prevVisRetail=p._prevVisRetail;
+          if(p._prevVisDist!==undefined)prod._prevVisDist=p._prevVisDist;
+        }
+      }
       (sp.brands||[]).forEach(function(b){(b.products||[]).forEach(upd);});
       (sp.newArrivals||[]).forEach(upd);(sp.hotSale||[]).forEach(upd);
       return fetch(FB_URL+'/store.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({products:sp})});
     })
-    .then(function(){toast(p.visRetail?'✓ Now visible in store.':'✓ Hidden from store.');renderProdMgmt();})
+    .then(function(){toast((p.visRetail||p.visDist)?'✓ Now visible in store.':'✓ Hidden from store.');renderProdMgmt();})
     .catch(function(){toast('⚠ Could not update. Check connection.');});
 }
 
@@ -3070,9 +3103,16 @@ function renderProductPL(){
   });
 
   // Also pull from admin restock history (has cost per unit since Stage 2)
+  // Build set of shipment IDs already accounted for via DB.shipments
+  var accountedShipmentIds={};
+  DB.shipments.forEach(function(s){if(s.id)accountedShipmentIds[s.id]=true;});
+
   _fbProducts.forEach(function(p){
     var entries=fbRestockHistory[p.id]||[];
     entries.forEach(function(e){
+      // Skip entries that came from an accounts shipment already processed above
+      // This prevents double-counting: once from DB.shipments, once from restockHistory
+      if(e.shipmentId&&accountedShipmentIds[e.shipmentId])return;
       if(!e.costPerUnit||e.costPerUnit<=0){
         // Allow zero-cost entries if they are customer returns (source: 'return')
         if(e.shipmentId!=='return')return;
@@ -3080,14 +3120,10 @@ function renderProductPL(){
       var name=p.name;
       if(!products[name])products[name]={name:name,company:productCompany(name),costQueue:[],restocks:[],sales:[],totalUnitsIn:0,totalCostIn:0};
       var units=e.units||(e.boxes*(p.ppc||1));
-      // Avoid duplicate if already from shipment
-      var alreadyLogged=products[name].restocks.some(function(r){return r.source&&r.source.indexOf('Admin')>=0&&r.date===e.ts.split('T')[0]&&r.units===units;});
-      if(!alreadyLogged){
-        products[name].costQueue.push({date:e.ts,shipName:'Admin restock',units:units,remaining:units,landedPerUnit:e.costPerUnit,source:'admin'});
-        products[name].restocks.push({date:e.ts.split('T')[0],boxes:e.boxes||0,units:units,costPerUnit:e.costPerUnit,source:'Admin restock'});
-        products[name].totalUnitsIn+=units;
-        products[name].totalCostIn+=e.costPerUnit*units;
-      }
+      products[name].costQueue.push({date:e.ts,shipName:'Admin restock',units:units,remaining:units,landedPerUnit:e.costPerUnit,source:'admin'});
+      products[name].restocks.push({date:e.ts.split('T')[0],boxes:e.boxes||0,units:units,costPerUnit:e.costPerUnit,source:'Admin restock'});
+      products[name].totalUnitsIn+=units;
+      products[name].totalCostIn+=e.costPerUnit*units;
     });
   });
 
