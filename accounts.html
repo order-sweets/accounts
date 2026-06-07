@@ -2268,12 +2268,14 @@ function setAdjUnit(u){
   _adjUnit=u;
   document.getElementById('adj-unit-pieces').className='btn '+(u==='pieces'?'btn-primary':'btn-ghost');
   document.getElementById('adj-unit-boxes').className='btn '+(u==='boxes'?'btn-primary':'btn-ghost');
+  adjProductChanged();
   adjUpdatePreview();
 }
 function setRstUnit(u){
   _rstUnit=u;
   document.getElementById('rst-unit-pieces').className='btn '+(u==='pieces'?'btn-primary':'btn-ghost');
   document.getElementById('rst-unit-boxes').className='btn '+(u==='boxes'?'btn-primary':'btn-ghost');
+  rstProductChanged();
   rstUpdatePreview();
 }
 function adjQtyStep(d){var el=document.getElementById('adj-qty');el.value=Math.max(0,(parseInt(el.value||0)+d)).toString();adjUpdatePreview();}
@@ -2334,13 +2336,35 @@ function saveAdjustment(){
   var stock=parseInt(inv[pid]||0);
   var units=_adjUnit==='pieces'?qty:qty*(p.ppc||1);
   if(units>stock){toast('Quantity exceeds current stock ('+stock+' pcs).');return;}
+
+  // Deduct inventory
   inv[pid]=stock-units;
   localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
   var patch={};patch[pid]=inv[pid];
   fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(e){console.warn('inv sync failed',e);});
-  var restock=(_fbRestockHistory||{})[pid]||[];
-  var costPerUnit=restock.length>0?(restock[restock.length-1].costPerUnit||0):0;
-  var adj={id:'adj_'+Date.now(),type:'writeoff',productId:pid,productName:p.name,reason:reason,units:units,qty:qty,unitType:_adjUnit,costPerUnit:costPerUnit,totalCost:units*costPerUnit,date:date,company:company,note:note,ts:new Date().toISOString()};
+
+  // ── FIFO consumption (Issue 1 fix) ──
+  // Consume units from FIFO pool oldest-first, same as a sale
+  // This records the real cost of the write-off against P&L
+  if(!_fbRestockHistory)_fbRestockHistory={};
+  var fifoPool=(_fbRestockHistory[pid]||[]).slice(); // copy
+  var remaining=units;
+  var totalCost=0;
+  for(var i=0;i<fifoPool.length&&remaining>0;i++){
+    var batch=fifoPool[i];
+    var available=parseInt(batch.units||0);
+    if(available<=0)continue;
+    var consume=Math.min(available,remaining);
+    totalCost+=consume*(batch.costPerUnit||0);
+    fifoPool[i]=Object.assign({},batch,{units:available-consume});
+    remaining-=consume;
+  }
+  // Write updated FIFO pool back (with consumed units reduced)
+  _fbRestockHistory[pid]=fifoPool;
+  fetch(FB_URL+'/store.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({restockHistory:_fbRestockHistory})}).catch(function(e){console.warn('restock sync failed',e);});
+
+  var costPerUnit=units>0?totalCost/units:0;
+  var adj={id:'adj_'+Date.now(),type:'writeoff',productId:pid,productName:p.name,reason:reason,units:units,qty:qty,unitType:_adjUnit,costPerUnit:costPerUnit,totalCost:totalCost,date:date,company:company,note:note,ts:new Date().toISOString()};
   if(!DB.adjustments)DB.adjustments=[];
   DB.adjustments.push(adj);
   saveDB();renderAdjLog();
@@ -2351,7 +2375,7 @@ function saveAdjustment(){
   document.getElementById('adj-stock-display').style.display='none';
   document.getElementById('adj-preview').style.display='none';
   renderAdjReasonGrid();
-  toast('✓ Stock written off — '+units+' pcs removed.');
+  toast('✓ Stock written off — '+units+' pcs removed, S$'+fmt(totalCost)+' cost recorded.');
 }
 
 function saveRestore(){
