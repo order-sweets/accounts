@@ -303,6 +303,10 @@ tr:hover td{background:#F0F8E8;}
       <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
       Expenses
     </button>
+    <button class="sb-item" id="nav-adjustments" onclick="showPanel('adjustments')">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Stock Adjustments
+    </button>
     <div class="sb-section">Revenue</div>
     <button class="sb-item" id="nav-sales" onclick="showPanel('sales')">
       <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
@@ -454,6 +458,96 @@ tr:hover td{background:#F0F8E8;}
       <span id="exp-total-display" style="font-size:13px;font-weight:700;"></span>
     </div>
     <div id="exp-tbody"></div>
+  </div>
+</div>
+
+<!-- ══ STOCK ADJUSTMENTS ══ -->
+<div class="panel" id="panel-adjustments">
+  <div class="panel-title">Stock Adjustments</div>
+  <div class="panel-sub">Write off stock (damaged, gifts, samples) or restore resellable returns at zero cost.</div>
+
+  <div style="display:flex;gap:8px;margin-bottom:20px;">
+    <button id="adj-tab-writeoff" onclick="switchAdjTab('writeoff')" class="btn btn-primary" style="flex:1;justify-content:center;">Write-off</button>
+    <button id="adj-tab-restore" onclick="switchAdjTab('restore')" class="btn btn-ghost" style="flex:1;justify-content:center;">Restore Return</button>
+  </div>
+
+  <!-- Write-off -->
+  <div id="adj-writeoff-section">
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Product</div>
+    <select id="adj-product" onchange="adjProductChanged()" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;background:#fff;margin-bottom:4px;"><option value="">— Select product —</option></select>
+    <div id="adj-stock-display" style="display:none;font-size:12px;color:var(--text-muted);margin-bottom:12px;padding:0 2px;"></div>
+
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;margin-top:8px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Reason</div>
+    <div id="adj-reason-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"></div>
+    <input type="hidden" id="adj-reason">
+
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Quantity to Remove</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <button id="adj-unit-pieces" onclick="setAdjUnit('pieces')" class="btn btn-primary" style="justify-content:center;">Pieces</button>
+      <button id="adj-unit-boxes" onclick="setAdjUnit('boxes')" class="btn btn-ghost" style="justify-content:center;">Boxes</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <button onclick="adjQtyStep(-1)" style="width:40px;height:40px;border-radius:10px;border:2px solid #0A0A0A;background:#fff;font-size:20px;font-weight:700;cursor:pointer;flex-shrink:0;">−</button>
+      <input type="number" id="adj-qty" min="1" placeholder="0" oninput="adjUpdatePreview()" style="flex:1;padding:10px;border-radius:10px;border:2px solid #0A0A0A;font-size:24px;font-weight:800;text-align:center;font-family:inherit;outline:none;">
+      <button onclick="adjQtyStep(1)" style="width:40px;height:40px;border-radius:10px;border:2px solid #0A0A0A;background:#fff;font-size:20px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
+    </div>
+    <div id="adj-preview" style="display:none;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;"></div>
+
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Date & Note</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div class="form-field" style="margin:0;"><label>Date</label><input type="date" id="adj-date" style="width:100%;"></div>
+      <div class="form-field" style="margin:0;"><label>Company</label>
+        <select id="adj-company" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;background:#fff;">
+          <option value="swits">SWITS</option><option value="bee">Bee Events</option>
+        </select>
+      </div>
+    </div>
+    <textarea id="adj-note" placeholder="Optional — e.g. Box dropped during delivery" style="width:100%;padding:10px 12px;border-radius:var(--r);border:2px solid #0A0A0A;font-size:13px;font-family:inherit;outline:none;resize:none;height:70px;box-sizing:border-box;margin-bottom:12px;"></textarea>
+    <button onclick="saveAdjustment()" class="btn btn-green" style="width:100%;justify-content:center;font-size:15px;padding:14px;">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Confirm Write-off
+    </button>
+  </div>
+
+  <!-- Restore Return -->
+  <div id="adj-restore-section" style="display:none;">
+    <div style="background:#F3EEF8;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#5B21B6;border:1px solid #DDD6FE;">
+      Use when a customer has returned resellable goods. Stock is restored at <strong>zero cost</strong> — revenue was already offset by the deduction line on the original invoice.
+    </div>
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Product</div>
+    <select id="rst-product" onchange="rstProductChanged()" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;background:#fff;margin-bottom:4px;"><option value="">— Select product —</option></select>
+    <div id="rst-stock-display" style="display:none;font-size:12px;color:var(--text-muted);margin-bottom:12px;padding:0 2px;"></div>
+
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;margin-top:8px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Units to Restore</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <button id="rst-unit-pieces" onclick="setRstUnit('pieces')" class="btn btn-primary" style="justify-content:center;">Pieces</button>
+      <button id="rst-unit-boxes" onclick="setRstUnit('boxes')" class="btn btn-ghost" style="justify-content:center;">Boxes</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <button onclick="rstQtyStep(-1)" style="width:40px;height:40px;border-radius:10px;border:2px solid #0A0A0A;background:#fff;font-size:20px;font-weight:700;cursor:pointer;flex-shrink:0;">−</button>
+      <input type="number" id="rst-qty" min="1" placeholder="0" oninput="rstUpdatePreview()" style="flex:1;padding:10px;border-radius:10px;border:2px solid #0A0A0A;font-size:24px;font-weight:800;text-align:center;font-family:inherit;outline:none;">
+      <button onclick="rstQtyStep(1)" style="width:40px;height:40px;border-radius:10px;border:2px solid #0A0A0A;background:#fff;font-size:20px;font-weight:700;cursor:pointer;flex-shrink:0;">+</button>
+    </div>
+    <div id="rst-preview" style="display:none;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;"></div>
+
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Date & Note</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div class="form-field" style="margin:0;"><label>Date</label><input type="date" id="rst-date" style="width:100%;"></div>
+      <div class="form-field" style="margin:0;"><label>Company</label>
+        <select id="rst-company" style="width:100%;font-size:13px;padding:9px 12px;border:2px solid #0A0A0A;border-radius:var(--r);font-family:inherit;background:#fff;">
+          <option value="swits">SWITS</option><option value="bee">Bee Events</option>
+        </select>
+      </div>
+    </div>
+    <textarea id="rst-note" placeholder="Optional — e.g. 2 bags returned, repackaged and resellable" style="width:100%;padding:10px 12px;border-radius:var(--r);border:2px solid #0A0A0A;font-size:13px;font-family:inherit;outline:none;resize:none;height:70px;box-sizing:border-box;margin-bottom:12px;"></textarea>
+    <button onclick="saveRestore()" class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px;">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Confirm Restore
+    </button>
+  </div>
+
+  <!-- History -->
+  <div style="margin-top:24px;">
+    <div style="background:#D9F000;border-left:4px solid #0A0A0A;padding:6px 10px;margin-bottom:12px;font-size:11px;font-weight:700;color:#0A0A0A;text-transform:uppercase;letter-spacing:.07em;">Adjustment History</div>
+    <div id="adj-log-list"></div>
   </div>
 </div>
 
@@ -1266,6 +1360,7 @@ function showPanel(id){
   if(id==='dashboard')renderDashboard();
   if(id==='shipments')renderShipments();
   if(id==='expenses')renderExpenses();
+  if(id==='adjustments'){populateAdjProducts();renderAdjLog();}
   if(id==='sales')renderSales();
   if(id==='products')renderProductPL();
   if(id==='pl')renderPL();
@@ -2088,6 +2183,236 @@ function openExpenseModal(id){
   renderExpItems();
   document.getElementById('expense-modal').dataset.editId=id||'';
   openModal('expense-modal');
+}
+
+// ══════════════════════════════════════════════
+// STOCK ADJUSTMENTS
+var ADJ_REASONS=[
+  {value:'damaged',  label:'Damaged',            icon:'💔',color:'#DC2626'},
+  {value:'sample',   label:'Sample',              icon:'🎁',color:'#7C3AED'},
+  {value:'gift',     label:'Gift',                icon:'🎀',color:'#DB2777'},
+  {value:'personal', label:'Personal Use',        icon:'😋',color:'#D97706'},
+  {value:'content',  label:'Content / TikTok',    icon:'🎬',color:'#0891B2'},
+  {value:'stocktake',label:'Stocktake Correction',icon:'📦',color:'#059669'},
+  {value:'other',    label:'Other',               icon:'✏️',color:'#6B7280'},
+];
+var _adjUnit='pieces';
+var _rstUnit='pieces';
+
+function switchAdjTab(tab){
+  document.getElementById('adj-writeoff-section').style.display=tab==='writeoff'?'':'none';
+  document.getElementById('adj-restore-section').style.display=tab==='restore'?'':'none';
+  document.getElementById('adj-tab-writeoff').className='btn '+(tab==='writeoff'?'btn-primary':'btn-ghost');
+  document.getElementById('adj-tab-restore').className='btn '+(tab==='restore'?'btn-primary':'btn-ghost');
+}
+
+function populateAdjProducts(){
+  ['adj-product','rst-product'].forEach(function(id){
+    var sel=document.getElementById(id);if(!sel)return;
+    var cur=sel.value;
+    sel.innerHTML='<option value="">— Select product —</option>';
+    (_fbProducts||[]).forEach(function(p){
+      var opt=document.createElement('option');
+      opt.value=p.id;opt.textContent=p.name;
+      if(p.id===cur)opt.selected=true;
+      sel.appendChild(opt);
+    });
+  });
+  renderAdjReasonGrid();
+  var today=new Date().toISOString().split('T')[0];
+  ['adj-date','rst-date'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=today;});
+}
+
+function renderAdjReasonGrid(){
+  var grid=document.getElementById('adj-reason-grid');if(!grid)return;
+  var current=document.getElementById('adj-reason').value;
+  grid.innerHTML=ADJ_REASONS.map(function(r){
+    var sel=current===r.value;
+    return '<button onclick="selectAdjReason(\''+r.value+'\')" style="background:'+(sel?'#F9F5FF':'#fff')+';border:2px solid '+(sel?r.color:'#E8E8E0')+';border-radius:10px;padding:10px;cursor:pointer;text-align:left;font-family:inherit;">'
+      +'<div style="font-size:15px;margin-bottom:3px;">'+r.icon+'</div>'
+      +'<div style="font-size:12px;font-weight:700;color:'+(sel?r.color:'#0A0A0A')+';">'+r.label+'</div>'
+      +'</button>';
+  }).join('');
+}
+
+function selectAdjReason(val){document.getElementById('adj-reason').value=val;renderAdjReasonGrid();}
+
+function adjProductChanged(){
+  var pid=document.getElementById('adj-product').value;
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  var disp=document.getElementById('adj-stock-display');
+  if(p&&disp){
+    var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+    var stock=parseInt(inv[pid]||0);
+    disp.style.display='';
+    disp.textContent='In stock: '+stock+' pcs ('+Math.floor(stock/(p.ppc||1))+' boxes)';
+  }else if(disp){disp.style.display='none';}
+  adjUpdatePreview();
+}
+
+function rstProductChanged(){
+  var pid=document.getElementById('rst-product').value;
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  var disp=document.getElementById('rst-stock-display');
+  if(p&&disp){
+    var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+    disp.style.display='';
+    disp.textContent='Currently in stock: '+parseInt(inv[pid]||0)+' pcs';
+  }else if(disp){disp.style.display='none';}
+  rstUpdatePreview();
+}
+
+function setAdjUnit(u){
+  _adjUnit=u;
+  document.getElementById('adj-unit-pieces').className='btn '+(u==='pieces'?'btn-primary':'btn-ghost');
+  document.getElementById('adj-unit-boxes').className='btn '+(u==='boxes'?'btn-primary':'btn-ghost');
+  adjUpdatePreview();
+}
+function setRstUnit(u){
+  _rstUnit=u;
+  document.getElementById('rst-unit-pieces').className='btn '+(u==='pieces'?'btn-primary':'btn-ghost');
+  document.getElementById('rst-unit-boxes').className='btn '+(u==='boxes'?'btn-primary':'btn-ghost');
+  rstUpdatePreview();
+}
+function adjQtyStep(d){var el=document.getElementById('adj-qty');el.value=Math.max(0,(parseInt(el.value||0)+d)).toString();adjUpdatePreview();}
+function rstQtyStep(d){var el=document.getElementById('rst-qty');el.value=Math.max(0,(parseInt(el.value||0)+d)).toString();rstUpdatePreview();}
+
+function adjUpdatePreview(){
+  var pid=document.getElementById('adj-product').value;
+  var qty=parseInt(document.getElementById('adj-qty').value||0);
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  var prev=document.getElementById('adj-preview');if(!prev)return;
+  if(!p||!qty){prev.style.display='none';return;}
+  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+  var stock=parseInt(inv[pid]||0);
+  var units=_adjUnit==='pieces'?qty:qty*(p.ppc||1);
+  var newStock=Math.max(0,stock-units);
+  var restock=(_fbRestockHistory||{})[pid]||[];
+  var costPerUnit=restock.length>0?(restock[restock.length-1].costPerUnit||0):0;
+  var over=units>stock;
+  prev.style.display='';
+  prev.style.background=over?'#FEF2F2':'#F0FDF4';
+  prev.style.border='1px solid '+(over?'#FECACA':'#BBF7D0');
+  prev.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#888;">Removing</span><span style="font-weight:700;color:#CC3300;">−'+units+' pcs</span></div>'
+    +'<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#888;">New stock level</span><span style="font-weight:700;color:'+(over?'#CC3300':'#059669')+';">'+newStock+' pcs</span></div>'
+    +(costPerUnit?'<div style="display:flex;justify-content:space-between;"><span style="color:#888;">Est. cost written off</span><span style="font-weight:700;">S$'+fmt(units*costPerUnit)+'</span></div>':'')
+    +(over?'<div style="color:#CC3300;font-weight:600;font-size:11px;margin-top:4px;">⚠ Exceeds current stock</div>':'');
+}
+
+function rstUpdatePreview(){
+  var pid=document.getElementById('rst-product').value;
+  var qty=parseInt(document.getElementById('rst-qty').value||0);
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  var prev=document.getElementById('rst-preview');if(!prev)return;
+  if(!p||!qty){prev.style.display='none';return;}
+  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+  var stock=parseInt(inv[pid]||0);
+  var units=_rstUnit==='pieces'?qty:qty*(p.ppc||1);
+  prev.style.display='';
+  prev.style.background='#F0FDF4';prev.style.border='1px solid #BBF7D0';
+  prev.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#888;">Restoring</span><span style="font-weight:700;color:#059669;">+'+units+' pcs</span></div>'
+    +'<div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="color:#888;">New stock level</span><span style="font-weight:700;color:#059669;">'+(stock+units)+' pcs</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span style="color:#888;">Cost value</span><span style="font-weight:700;">S$0.00 (zero cost return)</span></div>';
+}
+
+function saveAdjustment(){
+  var pid=document.getElementById('adj-product').value;
+  var reason=document.getElementById('adj-reason').value;
+  var qty=parseInt(document.getElementById('adj-qty').value||0);
+  var date=document.getElementById('adj-date').value;
+  var company=document.getElementById('adj-company').value;
+  var note=document.getElementById('adj-note').value.trim();
+  if(!pid){toast('Please select a product.');return;}
+  if(!reason){toast('Please select a reason.');return;}
+  if(!qty||qty<=0){toast('Please enter a quantity.');return;}
+  if(!date){toast('Please enter a date.');return;}
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  if(!p){toast('Product not found.');return;}
+  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+  var stock=parseInt(inv[pid]||0);
+  var units=_adjUnit==='pieces'?qty:qty*(p.ppc||1);
+  if(units>stock){toast('Quantity exceeds current stock ('+stock+' pcs).');return;}
+  inv[pid]=stock-units;
+  localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
+  var patch={};patch[pid]=inv[pid];
+  fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(e){console.warn('inv sync failed',e);});
+  var restock=(_fbRestockHistory||{})[pid]||[];
+  var costPerUnit=restock.length>0?(restock[restock.length-1].costPerUnit||0):0;
+  var adj={id:'adj_'+Date.now(),type:'writeoff',productId:pid,productName:p.name,reason:reason,units:units,qty:qty,unitType:_adjUnit,costPerUnit:costPerUnit,totalCost:units*costPerUnit,date:date,company:company,note:note,ts:new Date().toISOString()};
+  if(!DB.adjustments)DB.adjustments=[];
+  DB.adjustments.push(adj);
+  saveDB();renderAdjLog();
+  document.getElementById('adj-product').value='';
+  document.getElementById('adj-reason').value='';
+  document.getElementById('adj-qty').value='';
+  document.getElementById('adj-note').value='';
+  document.getElementById('adj-stock-display').style.display='none';
+  document.getElementById('adj-preview').style.display='none';
+  renderAdjReasonGrid();
+  toast('✓ Stock written off — '+units+' pcs removed.');
+}
+
+function saveRestore(){
+  var pid=document.getElementById('rst-product').value;
+  var qty=parseInt(document.getElementById('rst-qty').value||0);
+  var date=document.getElementById('rst-date').value;
+  var company=document.getElementById('rst-company').value;
+  var note=document.getElementById('rst-note').value.trim();
+  if(!pid){toast('Please select a product.');return;}
+  if(!qty||qty<=0){toast('Please enter a quantity.');return;}
+  if(!date){toast('Please enter a date.');return;}
+  var p=(_fbProducts||[]).find(function(x){return x.id===pid;});
+  if(!p){toast('Product not found.');return;}
+  var inv={};try{inv=JSON.parse(localStorage.getItem('snack-inv-v5')||'{}');}catch(e){}
+  var stock=parseInt(inv[pid]||0);
+  var units=_rstUnit==='pieces'?qty:qty*(p.ppc||1);
+  inv[pid]=stock+units;
+  localStorage.setItem('snack-inv-v5',JSON.stringify(inv));
+  var patch={};patch[pid]=inv[pid];
+  fetch(FB_URL+'/store/inv.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(function(e){console.warn('inv sync failed',e);});
+  if(!_fbRestockHistory)_fbRestockHistory={};
+  if(!_fbRestockHistory[pid])_fbRestockHistory[pid]=[];
+  _fbRestockHistory[pid].push({boxes:_rstUnit==='boxes'?qty:0,units:units,costPerUnit:0,shipmentId:'return',shipmentName:'Customer Return',ts:new Date(date).toISOString()});
+  fetch(FB_URL+'/store.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({restockHistory:_fbRestockHistory})}).catch(function(e){console.warn('restock sync failed',e);});
+  var rst={id:'rst_'+Date.now(),type:'restore',productId:pid,productName:p.name,units:units,qty:qty,unitType:_rstUnit,costPerUnit:0,date:date,company:company,note:note,ts:new Date().toISOString()};
+  if(!DB.adjustments)DB.adjustments=[];
+  DB.adjustments.push(rst);
+  saveDB();renderAdjLog();
+  document.getElementById('rst-product').value='';
+  document.getElementById('rst-qty').value='';
+  document.getElementById('rst-note').value='';
+  document.getElementById('rst-stock-display').style.display='none';
+  document.getElementById('rst-preview').style.display='none';
+  toast('✓ Stock restored — '+units+' pcs added back at zero cost.');
+}
+
+function renderAdjLog(){
+  var el=document.getElementById('adj-log-list');if(!el)return;
+  var list=(DB.adjustments||[]).slice().reverse();
+  if(!list.length){el.innerHTML='<div style="color:var(--text-hint);font-size:13px;padding:16px 0;text-align:center;">No adjustments yet.</div>';return;}
+  el.innerHTML=list.map(function(a){
+    var r=ADJ_REASONS.find(function(x){return x.value===a.reason;});
+    var isRestore=a.type==='restore';
+    return '<div style="background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1.5px solid #E8E8E0;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">'
+        +'<div style="flex:1;min-width:0;">'
+          +'<span style="font-size:14px;margin-right:6px;">'+(isRestore?'↩️':(r?r.icon:'📦'))+'</span>'
+          +'<span style="font-size:13px;font-weight:700;">'+esc(a.productName)+'</span>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0;margin-left:8px;">'
+          +'<div style="font-size:13px;font-weight:800;color:'+(isRestore?'#059669':'#CC3300')+'">'+(isRestore?'+':'-')+a.units+' pcs</div>'
+          +(a.totalCost?'<div style="font-size:11px;color:#888;">S$'+fmt(a.totalCost)+' written off</div>':'')
+        +'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;">'
+        +'<span style="font-size:10px;color:#888;">'+fmtDate(a.date)+'</span>'
+        +(isRestore?'<span style="font-size:10px;background:#ECFDF5;color:#059669;border-radius:4px;padding:1px 6px;font-weight:600;">Restore</span>'
+          :(r?'<span style="font-size:10px;color:'+r.color+';border-radius:4px;padding:1px 6px;font-weight:600;background:#F5F5F5;">'+r.label+'</span>':''))
+        +'<span style="font-size:10px;background:#F0F0E8;color:#555;border-radius:4px;padding:1px 6px;font-weight:600;">'+(a.company==='bee'?'Bee Events':'SWITS')+'</span>'
+        +(a.note?'<span style="font-size:10px;color:#888;font-style:italic;">'+esc(a.note)+'</span>':'')
+      +'</div>'
+    +'</div>';
+  }).join('');
 }
 
 function saveExpense(){
